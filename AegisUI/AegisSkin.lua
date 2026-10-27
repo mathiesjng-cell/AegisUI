@@ -173,6 +173,68 @@ function AegisSkin.RefreshLook()
 	end
 end
 
+-- Per-module font size / font. Size 12 = the module's own sizes; other values scale every FontString
+-- found below the module's tracked panels. Size is relative so mixed sizes (title, numbers) keep their ratio.
+AegisSkin.FONT_PRESETS = {
+	{ "Default" }, { "Arial Narrow", "Fonts\\ARIALN.TTF" }, { "Friz Quadrata", "Fonts\\FRIZQT__.TTF" },
+	{ "Morpheus", "Fonts\\MORPHEUS.TTF" }, { "Skurri", "Fonts\\SKURRI.TTF" },
+}
+local fontOrig = {}
+
+function AegisSkin.GetFont(mod)
+	return lookValue(mod, "fsize") or 12, lookValue(mod, "fontp") or 1
+end
+
+local function fontWalk(frame, size, preset, depth)
+	if depth > 6 then
+		return
+	end
+	local regs = { frame:GetRegions() }
+	local i
+	for i = 1, table.getn(regs) do
+		local r = regs[i]
+		if r.GetObjectType and r:GetObjectType() == "FontString" then
+			local o = fontOrig[r]
+			if not o then
+				local f, sz, fl = r:GetFont()
+				if f and sz then
+					o = { f, sz, fl }
+					fontOrig[r] = o
+				end
+			end
+			if o then
+				local nf = o[1]
+				if preset and preset[2] then
+					nf = preset[2]
+				end
+				local ns = math.floor(o[2] * size / 12 + 0.5)
+				if ns < 6 then
+					ns = 6
+				end
+				r:SetFont(nf, ns, o[3] or "")
+			end
+		end
+	end
+	local kids = { frame:GetChildren() }
+	for i = 1, table.getn(kids) do
+		fontWalk(kids[i], size, preset, depth + 1)
+	end
+end
+
+function AegisSkin.RefreshFonts()
+	local i
+	for i = 1, table.getn(AegisSkin.tracked) do
+		local t = AegisSkin.tracked[i]
+		if t.mod then
+			local size, p = AegisSkin.GetFont(t.mod)
+			if size ~= 12 or p ~= 1 or t.fontsTouched then
+				t.fontsTouched = true
+				pcall(fontWalk, t.f, size, AegisSkin.FONT_PRESETS[p], 0)
+			end
+		end
+	end
+end
+
 function AegisSkin.SetLook(key, value, mod)
 	AegisDB = AegisDB or {}
 	if mod then
@@ -184,6 +246,9 @@ function AegisSkin.SetLook(key, value, mod)
 		AegisDB.look[key] = value
 	end
 	AegisSkin.RefreshLook()
+	if key == "fsize" or key == "fontp" then
+		AegisSkin.RefreshFonts()
+	end
 end
 
 function AegisSkin.ResetLook(mod)
@@ -198,6 +263,7 @@ function AegisSkin.ResetLook(mod)
 		end
 	end
 	AegisSkin.RefreshLook()
+	AegisSkin.RefreshFonts()
 end
 
 function AegisSkin.ApplySolid(frame, mod)
@@ -449,6 +515,16 @@ gen:SetScript("OnEvent", function()
 	AegisSkin.loggedIn = true
 	AegisSkin.pxCache = nil
 	AegisSkin.RefreshLook()
+	-- fonts of module panels: after the modules have built their rows
+	local lateT = 0
+	local late = CreateFrame("Frame")
+	late:SetScript("OnUpdate", function()
+		lateT = lateT + (arg1 or 0)
+		if lateT > 3 then
+			this:SetScript("OnUpdate", nil)
+			AegisSkin.RefreshFonts()
+		end
+	end)
 	AegisSkin.Discover()
 	if AegisDB and AegisDB.generic then
 		local name, on

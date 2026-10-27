@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.6.0"
+local VERSION = "5.7.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -629,6 +629,24 @@ local function lookBlock(mod, opts, onReset)
 		cycle("edgep", AegisSkin.EDGE_PRESETS, function() local _, _, _, _, _, e = AegisSkin.GetLook(mod) return e end, "Border colour: ")
 	end
 	cycle("bgp", AegisSkin.BG_PRESETS, function() local _, _, _, _, b = AegisSkin.GetLook(mod) return b end, "Background colour: ")
+	if opts.fonts then
+		cursor = cursor + 4
+		section(L("FONT"))
+		stepper(L("Font size (12 = original)"), function() local sz = AegisSkin.GetFont(mod) return sz end, function(v) AegisSkin.SetLook("fsize", v, mod) end, 1, 8, 24, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		action(function()
+			local _, p = AegisSkin.GetFont(mod)
+			return L("Font: ") .. L(AegisSkin.FONT_PRESETS[p][1]), 1, 0.86, 0.45
+		end, function()
+			local _, p = AegisSkin.GetFont(mod)
+			p = p + 1
+			if p > table.getn(AegisSkin.FONT_PRESETS) then
+				p = 1
+			end
+			AegisSkin.SetLook("fontp", p, mod)
+		end)
+	end
 	cursor = cursor + 4
 	section(L("CONTRAST"))
 	toggle(L("Black outline around panels"), function() local _, _, o = AegisSkin.GetLook(mod) return o end, function(v) AegisSkin.SetLook("outer", v, mod) end)
@@ -787,7 +805,7 @@ local function buildContent()
 		end, function()
 			A("meter", "showLog")
 		end)
-		lookBlock("meter", { edge = true }, function()
+		lookBlock("meter", { edge = true, fonts = true }, function()
 			A("meter", "setRows", 10)
 			A("meter", "setWidth", 360)
 			A("meter", "setTitle", true)
@@ -810,7 +828,7 @@ local function buildContent()
 		stepper(L("Card spacing"), function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
 			return math.floor(v + 0.5) .. " px"
 		end)
-		lookBlock("units", { edge = false }, function()
+		lookBlock("units", { edge = false, fonts = true }, function()
 			A("units", "setPlayer", true)
 			A("units", "setTarget", true)
 			A("units", "setTargetFade", true)

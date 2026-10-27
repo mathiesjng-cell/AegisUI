@@ -1,6 +1,6 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.6.0-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.7.0-c8942e)](CHANGELOG.md)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -49,7 +49,7 @@ Fonts: FRIZQT (outlined text), ARIALN (numbers). Panels have a 1 px border and a
 ## Features
 
 ### AegisUI (hub + base)
-- **Hub window** with a module list on the left (Core, Meter, Units, Fonts, Chat, Minimap, Skins) and a control panel on the right. Every module with a panel has its own appearance settings (background / border opacity, forced solid dark background, border and background colour presets, black outline) and a Reset Defaults button. Skins lists all registered skins plus experimental generic skinning of other addons and the SurvivorUI replacement.
+- **Hub window** with a module list on the left (Core, Meter, Units, Fonts, Chat, Minimap, Skins) and a control panel on the right. Every module with a panel has its own appearance settings (background / border opacity, forced solid dark background, border and background colour presets, black outline, font size and font for Meter and Units) and a Reset Defaults button. Skins lists all registered skins plus experimental generic skinning of other addons and the SurvivorUI replacement.
 - **Minimap button**: draggable along the map edge (Shift = free).
 - **Lock/snap**: all windows register with the hub; unlocked, they can be dragged and snap to the grid.
 - **Square minimap** with a black 2 px border.

@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.7.0] - 2026-10-27
+### Added
+- Per-module font size (8-24 px, 12 = original sizes, all texts scale proportionally) and font choice (Default, Arial Narrow, Friz Quadrata, Morpheus, Skurri) for Meter and Units (`AegisSkin.GetFont/RefreshFonts`, keys `fsize` / `fontp`). Reset Defaults restores the original fonts.
+### Not included
+- Chat and action bar have no font setting (chat fonts belong to the game's chat settings).
+
 ## [5.6.0] - 2026-10-27
 ### Added
 - Hub rebuilt: a flat module list on the left (Core, Meter, Units, Fonts, Chat, Minimap, Skins) and a scrollable control panel on the right with 1 px gold separators between Opacity, Colors and Contrast.
