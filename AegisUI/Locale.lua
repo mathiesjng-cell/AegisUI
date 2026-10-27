@@ -32,6 +32,9 @@ if not AegisL then
 end
 
 AegisL.add({
+	["Never dim action icons"] = "Aktionsicons nie abdunkeln",
+	["Hide short cooldown sweeps (< 2 s)"] = "Kurze Abklingzeit-Animation ausblenden (< 2 s)",
+	["|cffd2a24aAegisUI:|r Cooldown sweeps update with the next cooldown."] = "|cffd2a24aAegisUI:|r Die Abklingzeit-Animation ändert sich mit der nächsten Abklingzeit.",
 	["Moved back on screen: "] = "Zurück auf den Bildschirm geholt: ",
 	["All windows are on screen."] = "Alle Fenster sind auf dem Bildschirm.",
 	["Meter rows"] = "Meter-Zeilen",

@@ -12,6 +12,7 @@ local L = AegisL.t
 local FONT = "Fonts\\ARIALN.TTF"
 local WINDOW = 0.3
 local POOL = 30
+local MAXN = 6          -- numbers per 0.3 s window
 local MODES = { "off", "crit", "all" }
 local SIZES = { small = 13, medium = 16, large = 20 }
 
@@ -52,6 +53,21 @@ local function addTaken(amount, isCrit)
 	end
 end
 
+-- short form for numbers from 1000 up: 1097 -> 1.1k, 28750 -> 28.8k, 1200000 -> 1.2M
+local function short(n)
+	if n >= 1000000000 then
+		return (math.floor(n / 100000000 + 0.5) / 10) .. "B"
+	elseif n >= 1000000 then
+		return (math.floor(n / 100000 + 0.5) / 10) .. "M"
+	elseif n >= 1000 then
+		if n >= 100000 then
+			return math.floor(n / 1000 + 0.5) .. "k"
+		end
+		return (math.floor(n / 100 + 0.5) / 10) .. "k"
+	end
+	return tostring(n)
+end
+
 -- number frames --------------------------------------------------------
 local pool = {}
 local function getSlot()
@@ -81,6 +97,39 @@ local function getSlot()
 	return pool[oi]
 end
 
+-- push a new number away from the ones still on screen (they would run into each other)
+local function freeSpot(x, y, w, h)
+	local now = GetTime()
+	local tries = 0
+	while tries < 5 do
+		local hit = false
+		for i = 1, POOL do
+			local o = pool[i]
+			if o and o.active then
+				local p = (now - o.t0) / o.dur
+				local oy = o.y + o.rise * p
+				if math.abs(o.x - x) < (o.w + w) / 2 and math.abs(oy - y) < (o.h + h) / 2 then
+					hit = true
+					break
+				end
+			end
+		end
+		if not hit then
+			return x, y
+		end
+		tries = tries + 1
+		-- mostly upwards (stack), now and then a small step to the side
+		if math.mod(tries, 2) == 1 then
+			y = y + h
+		elseif math.mod(tries, 4) == 2 then
+			x = x + w * 0.6
+		else
+			x = x - w * 1.2
+		end
+	end
+	return x, y
+end
+
 local function spawn(text, x, y, big, r, g, b, taken)
 	local f = getSlot()
 	local size = SIZES[sizeKey()] or 16
@@ -89,6 +138,10 @@ local function spawn(text, x, y, big, r, g, b, taken)
 	elseif taken then
 		size = size - 2
 	end
+	f.w = string.len(text) * size * 0.62
+	f.h = size + 2
+	f.active = false
+	x, y = freeSpot(x, y, f.w, f.h)
 	f.fs:SetFont(FONT, size, "THICKOUTLINE")
 	if f.fs.SetShadowColor then
 		f.fs:SetShadowColor(0, 0, 0, 1)
@@ -130,7 +183,9 @@ end)
 
 -- nameplate lookup -----------------------------------------------------
 local plates = {}
+local plateCount = 0
 local function findPlates()
+	plateCount = 0
 	-- plates[name] = { x, y } in UIParent coordinates, best (most opaque) plate per name
 	for k in pairs(plates) do
 		plates[k] = nil
@@ -140,12 +195,15 @@ local function findPlates()
 	if ps and us and us > 0 then
 		ratio = ps / us
 	end
+	local midX, midY = (GetScreenWidth() or 1024) / 2, (GetScreenHeight() or 768) * 0.45
+	local tname = UnitExists("target") and UnitName("target") or nil
 	local kids = { WorldFrame:GetChildren() }
 	for i = 1, table.getn(kids) do
 		local f = kids[i]
 		if f:IsShown() and f:GetName() == nil then
 			local w = f:GetWidth()
 			if w and w > 60 and w < 200 then
+				plateCount = plateCount + 1
 				local regs = { f:GetRegions() }
 				for j = 1, table.getn(regs) do
 					local r = regs[j]
@@ -154,16 +212,22 @@ local function findPlates()
 						if t and sums[t] then
 							local cx, cy = f:GetCenter()
 							if cx and cy then
-								local a = f:GetAlpha()
+								-- plates use WorldFrame scale; convert to UIParent units
+								local fs = f:GetEffectiveScale()
+								local k = 1
+								if fs and us and us > 0 then
+									k = fs / us
+								end
+								local px, py = cx * k, cy * k
+								-- several enemies share a name: the hit one is unknown. Prefer the
+								-- target's plate, else the plate closest to the hero (screen centre).
+								local score = math.abs(px - midX) + math.abs(py - midY)
+								if tname and t == tname and f:GetAlpha() >= 0.99 then
+									score = -1
+								end
 								local old = plates[t]
-								if not old or a > old[3] then
-									-- plates use WorldFrame scale; convert to UIParent units
-									local fs = f:GetEffectiveScale()
-									local k = 1
-									if fs and us and us > 0 then
-										k = fs / us
-									end
-									plates[t] = { cx * k, cy * k, a }
+								if not old or score < old[3] then
+									plates[t] = { px, py, score }
 								end
 							end
 						end
@@ -188,33 +252,52 @@ local function flush()
 		local sc = UIParent:GetEffectiveScale()
 		local midx = (GetScreenWidth() or 1024) / 2
 		local topy = (GetScreenHeight() or 768) * 0.62
+		-- only enemies whose nameplate is on screen get a number (no pile at a fixed spot);
+		-- without any nameplates (switched off) fall back to the screen centre.
+		-- At most MAXN numbers per window: crits first, then the biggest.
+		local list = {}
 		for name, amount in pairs(sums) do
-			n = n + 1
 			local p = plates[name]
+			if p or plateCount == 0 then
+				local score = amount
+				if crits[name] then
+					score = score + 1e9
+				end
+				list[table.getn(list) + 1] = { name = name, amount = amount, crit = crits[name], p = p, score = score }
+			end
+			sums[name] = nil
+			crits[name] = nil
+		end
+		table.sort(list, function(a, b)
+			return a.score > b.score
+		end)
+		local cnt = table.getn(list)
+		if cnt > MAXN then
+			cnt = MAXN
+		end
+		for n = 1, cnt do
+			local e = list[n]
 			local x, y
-			if p then
-				x, y = p[1], p[2] + 28
+			if e.p then
+				x, y = e.p[1], e.p[2] + 28
 			else
 				x, y = midx, topy
 			end
 			local jit = (math.mod(n, 3) - 1) * 22 + (math.random() - 0.5) * 14
-			local isCrit = crits[name]
-			if isCrit then
-				spawn(tostring(amount), x + jit, y, true, 1, 0.694, 0)
+			if e.crit then
+				spawn(short(e.amount), x + jit, y, true, 1, 0.694, 0)
 			else
-				spawn(tostring(amount), x + jit, y, false, 1, 1, 1)
+				spawn(short(e.amount), x + jit, y, false, 1, 1, 1)
 			end
-			sums[name] = nil
-			crits[name] = nil
 		end
 	end
 	if takenSum > 0 then
 		local x = (GetScreenWidth() or 1024) / 2 + (math.random() - 0.5) * 60
 		local y = (GetScreenHeight() or 768) * 0.42
 		if takenCrit then
-			spawn("-" .. takenSum, x, y, true, 1, 0.25, 0.2, true)
+			spawn("-" .. short(takenSum), x, y, true, 1, 0.25, 0.2, true)
 		else
-			spawn("-" .. takenSum, x, y, false, 0.95, 0.4, 0.3, true)
+			spawn("-" .. short(takenSum), x, y, false, 0.95, 0.4, 0.3, true)
 		end
 		takenSum, takenCrit = 0, false
 	end

@@ -145,6 +145,8 @@ into the module's own saved variable.
 | `bars` | `getCustom()` / `setCustom(v)` | own action bar and XP bar |
 | `bars` | `getArt()` / `setArt(v)` | hide gryphons and bar textures |
 | `bars` | `getSkin()` / `setSkin(v)` | skin the stock buttons |
+| `bars` | `getNoDim()` / `setNoDim(v)` | keep action icons at full brightness |
+| `bars` | `getShortCd()` / `setShortCd(v)` | hide cooldown sweeps shorter than 2 s |
 | `map` | `getSquare()` / `setSquare(v)` | square minimap |
 | `survivor` | `getOff(key)` / `setOff(key, off)` | switch off a part of SurvivorUI |
 | `chat` | `isOn()` / `setOn(on)` | chat reskin (off takes effect after `/reload`) |
@@ -156,6 +158,7 @@ into the module's own saved variable.
 | `fonts` | `getFont()` / `setFont(on)` | ARIALN as number font (after a restart) |
 | `fonts` | `getDamage()` / `setDamage(on)` | the client's damage numbers (CVar `CombatDamage`) |
 | `fonts` | `diag()` | `/aegis ct2` capture |
+| `fonts` | `showText(text)` | open the copyable diagnostics window |
 
 ---
 
@@ -224,7 +227,7 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 | `hub` | `{ point, rel, x, y }` hub window position |
 | `angle`, `free` | minimap button position (angle on the edge, or free `{ x, y }`) |
 | `skins`, `generic` | skin switches per addon |
-| `bars` | action bar settings (`custom`, `skin`, `hideArt`, position) |
+| `bars` | action bar settings (`custom`, `skin`, `hideArt`, `noDim`, `shortCd`, position) |
 | `ct` | combat numbers: `mode`, `size`; `owned`, `prev` remember the client's CVar |
 | `dmgFont` | `false` = keep the stock number font |
 | `svDone` | SurvivorUI hand-over done |

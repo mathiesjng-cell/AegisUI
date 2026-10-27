@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.4.6"
+local VERSION = "5.4.14"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -578,6 +578,8 @@ local function buildContent()
 			cursor = cursor + 4
 			section(L("HIDE ORIGINAL"))
 		end
+		toggle(L("Never dim action icons"), function() return A("bars", "getNoDim") end, function(v) A("bars", "setNoDim", v) end)
+		toggle(L("Hide short cooldown sweeps (< 2 s)"), function() return A("bars", "getShortCd") end, function(v) A("bars", "setShortCd", v) end)
 		toggle(L("Gryphons + bar background"), function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
 	end
 	toggle(L("Pixel-perfect borders (after /reload)"), function() return not (AegisDB and AegisDB.pixel == false) end, function(v)
@@ -1079,6 +1081,76 @@ SlashCmdList["AEGIS"] = function(msg)
 		end
 	elseif cmd == "ct" then
 		combatTextDiag()
+	elseif cmd == "slot" then
+		-- why is an action button dark? print what the game says about each slot
+		local list = { 1, 2, 3, 4, 5, 6, 12 }
+		local i
+		for i = 1, table.getn(list) do
+			local id = list[i]
+			local btn = getglobal("ActionButton" .. id)
+			local icon = getglobal("ActionButton" .. id .. "Icon")
+			local realId = id
+			if ActionButton_GetPagedID and btn then
+				realId = ActionButton_GetPagedID(btn) or id
+			end
+			local r, g, b = 0, 0, 0
+			if icon and icon.GetVertexColor then
+				r, g, b = icon:GetVertexColor()
+			end
+			local usable, mana = IsUsableAction(realId)
+			local cs, cd = GetActionCooldown(realId)
+			local tex = GetActionTexture(realId)
+			local txt = "[" .. tostring(AZS_GetPhase and AZS_GetPhase()) .. "] slot " .. id .. "(" .. realId .. ") "
+			txt = txt .. "tex=" .. tostring(tex and string.gsub(tex, "Interface\\Icons\\", "")) .. " usable=" .. tostring(usable) .. " nomana=" .. tostring(mana)
+			txt = txt .. " cd=" .. tostring(cs) .. "/" .. tostring(cd)
+			txt = txt .. " attack=" .. tostring(IsAttackAction and IsAttackAction(realId)) .. " cur=" .. tostring(IsCurrentAction and IsCurrentAction(realId))
+			txt = txt .. " rgb=" .. string.format("%.2f %.2f %.2f", r or 0, g or 0, b or 0)
+			if icon then
+				txt = txt .. " a=" .. string.format("%.2f", icon:GetAlpha() or 0)
+			end
+			local cdf = getglobal("ActionButton" .. id .. "Cooldown")
+			if cdf then
+				txt = txt .. " cdframe=" .. tostring(cdf:IsShown())
+			end
+			if btn then
+				txt = txt .. " btnA=" .. string.format("%.2f", btn:GetAlpha() or 0)
+			end
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
+		end
+	elseif cmd == "slotparts" then
+		-- every texture and child of an action button: find what darkens it
+		local n = tonumber(rest) or 1
+		local btn = getglobal("ActionButton" .. n)
+		local out = {}
+		if not btn then
+			out[1] = "no ActionButton" .. n
+		else
+			out[table.getn(out) + 1] = "ActionButton" .. n .. " shown=" .. tostring(btn:IsShown()) .. " alpha=" .. string.format("%.2f", btn:GetAlpha()) .. " strata=" .. btn:GetFrameStrata() .. " level=" .. btn:GetFrameLevel()
+			local regs = { btn:GetRegions() }
+			local i
+			for i = 1, table.getn(regs) do
+				local r = regs[i]
+				local line = "region " .. i .. " " .. r:GetObjectType() .. " " .. tostring(r:GetName())
+				if r.GetTexture then
+					line = line .. " tex=" .. tostring(r:GetTexture())
+				end
+				line = line .. " shown=" .. tostring(r:IsShown()) .. " a=" .. string.format("%.2f", r:GetAlpha())
+				if r.GetVertexColor then
+					local cr, cg, cb, ca = r:GetVertexColor()
+					line = line .. " rgba=" .. string.format("%.2f %.2f %.2f %.2f", cr or 0, cg or 0, cb or 0, ca or 0)
+				end
+				out[table.getn(out) + 1] = line
+			end
+			local kids = { btn:GetChildren() }
+			for i = 1, table.getn(kids) do
+				local k = kids[i]
+				out[table.getn(out) + 1] = "child " .. i .. " " .. k:GetObjectType() .. " " .. tostring(k:GetName()) .. " shown=" .. tostring(k:IsShown()) .. " a=" .. string.format("%.2f", k:GetAlpha()) .. " level=" .. k:GetFrameLevel()
+			end
+			out[table.getn(out) + 1] = "autorepeat=" .. tostring(IsAutoRepeatAction and IsAutoRepeatAction(ActionButton_GetPagedID and ActionButton_GetPagedID(btn) or n))
+			out[table.getn(out) + 1] = "equipped=" .. tostring(IsEquippedAction and IsEquippedAction(ActionButton_GetPagedID and ActionButton_GetPagedID(btn) or n))
+			out[table.getn(out) + 1] = "checked=" .. tostring(btn.GetChecked and btn:GetChecked())
+		end
+		A("fonts", "showText", table.concat(out, "\n"))
 	elseif cmd == "fix" then
 		UI.sanitizeAll()
 	elseif cmd == "cttest" then

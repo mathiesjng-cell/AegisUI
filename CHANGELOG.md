@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.4.14] - 2026-10-27
+### Added
+- Action bar: "Never dim action icons" (the game's self-casting spells flip between usable and not usable all the time, which blacked out the Auto Shot slot) and "Hide short cooldown sweeps (< 2 s)". Both on by default.
+- Diagnostics `/aegis slot` and `/aegis slotparts [n]` (textures and children of an action button, in a copyable window).
+
+## [5.4.7] - [5.4.11] - 2026-10-27
+### Changed
+- Combat numbers: only enemies with a visible nameplate get a number, at most 6 per 0.3 s (crits first, then the biggest); numbers no longer run into each other; large values are shortened (1.1k, 28.8k, 500k, 1.2M, 5.0B); with several enemies of the same name the number goes to the target's plate, else the plate closest to the hero.
+
 ## [5.4.6] - 2026-10-27
 ### Changed
 - Target card shows what the enemy is to the run (FINAL BOSS / BOSS / GUARDIAN / ELITE) via `AZS_UnitKind`, with the old classification as fallback.

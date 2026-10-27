@@ -459,9 +459,67 @@ ev:SetScript("OnEvent", function()
 	end
 end)
 
+-- The game's spells cast themselves with cooldowns of a fraction of a second, so the stock
+-- cooldown sweep re-triggers all the time and the icon looks black. Skip sweeps shorter than
+-- SHORT_CD seconds on the action buttons (switchable).
+local SHORT_CD = 2
+local function shortCdOn()
+	return db().shortCd == nil or db().shortCd
+end
+if CooldownFrame_SetTimer and not B.cdHooked then
+	B.cdHooked = true
+	local origCd = CooldownFrame_SetTimer
+	CooldownFrame_SetTimer = function(frame, start, duration, enable)
+		if duration and duration > 0 and duration < SHORT_CD and frame and frame.GetName and shortCdOn() then
+			local n = frame:GetName()
+			if n and string.find(n, "ActionButton%d+Cooldown$") then
+				start, duration, enable = 0, 0, 0
+			end
+		end
+		return origCd(frame, start, duration, enable)
+	end
+end
+
+-- The game's spells cast themselves, so "not usable" (cooldown, no target) flickers constantly and
+-- the stock bar keeps dimming the icon. Keep the icons at full brightness (switchable).
+local function noDimOn()
+	return db().noDim == nil or db().noDim
+end
+if ActionButton_UpdateUsable and not B.usHooked then
+	B.usHooked = true
+	local origUs = ActionButton_UpdateUsable
+	ActionButton_UpdateUsable = function()
+		origUs()
+		if this and this.GetName and skinOn() and noDimOn() then
+			local n = this:GetName()
+			if n and string.find(n, "ActionButton%d+$") then
+				local icon = getglobal(n .. "Icon")
+				if icon then
+					icon:SetVertexColor(1, 1, 1)
+				end
+			end
+		end
+	end
+end
+
 if AegisUI then
 	if AegisUI.api then
 		AegisUI.api.bars = {
+			getNoDim = function()
+				return noDimOn()
+			end,
+			setNoDim = function(v)
+				db().noDim = v and true or false
+			end,
+			getShortCd = function()
+				return shortCdOn()
+			end,
+			setShortCd = function(v)
+				db().shortCd = v and true or false
+				if DEFAULT_CHAT_FRAME then
+					DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Cooldown sweeps update with the next cooldown."))
+				end
+			end,
 			getSkin = function()
 				return skinOn()
 			end,

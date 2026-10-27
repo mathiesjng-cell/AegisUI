@@ -30,8 +30,7 @@ local EVENTS = {
 	"CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE", "CHAT_MSG_COMBAT_HOSTILEPLAYER_HITS",
 }
 
-local function showResult()
-	local txt = table.concat(lines, "\n")
+local function showText(txt)
 	if not diagWin then
 		diagWin = CreateFrame("Frame", "AegisDiagWin", UIParent)
 		diagWin:SetWidth(520)
@@ -57,6 +56,10 @@ local function showResult()
 	end
 	diagWin.eb:SetText(txt)
 	diagWin:Show()
+end
+
+local function showResult()
+	showText(table.concat(lines, "\n"))
 end
 
 local function scanPlates()
@@ -123,6 +126,7 @@ local function hubHook()
 	AegisUI.hooked_fonts = true
 	AegisUI.api.fonts = {
 		diag = runDiag,
+		showText = showText,
 		getDamage = function()
 			return cvarOn("CombatDamage")
 		end,
