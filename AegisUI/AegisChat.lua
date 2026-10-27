@@ -180,6 +180,7 @@ local function bootChatSize()
 	if not AegisDB.chatH then
 		AegisDB.chatW = math.floor((cf:GetWidth() or 320) + 50 + 0.5)
 		AegisDB.chatH = math.floor((cf:GetHeight() or 120) + 60 + 0.5)
+		AegisDB.chatDefW, AegisDB.chatDefH = AegisDB.chatW, AegisDB.chatH
 	end
 	applyChatSize()
 end
@@ -199,6 +200,32 @@ local function placeDefaults()
 	end
 	local lf = getglobal("LuckyOddsFrame")
 	if cf and lf and not (type(LuckyOddsDB) == "table" and LuckyOddsDB.point) then
+		lf:ClearAllPoints()
+		lf:SetPoint("BOTTOMLEFT", cf, "BOTTOMRIGHT", 14, 0)
+	end
+end
+
+-- Reset defaults: chat back to the bottom-left corner and default size, LuckyOdds docked to its right edge again
+local function resetChat()
+	local cf = ChatFrame1
+	AegisDB = AegisDB or {}
+	if not cf then
+		return
+	end
+	if AegisDB.chatDefW and AegisDB.chatDefH then
+		AegisDB.chatW, AegisDB.chatH = AegisDB.chatDefW, AegisDB.chatDefH
+		applyChatSize()
+	end
+	cf:ClearAllPoints()
+	cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 24, 60)
+	if FCF_SavePositionAndDimensions then
+		pcall(FCF_SavePositionAndDimensions, cf)
+	end
+	if type(LuckyOddsDB) == "table" then
+		LuckyOddsDB.point, LuckyOddsDB.rel, LuckyOddsDB.x, LuckyOddsDB.y = nil, nil, nil, nil
+	end
+	local lf = getglobal("LuckyOddsFrame")
+	if lf then
 		lf:ClearAllPoints()
 		lf:SetPoint("BOTTOMLEFT", cf, "BOTTOMRIGHT", 14, 0)
 	end
@@ -400,6 +427,8 @@ local function hubHook()
 		return
 	end
 	AegisUI.hooked_chat = true
+	AegisUI.resetHooks = AegisUI.resetHooks or {}
+	AegisUI.resetHooks[table.getn(AegisUI.resetHooks) + 1] = resetChat
 	AegisUI.api.chat = {
 		debugTabs = debugTabs,
 		getW = function()

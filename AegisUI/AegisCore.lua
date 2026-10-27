@@ -390,6 +390,11 @@ function UI.resetAll()
 			UI.list[i].reset()
 		end
 	end
+	-- addons without a draggable overlay of their own (chat, ...) hook in here
+	UI.resetHooks = UI.resetHooks or {}
+	for i = 1, table.getn(UI.resetHooks) do
+		pcall(UI.resetHooks[i])
+	end
 	say(L("Positions reset."))
 end
 
