@@ -508,7 +508,7 @@ local function stylePlate(p)
 	p.my.inner = inner
 end
 
-local function refreshPlate(p)
+local function refreshPlate(p, small, faded)
 	local m = p.my
 	if not m then
 		return
@@ -540,9 +540,21 @@ local function refreshPlate(p)
 	if isTarget then
 		bar:SetWidth(124)
 		bar:SetHeight(13)
+	elseif small then
+		bar:SetWidth(56)
+		bar:SetHeight(6)
 	else
 		bar:SetWidth(112)
 		bar:SetHeight(11)
+	end
+	-- density cap / boss focus: only the bar and the texts are dimmed, never the plate frame (its alpha marks the target)
+	if not isTarget and (small or (faded and not elite)) then
+		bar:SetAlpha(0.2)
+		m.name:SetAlpha(0.2)
+		m.level:SetAlpha(0.2)
+	else
+		m.name:SetAlpha(1)
+		m.level:SetAlpha(1)
 	end
 	local special = false
 	if isTarget and AZS_UnitKind then
@@ -583,6 +595,107 @@ local function refreshPlate(p)
 	else
 		bar:SetBackdropBorderColor(0.14, 0.16, 0.22, 1)
 	end
+end
+
+-- Density cap + boss focus ----------------------------------------------
+
+local function plateCap()
+	return (AegisUnitsDB and AegisUnitsDB.cap) or 10
+end
+
+local function plateFade()
+	return not (AegisUnitsDB and AegisUnitsDB.bossFade == false)
+end
+
+-- names of bosses / guardians that are up right now (refreshed twice a second)
+local function bossSet()
+	local now = GetTime()
+	if U.bossAt and now - U.bossAt < 0.5 then
+		return U.bossNames, U.bossOn
+	end
+	U.bossAt = now
+	U.bossNames = {}
+	U.bossOn = false
+	local ok, bs = pcall(AZS_GetBosses or function() end)
+	if ok and type(bs) == "table" then
+		local i
+		for i = 1, table.getn(bs) do
+			if bs[i].name then
+				U.bossNames[bs[i].name] = true
+			end
+			U.bossOn = true
+		end
+	end
+	local ok2, gs = pcall(AZS_GetGuardians or function() end)
+	if ok2 and type(gs) == "table" then
+		local j
+		for j = 1, table.getn(gs) do
+			if gs[j].awake then
+				U.bossOn = true
+				if gs[j].name then
+					U.bossNames[gs[j].name] = true
+				end
+			end
+		end
+	end
+	if AZS_UnitKind and UnitExists("target") then
+		local k = AZS_UnitKind("target")
+		if k == "final" or k == "boss" or k == "guardian" then
+			U.bossOn = true
+		end
+	end
+	return U.bossNames, U.bossOn
+end
+
+local function rankPlates()
+	local r = U.rank or {}
+	U.rank = r
+	local n = 0
+	local cx = (GetScreenWidth and GetScreenWidth() or 1024) / 2 * (UIParent:GetEffectiveScale() or 1)
+	local i
+	for i = 1, table.getn(U.list) do
+		local p = U.list[i]
+		if p:IsVisible() and p.my then
+			local score = 0
+			if UnitExists("target") and p:GetAlpha() >= 0.99 then
+				score = 100000
+			else
+				local m = p.my
+				if m.levelicon and m.levelicon:IsShown() then
+					score = 50000
+				end
+				local nm = m.name:GetText()
+				if nm and U.bossNames and U.bossNames[nm] then
+					score = 100000
+				end
+				-- no per-plate distance in 1.12: nearness to the screen centre stands in for it
+				local x, y = p:GetCenter()
+				if x and y then
+					score = score - math.abs(x - cx) - math.abs(y - 300)
+				end
+			end
+			n = n + 1
+			local e = r[n]
+			if not e then
+				e = {}
+				r[n] = e
+			end
+			e.p, e.score = p, score
+		end
+	end
+	local k
+	for k = n + 1, table.getn(r) do
+		r[k].p = nil
+	end
+	local function byScore(a, b)
+		return a.score > b.score
+	end
+	local t = {}
+	for k = 1, n do
+		t[k] = r[k]
+	end
+	table.sort(t, byScore)
+	return t, n
 end
 
 local function scanPlates()
@@ -685,11 +798,16 @@ ticker:SetScript("OnUpdate", function()
 		end
 		if U.plates then
 			scanPlates()
+			local names, bossOn = bossSet()
+			local ranked, n = rankPlates()
+			local cap = plateCap()
+			local fade = bossOn and plateFade()
 			local i
-			for i = 1, table.getn(U.list) do
-				if U.list[i]:IsVisible() then
-					refreshPlate(U.list[i])
-				end
+			for i = 1, n do
+				local p = ranked[i].p
+				local nm = p.my.name:GetText()
+				local isBoss = nm and names[nm]
+				refreshPlate(p, i > cap and not isBoss, fade and not isBoss)
 			end
 		end
 	end)
@@ -799,6 +917,16 @@ local function hubHook()
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
 		version = "5.9.2",
+		getCap = plateCap,
+		setCap = function(n)
+			AegisUnitsDB = AegisUnitsDB or {}
+			AegisUnitsDB.cap = math.max(3, math.min(40, n))
+		end,
+		getBossFade = plateFade,
+		setBossFade = function(on)
+			AegisUnitsDB = AegisUnitsDB or {}
+			AegisUnitsDB.bossFade = on and true or false
+		end,
 		getPlayer = function()
 			return U.player
 		end,

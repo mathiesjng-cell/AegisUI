@@ -197,4 +197,8 @@ AegisL.add({
 	["|cffd2a24aWho:|r on - move the mouse over the icons, /aegis who stops."] = "|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis who beendet.",
 	["|cffff4444AegisBar error:|r "] = "|cffff4444AegisBar Fehler:|r ",
 	["|cffff4444AegisBars error:|r "] = "|cffff4444AegisBars Fehler:|r ",
+	["Timer widget (session / boss / lair)"] = "Timer-Widget (Sitzung / Boss / Lair)",
+	["Max full nameplates"] = "Max. volle Nameplates",
+	["Fade trash while a boss is up"] = "Trash ausblenden, solange ein Boss aktiv ist",
+	["Timer widget"] = "Timer-Widget",
 })

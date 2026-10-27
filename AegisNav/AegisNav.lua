@@ -113,6 +113,15 @@ local function collect()
 		end
 	end
 	local ok3, c = pcall(function() return AZS_CHESTS end)
+	-- a cache only counts while its price is covered by the run gold (AZS_RUN.gold >= AZS_RUN.chest)
+	local run0 = AZS_RUN
+	local afford = true
+	if type(run0) == "table" and tonumber(run0.chest) and tonumber(run0.gold) and tonumber(run0.chest) > 0 then
+		afford = tonumber(run0.gold) >= tonumber(run0.chest)
+	end
+	if not afford then
+		c = nil
+	end
 	if ok3 and type(c) == "table" then
 		local i
 		for i = 1, table.getn(c) do
@@ -573,6 +582,99 @@ frame:SetScript("OnUpdate", function()
 	end
 end)
 
+-- Timer widget: session clock, next boss, next lair fill ----------------
+
+local T = { acc = 0, start = GetTime() }
+local tf = CreateFrame("Frame", "AegisTimerFrame", UIParent)
+tf:SetWidth(150)
+tf:SetHeight(54)
+tf:SetPoint("LEFT", UIParent, "LEFT", 24, 120)
+tf:SetFrameStrata("MEDIUM")
+tf:SetMovable(true)
+tf:EnableMouse(false)
+tf:SetClampedToScreen(true)
+tf:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
+	insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+tf:SetBackdropColor(0.04, 0.05, 0.08, 0.7)
+tf:SetBackdropBorderColor(0.55, 0.43, 0.15, 1)
+if AegisSkin and AegisSkin.TrackPanel then
+	pcall(AegisSkin.TrackPanel, tf, { 0.04, 0.05, 0.08 }, { 0.55, 0.43, 0.15 }, nil, "nav")
+end
+tf:RegisterForDrag("LeftButton")
+tf:SetScript("OnDragStart", function()
+	if AegisUI and AegisUI.locked then
+		return
+	end
+	this:StartMoving()
+end)
+tf:SetScript("OnDragStop", function()
+	this:StopMovingOrSizing()
+	local point, _, rel, x, y = this:GetPoint(1)
+	if point then
+		AegisNavDB = AegisNavDB or {}
+		AegisNavDB.tpoint, AegisNavDB.trel, AegisNavDB.tx, AegisNavDB.ty = point, rel, x, y
+	end
+end)
+local function tline(y)
+	local fs = tf:CreateFontString(nil, "OVERLAY")
+	fs:SetFont(FONT, 11)
+	fs:SetPoint("TOPLEFT", tf, "TOPLEFT", 8, y)
+	fs:SetJustifyH("LEFT")
+	return fs
+end
+local tSession, tBoss, tLair = tline(-6), tline(-21), tline(-36)
+tSession:SetTextColor(0.85, 0.75, 0.4)
+tBoss:SetTextColor(0.9, 0.9, 0.9)
+tLair:SetTextColor(0.7, 0.8, 0.9)
+
+local function clock(sec)
+	sec = math.floor(sec)
+	local h = math.floor(sec / 3600)
+	local m = math.floor(math.mod(sec, 3600) / 60)
+	return string.format("%02d:%02d:%02d", h, m, math.mod(sec, 60))
+end
+
+local function mmss(sec)
+	sec = math.floor(sec)
+	return string.format("%d:%02d", math.floor(sec / 60), math.mod(sec, 60))
+end
+
+local function timerUpdate()
+	tSession:SetText(L("Session") .. " " .. clock(GetTime() - T.start))
+	local run = AZS_RUN
+	if type(run) == "table" and tonumber(run.nb) and tonumber(run.nb) >= 0 then
+		tBoss:SetText((run.nbn and tostring(run.nbn) or L("Boss")) .. " " .. mmss(tonumber(run.nb)))
+	else
+		tBoss:SetText(L("Boss") .. " -")
+	end
+	local soon
+	local ok, l = pcall(AZS_GetLairs or function() end)
+	if ok and type(l) == "table" then
+		local i
+		for i = 1, table.getn(l) do
+			local v = tonumber(l[i].left)
+			if v and v > 0 and (not soon or v < soon) then
+				soon = v
+			end
+		end
+	end
+	tLair:SetText(L("Lair") .. " " .. (soon and mmss(soon) or "-"))
+end
+
+tf:SetScript("OnUpdate", function()
+	local wantMouse = not (AegisUI and AegisUI.locked)
+	if T.mouse ~= wantMouse then
+		T.mouse = wantMouse
+		tf:EnableMouse(wantMouse)
+	end
+	T.acc = T.acc + (arg1 or 0)
+	if T.acc < 0.25 then
+		return
+	end
+	T.acc = 0
+	pcall(timerUpdate)
+end)
+
 -- Saved position + commands -------------------------------------------
 
 local loader = CreateFrame("Frame")
@@ -588,6 +690,13 @@ loader:SetScript("OnEvent", function()
 	if AegisNavDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisNavDB.point, UIParent, AegisNavDB.rel or AegisNavDB.point, AegisNavDB.x or 0, AegisNavDB.y or 0)
+	end
+	if AegisNavDB.tpoint then
+		tf:ClearAllPoints()
+		tf:SetPoint(AegisNavDB.tpoint, UIParent, AegisNavDB.trel or AegisNavDB.tpoint, AegisNavDB.tx or 0, AegisNavDB.ty or 0)
+	end
+	if AegisNavDB.timerHidden then
+		tf:Hide()
 	end
 	if AegisNavDB.aspect then
 		N.aspect = AegisNavDB.aspect
@@ -669,10 +778,24 @@ local function hubHook()
 		frame:ClearAllPoints()
 		frame:SetPoint("TOP", UIParent, "TOP", 0, -120)
 	end)
+	AegisUI.register("timer", "Timer", tf, function()
+		AegisNavDB = AegisNavDB or {}
+		AegisNavDB.tpoint, AegisNavDB.trel, AegisNavDB.tx, AegisNavDB.ty = nil, nil, nil, nil
+		tf:ClearAllPoints()
+		tf:SetPoint("LEFT", UIParent, "LEFT", 24, 120)
+	end)
 	AegisUI.api.nav = {
 		version = "5.9.2",
 		isShown = function()
 			return frame:IsShown()
+		end,
+		timerShown = function()
+			return tf:IsShown()
+		end,
+		setTimerShown = function(on)
+			AegisNavDB = AegisNavDB or {}
+			AegisNavDB.timerHidden = not on
+			if on then tf:Show() else tf:Hide() end
 		end,
 		setShown = function(on)
 			AegisNavDB = AegisNavDB or {}

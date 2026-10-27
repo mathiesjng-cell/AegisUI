@@ -332,3 +332,10 @@ local L = AegisL.t;
 AegisL.add({ ["Kill counter"] = "Kill-Zähler" });
 DEFAULT_CHAT_FRAME:AddMessage(L("Kill counter"));
 ```
+
+### Added in the unreleased branch
+| call | meaning |
+|---|---|
+| `nav.timerShown()` / `nav.setTimerShown(on)` | timer widget (session clock, next boss, soonest lair fill); registry key `timer` |
+| `units.getCap()` / `units.setCap(n)` | max full nameplates (default 10) |
+| `units.getBossFade()` / `units.setBossFade(on)` | fade trash plates to 20 % while a boss / guardian is up |

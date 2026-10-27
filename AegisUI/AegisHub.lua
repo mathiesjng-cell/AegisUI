@@ -721,7 +721,7 @@ local function buildContent()
 	if UI.getScale then
 		cursor = cursor + 4
 		section(L("WINDOW SIZE"))
-		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
+		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "timer", "Timer widget" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
 		local ki
 		for ki = 1, table.getn(keys) do
 			local key = keys[ki][1]
@@ -784,15 +784,6 @@ local function buildContent()
 	if api.meter then
 		section(L("DPS-METER"))
 		toggle("DPS-Meter", function() return A("meter", "isShown") end, function(v) A("meter", "setShown", v) end)
-		stepper(L("Meter rows"), function() return A("meter", "getRows") end, function(v) A("meter", "setRows", v) end, 1, 3, 10, function(v)
-			return math.floor(v + 0.5)
-		end)
-		stepper(L("Meter width"), function() return A("meter", "getWidth") end, function(v) A("meter", "setWidth", v) end, 20, 260, 520, function(v)
-			return math.floor(v + 0.5) .. " px"
-		end)
-		toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
-		toggle(L("Run timer"), function() return A("meter", "getTimer") end, function(v) A("meter", "setTimer", v) end)
-		toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
 		stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
 			-- 0 = average over the whole run; the smallest real window is 5 s
 			local cur = A("meter", "getDps") or 10
@@ -819,6 +810,18 @@ local function buildContent()
 		end, function()
 			A("meter", "cycleDps")
 		end)
+		stepper(L("Meter rows"), function() return A("meter", "getRows") end, function(v) A("meter", "setRows", v) end, 1, 3, 10, function(v)
+			return math.floor(v + 0.5)
+		end)
+		stepper(L("Meter width"), function() return A("meter", "getWidth") end, function(v) A("meter", "setWidth", v) end, 20, 260, 520, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
+		toggle(L("Run timer"), function() return A("meter", "getTimer") end, function(v) A("meter", "setTimer", v) end)
+		toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
+		if api.nav and api.nav.timerShown then
+			toggle(L("Timer widget (session / boss / lair)"), function() return A("nav", "timerShown") end, function(v) A("nav", "setTimerShown", v) end)
+		end
 		action(function()
 			return L("SHOW RUN LOG"), 1, 0.86, 0.45
 		end, function()
@@ -844,6 +847,10 @@ local function buildContent()
 		toggle(L("Target card"), function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
 		toggle(L("Dim target card unless boss / guardian"), function() return A("units", "getTargetFade") end, function(v) A("units", "setTargetFade", v) end)
 		toggle(L("Mob nameplates"), function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
+		stepper(L("Max full nameplates"), function() return A("units", "getCap") end, function(v) A("units", "setCap", v) end, 1, 3, 40, function(v)
+			return math.floor(v + 0.5)
+		end)
+		toggle(L("Fade trash while a boss is up"), function() return A("units", "getBossFade") end, function(v) A("units", "setBossFade", v) end)
 		stepper(L("Card spacing"), function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
 			return math.floor(v + 0.5) .. " px"
 		end)
