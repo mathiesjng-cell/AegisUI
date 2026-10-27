@@ -705,6 +705,7 @@ local function buildContent()
 		end
 		if api.nav then
 			toggle(L("Original boss bar"), function() return A("nav", "getHudHidden", "bosses") end, function(v) A("nav", "setHudHidden", "bosses", v) end)
+			toggle(L("Original skill / jewelry rows"), function() return A("nav", "getHudHidden", "build") end, function(v) A("nav", "setHudHidden", "build", v) end)
 		end
 	end
 	if api.bars then

@@ -201,4 +201,5 @@ AegisL.add({
 	["Max full nameplates"] = "Max. volle Nameplates",
 	["Fade trash while a boss is up"] = "Trash ausblenden, solange ein Boss aktiv ist",
 	["Timer widget"] = "Timer-Widget",
+	["Original skill / jewelry rows"] = "Original Skill-/Schmuck-Reihen",
 })
