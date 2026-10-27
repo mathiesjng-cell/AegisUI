@@ -582,14 +582,14 @@ frame:SetScript("OnUpdate", function()
 	end
 end)
 
--- Timer widget: session clock, next boss, next lair fill ----------------
+-- Timer widget: run clock, boss list of the zone, guardians (UP / respawn) ---------
 
-local T = { acc = 0, seen = 0 }
-local function nowSec()
-	return time and time() or GetTime()
-end
+local TW = 176
+local ROW_H = 14
+local MAX_ROWS = 15
+local T = { acc = 0, rows = {}, bosses = {} }
 local tf = CreateFrame("Frame", "AegisTimerFrame", UIParent)
-tf:SetWidth(150)
+tf:SetWidth(TW)
 tf:SetHeight(54)
 tf:SetPoint("LEFT", UIParent, "LEFT", 24, 120)
 tf:SetFrameStrata("MEDIUM")
@@ -618,17 +618,65 @@ tf:SetScript("OnDragStop", function()
 		AegisNavDB.tpoint, AegisNavDB.trel, AegisNavDB.tx, AegisNavDB.ty = point, rel, x, y
 	end
 end)
-local function tline(y)
-	local fs = tf:CreateFontString(nil, "OVERLAY")
-	fs:SetFont(FONT, 11)
-	fs:SetPoint("TOPLEFT", tf, "TOPLEFT", 8, y)
-	fs:SetJustifyH("LEFT")
-	return fs
+
+local function getRow(i)
+	local r = T.rows[i]
+	if r then
+		return r
+	end
+	r = {}
+	local y = -6 - (i - 1) * ROW_H
+	r.name = tf:CreateFontString(nil, "OVERLAY")
+	r.name:SetFont(FONT, 11)
+	r.name:SetPoint("TOPLEFT", tf, "TOPLEFT", 8, y)
+	r.name:SetWidth(TW - 66)
+	r.name:SetJustifyH("LEFT")
+	r.val = tf:CreateFontString(nil, "OVERLAY")
+	r.val:SetFont(FONT, 11)
+	r.val:SetPoint("TOPRIGHT", tf, "TOPRIGHT", -8, y)
+	r.val:SetJustifyH("RIGHT")
+	r.st = tf:CreateTexture(nil, "OVERLAY")
+	r.st:SetTexture(SOLID)
+	r.st:SetHeight(1)
+	r.st:SetVertexColor(0.85, 0.85, 0.85, 0.8)
+	r.st:SetPoint("LEFT", r.name, "LEFT", 0, 0)
+	r.st:Hide()
+	T.rows[i] = r
+	return r
 end
-local tSession, tBoss, tLair = tline(-6), tline(-21), tline(-36)
-tSession:SetTextColor(0.85, 0.75, 0.4)
-tBoss:SetTextColor(0.9, 0.9, 0.9)
-tLair:SetTextColor(0.7, 0.8, 0.9)
+
+-- one line: name (left), value (right), colours, alpha; strike = crossed out
+local function setRow(i, name, val, nr, ng, nb, vr, vg, vb, alpha, strike)
+	local r = getRow(i)
+	r.name:SetText(name)
+	r.name:SetTextColor(nr, ng, nb)
+	r.name:SetAlpha(alpha)
+	r.val:SetText(val or "")
+	r.val:SetTextColor(vr, vg, vb)
+	r.val:SetAlpha(alpha)
+	r.name:Show()
+	r.val:Show()
+	if strike then
+		local w = r.name:GetStringWidth() or 40
+		if w > TW - 66 then
+			w = TW - 66
+		end
+		r.st:SetWidth(w)
+		r.st:SetAlpha(alpha)
+		r.st:Show()
+	else
+		r.st:Hide()
+	end
+end
+
+local function hideRowsFrom(n)
+	local i
+	for i = n, table.getn(T.rows) do
+		T.rows[i].name:Hide()
+		T.rows[i].val:Hide()
+		T.rows[i].st:Hide()
+	end
+end
 
 local function clock(sec)
 	sec = math.floor(sec)
@@ -643,25 +691,103 @@ local function mmss(sec)
 end
 
 local function timerUpdate()
-	tSession:SetText(L("Session") .. " " .. clock(nowSec() - (T.start or nowSec())))
-	local run = AZS_RUN
-	if type(run) == "table" and tonumber(run.nb) and tonumber(run.nb) >= 0 then
-		tBoss:SetText((run.nbn and tostring(run.nbn) or L("Boss")) .. " " .. mmss(tonumber(run.nb)))
-	else
-		tBoss:SetText(L("Boss") .. " -")
+	local rt = AZS_GetRunTime and AZS_GetRunTime()
+	local phase = AZS_GetPhase and AZS_GetPhase()
+	AegisNavDB = AegisNavDB or {}
+
+	-- the boss list belongs to one run: after /reload the saved list is picked up again, a new run starts clean
+	if not T.restored then
+		T.restored = true
+		if AegisNavDB.tboss and rt and AegisNavDB.tlastrt and rt >= AegisNavDB.tlastrt - 3 then
+			T.bosses = AegisNavDB.tboss
+		end
 	end
-	local soon
-	local ok, l = pcall(AZS_GetLairs or function() end)
-	if ok and type(l) == "table" then
+	if not phase or phase == "ready" or (rt and T.lastRt and rt + 5 < T.lastRt) then
+		T.bosses = {}
+	end
+	T.lastRt = rt
+
+	-- boss list: bosses still to come, alive ones, and the ones that are gone (slain)
+	local pass = (T.pass or 0) + 1
+	T.pass = pass
+	local okU, up = pcall(AZS_GetUpcomingBosses or function() end)
+	if okU and type(up) == "table" then
 		local i
-		for i = 1, table.getn(l) do
-			local v = tonumber(l[i].left)
-			if v and v > 0 and (not soon or v < soon) then
-				soon = v
+		for i = 1, table.getn(up) do
+			local key = up[i].index or i
+			local b = T.bosses[key] or {}
+			b.name, b.final, b.left, b.seen = up[i].name, up[i].final, up[i].left, pass
+			T.bosses[key] = b
+		end
+	end
+	local alive = {}
+	local okA, al = pcall(AZS_GetBosses or function() end)
+	if okA and type(al) == "table" then
+		local i
+		for i = 1, table.getn(al) do
+			if al[i].name then
+				alive[al[i].name] = true
 			end
 		end
 	end
-	tLair:SetText(L("Lair") .. " " .. (soon and mmss(soon) or "-"))
+	AegisNavDB.tboss, AegisNavDB.tlastrt = T.bosses, rt
+
+	local n = 1
+	setRow(n, L("Run"), rt and clock(rt) or "--:--:--", 0.85, 0.75, 0.40, 0.85, 0.75, 0.40, 1, false)
+
+	local keys = {}
+	local k, b
+	for k, b in pairs(T.bosses) do
+		keys[table.getn(keys) + 1] = k
+	end
+	table.sort(keys)
+	local ki
+	for ki = 1, table.getn(keys) do
+		b = T.bosses[keys[ki]]
+		if n < MAX_ROWS and b.name then
+			n = n + 1
+			if b.seen == pass then
+				setRow(n, b.name, b.left and mmss(b.left) or "", 0.92, 0.92, 0.92, 0.85, 0.85, 0.90, 1, false)
+			elseif alive[b.name] then
+				setRow(n, b.name, "UP", 1, 0.45, 0.35, 1, 0.45, 0.35, 1, false)
+			else
+				setRow(n, b.name, "", 0.65, 0.65, 0.65, 0.65, 0.65, 0.65, 0.4, true)
+			end
+		end
+	end
+	-- endless mode / no list: the game's own "next boss" countdown
+	if table.getn(keys) == 0 and type(AZS_RUN) == "table" and tonumber(AZS_RUN.nb) and tonumber(AZS_RUN.nb) >= 0 and n < MAX_ROWS then
+		n = n + 1
+		setRow(n, tostring(AZS_RUN.nbn or L("Boss")), mmss(tonumber(AZS_RUN.nb)), 0.92, 0.92, 0.92, 0.85, 0.85, 0.90, 1, false)
+	end
+
+	-- guardians: UP (asleep), fighting, or the respawn countdown of an empty lair
+	local okL, l = pcall(AZS_GetLairs or function() end)
+	if okL and type(l) == "table" then
+		local i
+		for i = 1, table.getn(l) do
+			if n < MAX_ROWS then
+				n = n + 1
+				local nm = l[i].name
+				if not nm or nm == "" then
+					nm = L("Guardian") .. " " .. (l[i].index or i)
+				end
+				local st = l[i].state
+				local left = tonumber(l[i].left)
+				if st == "awake" then
+					setRow(n, nm, L("FIGHT"), 0.55, 0.78, 1, 1, 0.45, 0.35, 1, false)
+				elseif st == "asleep" or (not st and l[i].active) then
+					setRow(n, nm, "UP", 0.55, 0.78, 1, 0.50, 1, 0.50, 1, false)
+				elseif left and left > 0 then
+					setRow(n, nm, mmss(left), 0.55, 0.78, 1, 0.75, 0.80, 0.90, 0.8, false)
+				else
+					setRow(n, nm, "...", 0.55, 0.78, 1, 0.75, 0.80, 0.90, 0.6, false)
+				end
+			end
+		end
+	end
+	hideRowsFrom(n + 1)
+	tf:SetHeight(12 + n * ROW_H)
 end
 
 tf:SetScript("OnUpdate", function()
@@ -676,12 +802,6 @@ tf:SetScript("OnUpdate", function()
 	end
 	T.acc = 0
 	pcall(timerUpdate)
-	-- remember the clock so /reload keeps it; a gap of more than 2 minutes starts a new session
-	T.seen = T.seen + 1
-	if T.seen >= 8 and T.start and AegisNavDB then
-		T.seen = 0
-		AegisNavDB.sessStart, AegisNavDB.sessSeen = T.start, nowSec()
-	end
 end)
 
 -- Saved position + commands -------------------------------------------
@@ -700,13 +820,6 @@ loader:SetScript("OnEvent", function()
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisNavDB.point, UIParent, AegisNavDB.rel or AegisNavDB.point, AegisNavDB.x or 0, AegisNavDB.y or 0)
 	end
-	local nowT = nowSec()
-	if AegisNavDB.sessStart and AegisNavDB.sessSeen and nowT - AegisNavDB.sessSeen < 120 and nowT >= AegisNavDB.sessStart then
-		T.start = AegisNavDB.sessStart
-	else
-		T.start = nowT
-	end
-	AegisNavDB.sessStart, AegisNavDB.sessSeen = T.start, nowT
 	if AegisNavDB.tpoint then
 		tf:ClearAllPoints()
 		tf:SetPoint(AegisNavDB.tpoint, UIParent, AegisNavDB.trel or AegisNavDB.tpoint, AegisNavDB.tx or 0, AegisNavDB.ty or 0)

@@ -12,8 +12,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Meter: rank numbers are white with a thin outline (no plate behind them)
 - Chat font size: starts two sizes below the game default, adjustable in the hub (8-24 pt; `chat.getFont/setFont/resetFont`)
 - Nav: chests are only arrow targets while the run gold covers the next cache (`AZS_RUN.gold >= AZS_RUN.chest`)
-- Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): session clock, next boss, soonest lair fill
-- Timer widget: the session clock survives /reload (new session after a gap of more than 2 minutes)
+- Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): run clock (`AZS_GetRunTime`, survives /reload), the zone's boss list (coming with countdown, UP, slain = crossed out and faded; kept across /reload within a run) and the guardians (UP, FIGHT, respawn countdown of empty lairs)
 - Nameplates: at most 10 full plates (target > boss/elite > screen centre), the rest shrinks and dims to 20 % (bar and texts only); trash fades to 20 % while a boss or guardian is up (both configurable in the hub)
 - Hub: DPS time window moved to the top of the Meter page
 - Reset defaults now also puts the chat back to the bottom-left corner (default size) and docks LuckyOdds to its right edge again (`UI.resetHooks`)
