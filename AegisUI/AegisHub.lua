@@ -2,11 +2,13 @@
 -- Left click on the minimap button: open the window. Right click: lock / unlock.
 -- Slash: /aegis (window), lock, unlock, reset, bars, who, meter|nav|units [args], chat, profile
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "4.9"
+local VERSION = "5.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -181,11 +183,11 @@ local function toggle(text, getter, setter)
 		local on = getter()
 		if on then
 			tick:Show()
-			state:SetText("AN")
+			state:SetText(L("ON"))
 			state:SetTextColor(0.10, 0.93, 0.50)
 		else
 			tick:Hide()
-			state:SetText("AUS")
+			state:SetText(L("OFF"))
 			state:SetTextColor(0.49, 0.51, 0.58)
 		end
 	end
@@ -364,17 +366,17 @@ local function importProfile(text)
 	text = text or ""
 	local _, _, body = string.find(text, "^%s*AEGIS1:(.*)$")
 	if not body then
-		return false, "Kein gueltiges Profil (muss mit AEGIS1: beginnen)."
+		return false, L("Not a valid profile (must start with AEGIS1:).")
 	end
 	local f, err = loadstring("return " .. body)
 	if not f then
-		return false, "Profil nicht lesbar: " .. tostring(err)
+		return false, L("Profile unreadable: ") .. tostring(err)
 	end
 	-- empty environment: the text can only build tables, it cannot call anything
 	setfenv(f, {})
 	local ok, pack = pcall(f)
 	if not ok or type(pack) ~= "table" then
-		return false, "Profil nicht lesbar."
+		return false, L("Profile unreadable.")
 	end
 	local n = 0
 	local key, gname
@@ -385,9 +387,9 @@ local function importProfile(text)
 		end
 	end
 	if n == 0 then
-		return false, "Profil enthielt keine Einstellungen."
+		return false, L("Profile contained no settings.")
 	end
-	return true, n .. " Bereiche uebernommen. Mit /reload anwenden."
+	return true, n .. L(" sections imported. Apply with /reload.")
 end
 
 local function showProfile()
@@ -409,12 +411,12 @@ local function showProfile()
 		t:SetFont(FONT, 12, "OUTLINE")
 		t:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -9)
 		t:SetTextColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-		t:SetText("AegisUI Profil")
+		t:SetText(L("AegisUI Profile"))
 		local hint = f:CreateFontString(nil, "OVERLAY")
 		hint:SetFont(FONT, 10)
 		hint:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -11)
 		hint:SetTextColor(0.5, 0.54, 0.62, 1)
-		hint:SetText("Export: markieren + Strg+C   Import: Text einfuegen (Strg+V)")
+		hint:SetText(L("Export: select + Ctrl+C   Import: paste text (Ctrl+V)"))
 
 		local sf = CreateFrame("ScrollFrame", "AegisProfileScroll", f, "UIPanelScrollFrameTemplate")
 		sf:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -30)
@@ -449,13 +451,13 @@ local function showProfile()
 			l:SetTextColor(1, 0.85, 0.4, 1)
 			b:SetScript("OnClick", fn)
 		end
-		mkBtn("Exportieren", 10, 100, function()
+		mkBtn(L("Export"), 10, 100, function()
 			profFrame.edit:SetText(exportProfile())
 			profFrame.edit:SetFocus()
 			profFrame.edit:HighlightText()
-			profFrame.status:SetText("Profil erzeugt. Alles ist markiert: Strg+C zum Kopieren.")
+			profFrame.status:SetText(L("Profile created. Everything is selected: Ctrl+C to copy."))
 		end)
-		mkBtn("Importieren", 120, 100, function()
+		mkBtn(L("Import"), 120, 100, function()
 			local ok, msg = importProfile(profFrame.edit:GetText())
 			if ok then
 				profFrame.status:SetText("|cff55ee88" .. msg .. "|r")
@@ -463,7 +465,7 @@ local function showProfile()
 				profFrame.status:SetText("|cffff6666" .. msg .. "|r")
 			end
 		end)
-		mkBtn("Schliessen", 230, 90, function()
+		mkBtn(L("Close"), 230, 90, function()
 			profFrame:Hide()
 		end)
 		profFrame = f
@@ -475,7 +477,7 @@ end
 
 -- Content --------------------------------------------------------------
 
-local TABS = { "LAYOUT", "MODULE", "SKINS" }
+local TABS = { "LAYOUT", "MODULES", "SKINS" }
 local tabFrames = {}
 local tabButtons = {}
 local TOP_TABS = 30
@@ -520,7 +522,7 @@ local function buildTabs()
 		b.text = b:CreateFontString(nil, "OVERLAY")
 		b.text:SetFont(FONT, 10, "OUTLINE")
 		b.text:SetPoint("CENTER", b, "CENTER", 0, 0)
-		b.text:SetText(TABS[i])
+		b.text:SetText(L(TABS[i]))
 		b.line = b:CreateTexture(nil, "OVERLAY")
 		b.line:SetTexture(SOLID)
 		b.line:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
@@ -543,62 +545,82 @@ local function buildContent()
 	startTab(1)
 	action(function()
 		if UI.locked then
-			return "ENTSPERREN  -  Fenster verschieben", 1, 0.86, 0.45
+			return L("UNLOCK  -  move windows"), 1, 0.86, 0.45
 		end
-		return "SPERREN  -  Positionen fixieren", 0.10, 0.93, 0.50
+		return L("LOCK  -  fix positions"), 0.10, 0.93, 0.50
 	end, function()
 		UI.setLocked(not UI.locked)
 	end, function()
 		return not UI.locked
 	end)
-	toggle("Einrasten (Snap)", function() return UI.snap end, function(v) UI.setSnap(v) end)
-	stepper("Raster", function() return UI.grid end, function(v) UI.setGrid(v) end, 4, 0, 32, function(v)
+	toggle(L("Snap to grid"), function() return UI.snap end, function(v) UI.setSnap(v) end)
+	stepper(L("Grid"), function() return UI.grid end, function(v) UI.setGrid(v) end, 4, 0, 32, function(v)
 		if v == 0 then
-			return "aus"
+			return L("off")
 		end
 		return v .. " px"
 	end)
 	if api.map then
-		toggle("Quadratische Minimap", function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
+		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
 	end
 	if api.units or api.nav then
 		cursor = cursor + 4
-		section("ORIGINAL AUSBLENDEN")
+		section(L("HIDE ORIGINAL"))
 		if api.units then
-			toggle("Standard-Spieler- und Zielfeld", function() return A("units", "getStockHidden") end, function(v) A("units", "setStockHidden", v) end)
+			toggle(L("Default player and target frames"), function() return A("units", "getStockHidden") end, function(v) A("units", "setStockHidden", v) end)
 		end
 		if api.nav then
-			toggle("Original-Bossleiste", function() return A("nav", "getHudHidden", "bosses") end, function(v) A("nav", "setHudHidden", "bosses", v) end)
+			toggle(L("Original boss bar"), function() return A("nav", "getHudHidden", "bosses") end, function(v) A("nav", "setHudHidden", "bosses", v) end)
 		end
 	end
 	if api.bars then
 		if not (api.units or api.nav) then
 			cursor = cursor + 4
-			section("ORIGINAL AUSBLENDEN")
+			section(L("HIDE ORIGINAL"))
 		end
-		toggle("Gryphons + Leistenhintergrund", function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
+		toggle(L("Gryphons + bar background"), function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
 	end
-	toggle("Pixel-genaue Rahmen (nach /reload)", function() return not (AegisDB and AegisDB.pixel == false) end, function(v)
+	toggle(L("Pixel-perfect borders (after /reload)"), function() return not (AegisDB and AegisDB.pixel == false) end, function(v)
 		AegisDB = AegisDB or {}
 		AegisDB.pixel = v and true or false
 	end)
 	cursor = cursor + 4
 	action(function()
-		return "PROFIL EXPORT / IMPORT", 1, 0.86, 0.45
+		local l = AegisDB and AegisDB.lang
+		local nm = "Auto"
+		if l == "de" then
+			nm = "Deutsch"
+		elseif l == "en" then
+			nm = "English"
+		end
+		return L("Language: ") .. nm .. L("  (click, then /reload)"), 1, 0.86, 0.45
+	end, function()
+		AegisDB = AegisDB or {}
+		local l = AegisDB.lang
+		if l == nil then
+			AegisDB.lang = "en"
+		elseif l == "en" then
+			AegisDB.lang = "de"
+		else
+			AegisDB.lang = nil
+		end
+	end)
+	action(function()
+		return L("PROFILE EXPORT / IMPORT"), 1, 0.86, 0.45
 	end, function()
 		showProfile()
 	end)
 	action(function()
-		return "POSITIONEN ZURUECKSETZEN", 0.80, 0.83, 0.90
+		return L("RESET POSITIONS"), 0.80, 0.83, 0.90
 	end, function()
 		UI.resetAll()
 	end, nil)
 
 	-- Tab 2: MODULE ---------------------------------------------------
 	startTab(2)
-	section("ANZEIGE")
+	section(L("DISPLAY"))
 	if api.chat then
-		toggle("Chat-Reskin (aus nach /reload)", function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
+		toggle(L("Chat reskin (off after /reload)"), function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
 	end
 	local any = false
 	if api.meter then
@@ -607,29 +629,29 @@ local function buildContent()
 	end
 	if api.nav then
 		any = true
-		toggle("Waypoint-Pfeil + Boss-HP", function() return A("nav", "isShown") end, function(v) A("nav", "setShown", v) end)
+		toggle(L("Waypoint arrow + boss HP"), function() return A("nav", "isShown") end, function(v) A("nav", "setShown", v) end)
 	end
 	if api.units then
 		any = true
-		toggle("Spielerkarte", function() return A("units", "getPlayer") end, function(v) A("units", "setPlayer", v) end)
-		toggle("Zielkarte", function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
-		toggle("Nameplates der Mobs", function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
+		toggle(L("Player card"), function() return A("units", "getPlayer") end, function(v) A("units", "setPlayer", v) end)
+		toggle(L("Target card"), function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
+		toggle(L("Mob nameplates"), function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
 	end
 	if api.bars then
-		toggle("Eigene Aktionsleiste + XP-Leiste", function() return A("bars", "getCustom") end, function(v) A("bars", "setCustom", v) end)
+		toggle(L("Custom action bar + XP bar"), function() return A("bars", "getCustom") end, function(v) A("bars", "setCustom", v) end)
 	end
 	if not any then
 		local fs = host:CreateFontString(nil, "OVERLAY")
 		fs:SetFont(FONT_NUM, 11, "")
 		fs:SetTextColor(0.49, 0.51, 0.58)
 		fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
-		fs:SetText("Keine Module (AegisMeter, AegisNav, AegisUnits) geladen.")
+		fs:SetText(L("No modules (AegisMeter, AegisNav, AegisUnits) loaded."))
 	end
 	if api.meter or api.units then
 		cursor = cursor + 4
-		section("EINSTELLUNGEN")
+		section(L("SETTINGS"))
 		if api.meter then
-			stepper("DPS-Zeitfenster", function() return A("meter", "getDps") end, function(v)
+			stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
 				-- 0 = average over the whole run; the smallest real window is 5 s
 				local cur = A("meter", "getDps") or 10
 				if v > 0 and v < 5 then
@@ -642,27 +664,27 @@ local function buildContent()
 				A("meter", "setDps", v)
 			end, 5, 0, 120, function(v)
 				if v == 0 then
-					return "Schnitt"
+					return L("Average")
 				end
 				return v .. " s"
 			end)
 			action(function()
 				local w = A("meter", "getDps") or 10
 				if w == 0 then
-					return "DPS-Fenster: Standard (Klick = naechstes)", 1, 0.86, 0.45
+					return L("DPS window: default (click = next)"), 1, 0.86, 0.45
 				end
-				return "DPS-Fenster: " .. w .. " s (Klick = naechstes)", 1, 0.86, 0.45
+				return L("DPS window: ") .. w .. L(" s (click = next)"), 1, 0.86, 0.45
 			end, function()
 				A("meter", "cycleDps")
 			end)
 			action(function()
-				return "RUN-LOG ANZEIGEN", 1, 0.86, 0.45
+				return L("SHOW RUN LOG"), 1, 0.86, 0.45
 			end, function()
 				A("meter", "showLog")
 			end)
 		end
 		if api.units then
-			stepper("Abstand der Karten", function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
+			stepper(L("Card spacing"), function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
 				return math.floor(v + 0.5) .. " px"
 			end)
 		end
@@ -670,7 +692,7 @@ local function buildContent()
 
 	-- Tab 3: SKINS (every registered third-party skin shows up here) -----------
 	startTab(3)
-	section("FREMD-ADDONS")
+	section(L("THIRD-PARTY ADDONS"))
 	local sk = AegisSkin
 	local n = 0
 	if sk and sk.order then
@@ -678,15 +700,15 @@ local function buildContent()
 		for i = 1, table.getn(sk.order) do
 			local name = sk.order[i]
 			local d = sk.registry[name]
-			local text = d.label
+			local text = L(d.label)
 			if not sk.IsLoaded(name) then
-				text = text .. "  (nicht installiert)"
+				text = text .. L("  (not installed)")
 			end
 			n = n + 1
 			toggle(text, function() return sk.IsEnabled(name) end, function(v)
 				sk.SetEnabled(name, v)
 				if not v and DEFAULT_CHAT_FRAME then
-					DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Skin '" .. d.label .. "' wird nach /reload deaktiviert.")
+					DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Skin '" .. L(d.label) .. L("' will be disabled after /reload."))
 				end
 			end)
 		end
@@ -696,7 +718,7 @@ local function buildContent()
 		fs:SetFont(FONT_NUM, 11, "")
 		fs:SetTextColor(0.49, 0.51, 0.58)
 		fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
-		fs:SetText("Keine Skins registriert.")
+		fs:SetText(L("No skins registered."))
 	else
 		cursor = cursor + 4
 		local fs = host:CreateFontString(nil, "OVERLAY")
@@ -705,7 +727,7 @@ local function buildContent()
 		fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
 		fs:SetWidth(ROW_W - 4)
 		fs:SetJustifyH("LEFT")
-		fs:SetText("Aktivieren wirkt sofort, Deaktivieren nach /reload. Neue Skins melden sich selbst an (AegisSkin.RegisterSkin).")
+		fs:SetText(L("Enabling works immediately, disabling after /reload. New skins register themselves (AegisSkin.RegisterSkin)."))
 	end
 
 	-- other loaded addons found at login: experimental generic restyle, off by default
@@ -713,7 +735,7 @@ local function buildContent()
 		local found = sk.Discover()
 		if table.getn(found) > 0 then
 			cursor = cursor + 4
-			section("WEITERE ADDONS (EXPERIMENTELL)")
+			section(L("MORE ADDONS (EXPERIMENTAL)"))
 			local shown = 0
 			local j
 			for j = 1, table.getn(found) do
@@ -723,7 +745,7 @@ local function buildContent()
 					toggle(nm, function() return sk.GenericEnabled(nm) end, function(v)
 						sk.SetGeneric(nm, v)
 						if not v and DEFAULT_CHAT_FRAME then
-							DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r '" .. nm .. "' wird nach /reload wieder original.")
+							DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r '" .. nm .. L("' returns to original after /reload."))
 						end
 					end)
 				end
@@ -733,7 +755,7 @@ local function buildContent()
 				fs:SetFont(FONT_NUM, 10, "")
 				fs:SetTextColor(0.49, 0.51, 0.58)
 				fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
-				fs:SetText("+ " .. (table.getn(found) - shown) .. " weitere nicht gelistet")
+				fs:SetText("+ " .. (table.getn(found) - shown) .. L(" more not listed"))
 				cursor = cursor + 14
 			end
 		end
@@ -742,12 +764,12 @@ local function buildContent()
 	-- parts of the game's SurvivorUI that AegisUI replaces (needs /reload)
 	if api.survivor and SurvivorUI_Feature then
 		cursor = cursor + 4
-		section("SURVIVORUI ERSETZEN")
+		section(L("REPLACE SURVIVORUI"))
 		local sv = api.survivor
 		local i
 		for i = 1, table.getn(sv.parts) do
 			local part = sv.parts[i]
-			toggle(part.label .. " aus", function() return sv.getOff(part.key) end, function(v) sv.setOff(part.key, v) end)
+			toggle(L(part.label) .. L(" off"), function() return sv.getOff(part.key) end, function(v) sv.setOff(part.key, v) end)
 		end
 	end
 
@@ -904,13 +926,13 @@ end)
 mb:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 	GameTooltip:AddLine("AegisUI", 1, 0.86, 0.45)
-	GameTooltip:AddLine("Linksklick: Einstellungen", 0.8, 0.83, 0.9)
+	GameTooltip:AddLine(L("Left-click: settings"), 0.8, 0.83, 0.9)
 	if UI.locked then
-		GameTooltip:AddLine("Rechtsklick: entsperren", 0.8, 0.83, 0.9)
+		GameTooltip:AddLine(L("Right-click: unlock"), 0.8, 0.83, 0.9)
 	else
-		GameTooltip:AddLine("Rechtsklick: sperren", 0.8, 0.83, 0.9)
+		GameTooltip:AddLine(L("Right-click: lock"), 0.8, 0.83, 0.9)
 	end
-	GameTooltip:AddLine("Ziehen: am Rand entlang, mit Shift frei", 0.5, 0.54, 0.62)
+	GameTooltip:AddLine(L("Drag: along the edge, free with Shift"), 0.5, 0.54, 0.62)
 	GameTooltip:Show()
 end)
 mb:SetScript("OnLeave", function()
@@ -932,7 +954,7 @@ loader:SetScript("OnEvent", function()
 	end
 	placeButton()
 	if DEFAULT_CHAT_FRAME then
-		DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI|r v" .. VERSION .. " geladen. /aegis oeffnet die Einstellungen.")
+		DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI|r v" .. VERSION .. L(" loaded. /aegis opens the settings."))
 	end
 end)
 
@@ -964,7 +986,17 @@ SlashCmdList["AEGIS"] = function(msg)
 		if h then
 			h(rest)
 		elseif DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Modul '" .. cmd .. "' ist nicht installiert.")
+			DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Module '") .. cmd .. L("' is not installed."))
+		end
+	elseif cmd == "lang" then
+		AegisDB = AegisDB or {}
+		if rest == "de" or rest == "en" then
+			AegisDB.lang = rest
+		else
+			AegisDB.lang = nil
+		end
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Language saved. Type /reload to apply."))
 		end
 	elseif cmd == "chat" then
 		if UI.api.chat then

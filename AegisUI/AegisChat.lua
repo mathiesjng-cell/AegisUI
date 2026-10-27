@@ -3,6 +3,8 @@
 -- scrolling (Shift = page, Ctrl = top/bottom), square edit box below the chat with a gold border
 -- while typing. Switch it on/off in the hub (module tab) or with /aegis chat; "off" needs /reload.
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 local panel, built
 
@@ -236,7 +238,7 @@ local function hubHook()
 			if on then
 				build()
 			elseif DEFAULT_CHAT_FRAME then
-				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Chat-Reskin wird nach /reload deaktiviert.")
+				DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Chat reskin will be disabled after /reload."))
 			end
 		end,
 	}

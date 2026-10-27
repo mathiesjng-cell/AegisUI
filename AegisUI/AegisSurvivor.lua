@@ -3,10 +3,12 @@
 -- It has its own per-part switches (SurvivorUI_Feature / SurvivorUI_SetFeature, "/sui opt");
 -- they take hold at the next /reload. Lua 5.0 / WoW 1.12.
 
+local L = AegisL.t
+
 local PARTS = {
-	{ key = "actionBar", label = "SurvivorUI-Aktionsleiste" },
-	{ key = "unitFrames", label = "SurvivorUI-Spieler/Ziel-Frames" },
-	{ key = "buffs", label = "SurvivorUI-Buffs" },
+	{ key = "actionBar", label = "SurvivorUI action bar" },
+	{ key = "unitFrames", label = "SurvivorUI player/target frames" },
+	{ key = "buffs", label = "SurvivorUI buffs" },
 }
 
 local function present()
@@ -35,7 +37,7 @@ ev:SetScript("OnEvent", function()
 	for i = 1, table.getn(PARTS) do
 		SurvivorUI_SetFeature(PARTS[i].key, false)
 	end
-	say("SurvivorUI-Aktionsleiste, Spieler/Ziel-Frames und Buffs wurden abgeschaltet (AegisUI ersetzt sie). Bitte einmal /reload tippen. Rueckgaengig im Hub, Tab SKINS.")
+	say(L("SurvivorUI action bar, player/target frames and buffs were switched off (AegisUI replaces them). Please type /reload once. Undo in the hub, SKINS tab."))
 end)
 
 if AegisUI and AegisUI.api then
@@ -48,7 +50,7 @@ if AegisUI and AegisUI.api then
 		setOff = function(key, off)
 			if present() then
 				SurvivorUI_SetFeature(key, not off)
-				say("Wirkt nach /reload.")
+				say(L("Takes effect after /reload."))
 			end
 		end,
 	}

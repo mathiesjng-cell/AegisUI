@@ -3,6 +3,8 @@
 -- The arrow is a rotated texture (8-argument SetTexCoord). Heading uses GetPlayerFacing if the
 -- client has it, otherwise it is derived from your last movement (so walk a few steps first).
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local ARROW = "Interface\\AddOns\\AegisNav\\arrow"
@@ -117,7 +119,7 @@ local function collect()
 			local x, y = coordsOf(c[i])
 			local wx, wy = worldOf(c[i])
 			if x then
-				list[table.getn(list) + 1] = { name = "Truhe", x = x, y = y, wx = wx, wy = wy, kind = "chest" }
+				list[table.getn(list) + 1] = { name = L("Chest"), x = x, y = y, wx = wx, wy = wy, kind = "chest" }
 			end
 		end
 	end
@@ -435,7 +437,7 @@ local function update()
 		px, py = GetPlayerMapPosition("player")
 	end
 	if not px or (px == 0 and py == 0) then
-		nameText:SetText("keine Position")
+		nameText:SetText(L("no position"))
 		distText:SetText("")
 		return
 	end
@@ -451,7 +453,7 @@ local function update()
 	end
 	N.lastKey = key
 	if not t then
-		nameText:SetText("kein Ziel")
+		nameText:SetText(L("no target"))
 		distText:SetText("")
 		setArrow(0)
 		return
@@ -471,13 +473,13 @@ local function update()
 
 	local label = t.name
 	if t.kind == "guardian" and t.awake then
-		label = label .. " (Kampf)"
+		label = label .. L(" (combat)")
 	elseif t.kind == "boss" then
 		label = label .. " (Boss)"
 	end
 	if t.kind == "lair" then
 		if t.active then
-			label = label .. " (aktiv)"
+			label = label .. L(" (active)")
 		elseif t.left and t.left >= 0 then
 			label = label .. " in " .. math.floor(t.left) .. "s"
 		end
@@ -485,7 +487,7 @@ local function update()
 	nameText:SetText(label)
 
 	if d < 15 then
-		distText:SetText("da!")
+		distText:SetText(L("here!"))
 	else
 		distText:SetText(math.floor(d + 0.5) .. " yd")
 	end
@@ -495,7 +497,7 @@ local function update()
 	else
 		-- no heading yet: point north-up and ask for movement
 		setArrow(0)
-		distText:SetText(distText:GetText() .. "  (laufen)")
+		distText:SetText(distText:GetText() .. L("  (running)"))
 	end
 end
 
@@ -528,7 +530,7 @@ frame:SetScript("OnUpdate", function()
 	pcall(updateBar)
 	if not ok and not N.told then
 		N.told = true
-		say("Fehler: " .. tostring(err))
+		say(L("Error: ") .. tostring(err))
 	end
 end)
 
@@ -566,25 +568,25 @@ SlashCmdList["AEGISNAV"] = function(msg)
 	local _, _, cmd, arg = string.find(msg, "^(%S*)%s*(%S*)")
 	if cmd == "next" then
 		N.manual = (N.manual or -1) + 1
-		say("Ziel gewechselt. /aegisnav auto = wieder automatisch.")
+		say(L("Target changed. /aegisnav auto = automatic again."))
 	elseif cmd == "auto" then
 		N.manual = nil
-		say("Automatisches Ziel (kaempfender Guardian, Truhe, Guardian, Lair).")
+		say(L("Automatic target (fighting guardian, chest, guardian, lair)."))
 	elseif cmd == "aspect" and tonumber(arg) then
 		N.aspect = tonumber(arg)
 		AegisNavDB.aspect = N.aspect
-		say("Karten-Seitenverhaeltnis " .. N.aspect)
+		say(L("Map aspect ratio ") .. N.aspect)
 	elseif cmd == "yards" and tonumber(arg) then
 		N.yards = tonumber(arg)
 		AegisNavDB.yards = N.yards
-		say("Kartenbreite " .. N.yards .. " yd (nur fuer die Entfernungsanzeige)")
+		say(L("Map width ") .. N.yards .. L(" yd (only used for the distance display)"))
 	elseif cmd == "hud" then
 		-- /aegisnav hud <name> on|off : show or hide one of the game's own HUD parts (names: see /aegismeter inspect)
 		local _, _, hname, hstate = string.find(msg, "^hud%s+(%S+)%s*(%S*)")
 		if not hname then
-			say("Benutzung: /aegisnav hud <name> on|off")
+			say(L("Usage: /aegisnav hud <name> on|off"))
 		elseif not AZS_SetHudShown then
-			say("AZS_SetHudShown fehlt in diesem Client.")
+			say(L("AZS_SetHudShown is missing in this client."))
 		else
 			AegisNavDB.hud = AegisNavDB.hud or {}
 			if hstate == "on" then
@@ -594,12 +596,12 @@ SlashCmdList["AEGISNAV"] = function(msg)
 				AegisNavDB.hud[hname] = false
 				AZS_SetHudShown(hname, false)
 			end
-			say(hname .. " sichtbar: " .. tostring(AZS_IsHudShown and AZS_IsHudShown(hname)))
+			say(hname .. L(" visible: ") .. tostring(AZS_IsHudShown and AZS_IsHudShown(hname)))
 		end
 	elseif cmd == "info" then
 		local list = collect()
 		local i
-		say(table.getn(list) .. " Ziele, Heading " .. tostring(N.heading) .. ", GetPlayerFacing " .. tostring(GetPlayerFacing ~= nil))
+		say(table.getn(list) .. L(" targets, heading ") .. tostring(N.heading) .. ", GetPlayerFacing " .. tostring(GetPlayerFacing ~= nil))
 		for i = 1, table.getn(list) do
 			local t = list[i]
 			say(t.name .. " " .. t.kind .. " x=" .. string.format("%.3f", t.x) .. " y=" .. string.format("%.3f", t.y) .. " active=" .. tostring(t.active) .. " left=" .. tostring(t.left))
@@ -622,14 +624,14 @@ local function hubHook()
 		return
 	end
 	AegisUI.hooked_nav = true
-	AegisUI.register("nav", "Pfeil / Boss-HP", frame, function()
+	AegisUI.register("nav", "Arrow / boss HP", frame, function()
 		AegisNavDB = AegisNavDB or {}
 		AegisNavDB.point, AegisNavDB.rel, AegisNavDB.x, AegisNavDB.y = nil, nil, nil, nil
 		frame:ClearAllPoints()
 		frame:SetPoint("TOP", UIParent, "TOP", 0, -120)
 	end)
 	AegisUI.api.nav = {
-		version = "4.9",
+		version = "5.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

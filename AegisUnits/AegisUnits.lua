@@ -4,6 +4,8 @@
 -- Nameplates only exist when the client shows them (V = enemies, Ctrl+V = friendlies).
 -- Lua 5.0: no '#', no select(), no string.match.
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
@@ -509,7 +511,7 @@ ticker:SetScript("OnUpdate", function()
 	end)
 	if not ok and not U.told then
 		U.told = true
-		say("Fehler: " .. tostring(err))
+		say(L("Error: ") .. tostring(err))
 	end
 end)
 
@@ -564,32 +566,32 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 		else
 			pf:Hide()
 		end
-		say("Spielerfeld " .. (on and "an" or "aus"))
+		say(L("Player frame ") .. (on and L("on") or L("off")))
 	elseif what == "gap" then
 		local n = tonumber(state)
 		if n then
 			AegisUnitsDB.gap = math.floor(n + 0.5)
 			layoutCards()
-			say("Abstand zur Mitte " .. n)
+			say(L("Distance from center ") .. n)
 		else
-			say("Benutzung: /aegisunits gap <Pixel>  (aktuell " .. ((AegisUnitsDB and AegisUnitsDB.gap) or 110) .. ", Standard 110)")
+			say(L("Usage: /aegisunits gap <pixels>  (current ") .. ((AegisUnitsDB and AegisUnitsDB.gap) or 110) .. L(", default 110)"))
 		end
 	elseif what == "target" then
 		U.target = on
 		AegisUnitsDB.target = on
-		say("Zielfeld " .. (on and "an" or "aus"))
+		say(L("Target frame ") .. (on and L("on") or L("off")))
 	elseif what == "plates" then
 		U.plates = on
 		AegisUnitsDB.plates = on
-		say("Nameplates " .. (on and "an (wirkt nach /reload bzw. Neustart voll)" or "aus (nach Neustart wieder Standard)"))
+		say("Nameplates " .. (on and L("on (fully active after /reload or restart)") or L("off (back to default after restart)")))
 	elseif what == "stock" then
 		-- "stock off" hides the game's own player frame, "stock on" brings it back
 		U.stockHidden = not on
 		AegisUnitsDB.stock = not on
 		setStock(not on)
-		say("Standard-Spieler- und Zielfeld ".. (on and "sichtbar" or "versteckt"))
+		say(L("Default player and target frames ").. (on and L("visible") or L("hidden")))
 	else
-		say("/aegisunits player on|off   /aegisunits target on|off   /aegisunits gap <n>   /aegisunits plates on|off   /aegisunits stock on|off (Standard-Spielerfeld)")
+		say(L("/aegisunits player on|off   /aegisunits target on|off   /aegisunits gap <n>   /aegisunits plates on|off   /aegisunits stock on|off (default player frame)"))
 	end
 end
 
@@ -606,10 +608,10 @@ local function hubHook()
 		AegisUnitsDB.bottom = nil
 		layoutCards()
 	end
-	AegisUI.register("player", "Spielerkarte", pf, resetCards)
-	AegisUI.register("target", "Zielkarte", tf, nil)
+	AegisUI.register("player", "Player card", pf, resetCards)
+	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "4.9",
+		version = "5.0",
 		getPlayer = function()
 			return U.player
 		end,

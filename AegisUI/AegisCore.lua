@@ -4,6 +4,8 @@
 --   * snap: on release a frame snaps to screen edges/centre, to the edges of the other frames, or to a grid
 -- Modules call AegisUI.register(...), check AegisUI.locked in their drag handlers and call AegisUI.snapFrame(f).
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
@@ -112,7 +114,7 @@ local function makeOverlay(e)
 	lab:SetFont(FONT, 11, "OUTLINE")
 	lab:SetPoint("CENTER", ov, "CENTER", 0, 0)
 	lab:SetTextColor(1, 0.85, 0.4, 1)
-	lab:SetText(e.label)
+	lab:SetText(AegisL and AegisL.t(e.label) or e.label)
 	ov.entry = e
 	-- the overlay hands the drag to the frame's own handlers, so saving and snapping stay in the modules
 	ov:SetScript("OnDragStart", function()
@@ -160,9 +162,9 @@ function UI.setLocked(v, quiet)
 	UI.refreshOverlays()
 	if not quiet then
 		if UI.locked then
-			say("Gesperrt. Positionen sind fixiert.")
+			say(L("Locked. Positions are fixed."))
 		else
-			say("Entsperrt. Goldene Felder ziehen, loslassen rastet ein.")
+			say(L("Unlocked. Drag the gold fields; releasing snaps them in place."))
 		end
 	end
 end
@@ -192,7 +194,7 @@ function UI.resetAll()
 			UI.list[i].reset()
 		end
 	end
-	say("Positionen zurueckgesetzt.")
+	say(L("Positions reset."))
 end
 
 -- Loading ----------------------------------------------------------------

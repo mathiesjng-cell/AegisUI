@@ -1,0 +1,127 @@
+-- AegisL: tiny shared localisation helper (English source strings, German translations).
+-- Every Aegis addon ships this file; the first one loaded defines AegisL, the others only add their
+-- own translations. Language: AegisDB.lang = "en" | "de" (hub / "/aegis lang de|en|auto"),
+-- otherwise the game client's locale (deDE = German, anything else English).
+if not AegisL then
+	AegisL = { de = {} }
+	function AegisL.lang()
+		local l = AegisDB and AegisDB.lang
+		if l == "de" or l == "en" then
+			return l
+		end
+		if GetLocale and GetLocale() == "deDE" then
+			return "de"
+		end
+		return "en"
+	end
+	function AegisL.add(t)
+		local k, v
+		for k, v in pairs(t) do
+			AegisL.de[k] = v
+		end
+	end
+	function AegisL.t(s)
+		if AegisL.lang() == "de" then
+			local v = AegisL.de[s]
+			if v then
+				return v
+			end
+		end
+		return s
+	end
+end
+
+AegisL.add({
+	["  (click, then /reload)"] = "  (Klick, dann /reload)",
+	["  (not installed)"] = "  (nicht installiert)",
+	[" loaded. /aegis opens the settings."] = " geladen. /aegis oeffnet die Einstellungen.",
+	[" more not listed"] = " weitere nicht gelistet",
+	[" of "] = " von ",
+	[" off"] = " aus",
+	[" s (click = next)"] = " s (Klick = naechstes)",
+	[" sections imported. Apply with /reload."] = " Bereiche uebernommen. Mit /reload anwenden.",
+	["' (tried: "] = "' gefunden (versucht: ",
+	["' is not installed."] = "' ist nicht installiert.",
+	["' returns to original after /reload."] = "' wird nach /reload wieder original.",
+	["' will be disabled after /reload."] = "' wird nach /reload deaktiviert.",
+	[", look on: "] = ", Look an: ",
+	[", parent "] = ", Elternteil ",
+	[", size "] = ", Groesse ",
+	[", styled: "] = ", gestylt: ",
+	[", update hook: "] = ", Update-Hook: ",
+	["Action bar"] = "Aktionsleiste",
+	["ActionButton1 type "] = "ActionButton1 Typ ",
+	["AegisUI Profile"] = "AegisUI Profil",
+	["Average"] = "Schnitt",
+	["Bar art present: "] = "Leisten-Art vorhanden: ",
+	["Buttons found: "] = "Buttons gefunden: ",
+	["Card spacing"] = "Abstand der Karten",
+	["Chat reskin (off after /reload)"] = "Chat-Reskin (aus nach /reload)",
+	["Close"] = "Schliessen",
+	["Custom action bar + XP bar"] = "Eigene Aktionsleiste + XP-Leiste",
+	["DISPLAY"] = "ANZEIGE",
+	["DPS time window"] = "DPS-Zeitfenster",
+	["DPS window: "] = "DPS-Fenster: ",
+	["DPS window: default (click = next)"] = "DPS-Fenster: Standard (Klick = naechstes)",
+	["Default player and target frames"] = "Standard-Spieler- und Zielfeld",
+	["Drag: along the edge, free with Shift"] = "Ziehen: am Rand entlang, mit Shift frei",
+	["Enabling works immediately, disabling after /reload. New skins register themselves (AegisSkin.RegisterSkin)."] = "Aktivieren wirkt sofort, Deaktivieren nach /reload. Neue Skins melden sich selbst an (AegisSkin.RegisterSkin).",
+	["Export"] = "Exportieren",
+	["Export: select + Ctrl+C   Import: paste text (Ctrl+V)"] = "Export: markieren + Strg+C   Import: Text einfuegen (Strg+V)",
+	["Grid"] = "Raster",
+	["Gryphons + bar background"] = "Gryphons + Leistenhintergrund",
+	["HIDE ORIGINAL"] = "ORIGINAL AUSBLENDEN",
+	["Import"] = "Importieren",
+	["LOCK  -  fix positions"] = "SPERREN  -  Positionen fixieren",
+	["Language saved. Type /reload to apply."] = "Sprache gespeichert. /reload tippen zum Anwenden.",
+	["Language: "] = "Sprache: ",
+	["Left-click: settings"] = "Linksklick: Einstellungen",
+	["Locked. Positions are fixed."] = "Gesperrt. Positionen sind fixiert.",
+	["Luck window (LuckyOdds)"] = "Luck-Fenster (LuckyOdds)",
+	["LuckyOdds (odds panel)"] = "LuckyOdds (Odds-Panel)",
+	["MODULES"] = "MODULE",
+	["MORE ADDONS (EXPERIMENTAL)"] = "WEITERE ADDONS (EXPERIMENTELL)",
+	["Mob nameplates"] = "Nameplates der Mobs",
+	["No modules (AegisMeter, AegisNav, AegisUnits) loaded."] = "Keine Module (AegisMeter, AegisNav, AegisUnits) geladen.",
+	["No skins registered."] = "Keine Skins registriert.",
+	["Not a valid profile (must start with AEGIS1:)."] = "Kein gueltiges Profil (muss mit AEGIS1: beginnen).",
+	["OFF"] = "AUS",
+	["ON"] = "AN",
+	["Original boss bar"] = "Original-Bossleiste",
+	["PROFILE EXPORT / IMPORT"] = "PROFIL EXPORT / IMPORT",
+	["Pixel-perfect borders (after /reload)"] = "Pixel-genaue Rahmen (nach /reload)",
+	["Player card"] = "Spielerkarte",
+	["Positions reset."] = "Positionen zurueckgesetzt.",
+	["Profile contained no settings."] = "Profil enthielt keine Einstellungen.",
+	["Profile created. Everything is selected: Ctrl+C to copy."] = "Profil erzeugt. Alles ist markiert: Strg+C zum Kopieren.",
+	["Profile unreadable."] = "Profil nicht lesbar.",
+	["Profile unreadable: "] = "Profil nicht lesbar: ",
+	["REPLACE SURVIVORUI"] = "SURVIVORUI ERSETZEN",
+	["RESET POSITIONS"] = "POSITIONEN ZURUECKSETZEN",
+	["Right-click: lock"] = "Rechtsklick: sperren",
+	["Right-click: unlock"] = "Rechtsklick: entsperren",
+	["SETTINGS"] = "EINSTELLUNGEN",
+	["SHOW RUN LOG"] = "RUN-LOG ANZEIGEN",
+	["Snap to grid"] = "Einrasten (Snap)",
+	["Square minimap"] = "Quadratische Minimap",
+	["SurvivorUI action bar"] = "SurvivorUI-Aktionsleiste",
+	["SurvivorUI action bar, player/target frames and buffs were switched off (AegisUI replaces them). Please type /reload once. Undo in the hub, SKINS tab."] = "SurvivorUI-Aktionsleiste, Spieler/Ziel-Frames und Buffs wurden abgeschaltet (AegisUI ersetzt sie). Bitte einmal /reload tippen. Rueckgaengig im Hub, Tab SKINS.",
+	["SurvivorUI buffs"] = "SurvivorUI-Buffs",
+	["SurvivorUI player/target frames"] = "SurvivorUI-Spieler/Ziel-Frames",
+	["THIRD-PARTY ADDONS"] = "FREMD-ADDONS",
+	["Takes effect after /reload."] = "Wirkt nach /reload.",
+	["Target card"] = "Zielkarte",
+	["UNLOCK  -  move windows"] = "ENTSPERREN  -  Fenster verschieben",
+	["Unlocked. Drag the gold fields; releasing snaps them in place."] = "Entsperrt. Goldene Felder ziehen, loslassen rastet ein.",
+	["Waypoint arrow + boss HP"] = "Waypoint-Pfeil + Boss-HP",
+	["off"] = "aus",
+	["|cffd2a24aAegisSkin:|r No main window found for '"] = "|cffd2a24aAegisSkin:|r Kein Hauptfenster fuer '",
+	["|cffd2a24aAegisUI:|r Action bar look will be disabled after /reload."] = "|cffd2a24aAegisUI:|r Aktionsleisten-Look wird nach /reload deaktiviert.",
+	["|cffd2a24aAegisUI:|r Chat reskin will be disabled after /reload."] = "|cffd2a24aAegisUI:|r Chat-Reskin wird nach /reload deaktiviert.",
+	["|cffd2a24aAegisUI:|r Module '"] = "|cffd2a24aAegisUI:|r Modul '",
+	["|cffd2a24aAegisUI:|r The original bar returns after /reload."] = "|cffd2a24aAegisUI:|r Die originale Leiste kommt nach /reload zurueck.",
+	["|cffd2a24aWho:|r off"] = "|cffd2a24aWho:|r aus",
+	["|cffd2a24aWho:|r on - move the mouse over the icons, /aegis who stops."] = "|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis who beendet.",
+	["|cffff4444AegisBar error:|r "] = "|cffff4444AegisBar Fehler:|r ",
+	["|cffff4444AegisBars error:|r "] = "|cffff4444AegisBars Fehler:|r ",
+})

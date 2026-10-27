@@ -6,6 +6,8 @@
 --
 -- Helpers for a uniform look: ApplyPanel, ApplyRow, SkinIcon, GoldLine, StyleText.
 
+local L = AegisL.t
+
 AegisSkin = AegisSkin or {}
 AegisSkin.registry = {}   -- [addonName] = { label, skinFn, default }
 AegisSkin.order = {}      -- registration order (stable list in the hub)
@@ -290,7 +292,7 @@ function AegisSkin.SetGeneric(addon, on)
 		if f then
 			pcall(AegisSkin.SkinGenericFrame, f)
 		elseif DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisSkin:|r Kein Hauptfenster fuer '" .. addon .. "' gefunden (versucht: " .. addon .. ", " .. addon .. "Frame ...).")
+			DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisSkin:|r No main window found for '") .. addon .. L("' (tried: ") .. addon .. ", " .. addon .. "Frame ...).")
 		end
 	end
 end

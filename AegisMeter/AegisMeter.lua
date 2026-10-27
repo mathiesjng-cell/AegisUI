@@ -4,6 +4,8 @@
 --   AZS_GetMeter / AZS_GetHealing / AZS_GetBossMeter / AZS_TAKEN
 -- Each meter line has: name, dmg, dps, proc, icon, class, top, topdps.
 
+local L = AegisL.t
+
 local ROW_H = 20
 local ROW_GAP = 2
 local PITCH = ROW_H + ROW_GAP
@@ -487,7 +489,7 @@ local function doReset()
 	if mode == "damage" then
 		hitStats = {}
 	end
-	say("Reset (" .. (MODE_TITLE[mode] or mode) .. "). Der eingebaute Meter behaelt seine Zahlen.")
+	say("Reset (" .. (MODE_TITLE[mode] or mode) .. L("). The built-in meter keeps its numbers."))
 end
 
 local frame = CreateFrame("Frame", "AegisMeterFrame", UIParent)
@@ -769,9 +771,9 @@ local function cycleDps(to)
 	AegisMeterDB.dpsWindow = nxt
 	histories = {}
 	if nxt == 0 then
-		say("DPS: Standard (Schnitt ueber den ganzen Lauf).")
+		say(L("DPS: default (average over the whole run)."))
 	else
-		say("DPS: letzte " .. nxt .. " Sekunden.")
+		say(L("DPS: last ") .. nxt .. L(" seconds."))
 	end
 	refresh()
 end
@@ -785,8 +787,8 @@ rateBtn:SetScript("OnClick", function()
 end)
 rateBtn:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(this, "ANCHOR_TOP")
-	GameTooltip:SetText("DPS-Zeitfenster", 1, 0.86, 0.45)
-	GameTooltip:AddLine("Klick: Standard / 10 s / 60 s / 120 s", 0.8, 0.8, 0.8)
+	GameTooltip:SetText(L("DPS time window"), 1, 0.86, 0.45)
+	GameTooltip:AddLine(L("Click: default / 10 s / 60 s / 120 s"), 0.8, 0.8, 0.8)
 	GameTooltip:Show()
 end)
 rateBtn:SetScript("OnLeave", function()
@@ -818,8 +820,8 @@ resetBtn:SetScript("OnEnter", function()
 	if GameTooltip then
 		GameTooltip:SetOwner(this, "ANCHOR_TOP")
 		GameTooltip:SetText("Reset", 1, 1, 1)
-		GameTooltip:AddLine("Setzt diese Ansicht zurueck.", 0.8, 0.8, 0.8, 1)
-		GameTooltip:AddLine("Der eingebaute Meter behaelt seine Zahlen.", 0.6, 0.6, 0.6, 1)
+		GameTooltip:AddLine(L("Resets this view."), 0.8, 0.8, 0.8, 1)
+		GameTooltip:AddLine(L("The built-in meter keeps its numbers."), 0.6, 0.6, 0.6, 1)
 		GameTooltip:Show()
 	end
 end)
@@ -1179,13 +1181,13 @@ frame:SetScript("OnUpdate", function()
 		local okScan, errScan = pcall(scanIcons)
 		if not okScan and not toldErr then
 			toldErr = true
-			say("Fehler beim Icon-Scan: " .. tostring(errScan))
+			say(L("Icon scan error: ") .. tostring(errScan))
 		end
 	end
 	local ok, err = pcall(refresh)
 	if not ok and not toldErr then
 		toldErr = true
-		say("Fehler: " .. tostring(err))
+		say(L("Error: ") .. tostring(err))
 	end
 end)
 
@@ -1215,7 +1217,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v4.9 geladen. /aegismeter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.")
+	say("v5.0 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1253,13 +1255,13 @@ local function showDump(text)
 		local t = f:CreateFontString(nil, "OVERLAY")
 		t:SetFont(FONT_TEXT, 12, "OUTLINE")
 		t:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -9)
-		t:SetText("AegisMeter - Text kopieren")
+		t:SetText(L("AegisMeter - copy text"))
 		t:SetTextColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
 
 		local hint = f:CreateFontString(nil, "OVERLAY")
 		hint:SetFont(FONT_TEXT, 10)
 		hint:SetPoint("TOPRIGHT", f, "TOPRIGHT", -34, -11)
-		hint:SetText("Alles markieren, dann Strg+C")
+		hint:SetText(L("Select all, then Ctrl+C"))
 		hint:SetTextColor(0.5, 0.54, 0.62, 1)
 
 		local sf = CreateFrame("ScrollFrame", "AegisMeterDumpScroll", f, "UIPanelScrollFrameTemplate")
@@ -1293,7 +1295,7 @@ local function showDump(text)
 			b:SetScript("OnClick", fn)
 			return b
 		end
-		mkBtn("Alles markieren", 10, 120, function()
+		mkBtn(L("Select all"), 10, 120, function()
 			dumpFrame.edit:SetFocus()
 			dumpFrame.edit:HighlightText()
 		end)
@@ -1414,11 +1416,11 @@ local function logReport(step)
 	local sm = runLog.s
 	local n = table.getn(sm)
 	if n < 3 then
-		return "Noch kein Log. Der Log laeuft automatisch im Run mit (Schaden pro Sekunde)."
+		return L("No log yet. The log runs automatically during a run (damage per second).")
 	end
 	step = step or runLog.step or 10
-	local out = "AEGISMETER RUN-LOG  (Intervall " .. step .. " s)\n"
-	out = out .. "Zeit    DPS im Intervall   Aenderung   Top-Zauber (DPS)\n"
+	local out = L("AEGISMETER RUN LOG  (interval ") .. step .. " s)\n"
+	out = out .. L("Time    DPS in interval   Change   Top spells (DPS)\n")
 	local prevT, prevTot = sm[1].t, sm[1].total
 	local mark = prevT + step
 	local prevDps = nil
@@ -1468,9 +1470,9 @@ local function logReport(step)
 		end
 	end
 	local last = sm[n]
-	out = out .. "\nGesamt: " .. fmtBig(last.total) .. " in " .. mmss(last.t) .. "  (Schnitt " .. fmtAvg(last.total / last.t) .. " DPS)\n"
+	out = out .. L("\nTotal: ") .. fmtBig(last.total) .. " in " .. mmss(last.t) .. L("  (average ") .. fmtAvg(last.total / last.t) .. " DPS)\n"
 	if low then
-		out = out .. "Spitze: " .. fmtAvg(peak) .. " DPS bei " .. mmss(peakT) .. "   Tief: " .. fmtAvg(low) .. " DPS bei " .. mmss(lowT) .. "\n"
+		out = out .. L("Peak: ") .. fmtAvg(peak) .. L(" DPS at ") .. mmss(peakT) .. L("   Low: ") .. fmtAvg(low) .. L(" DPS at ") .. mmss(lowT) .. "\n"
 	end
 	return out
 end
@@ -1493,7 +1495,7 @@ SlashCmdList["AEGISMETER"] = function(msg)
 		end
 		say("runtime " .. tostring(AZS_GetRunTime and AZS_GetRunTime()) .. "  total " .. tostring(dtotal) .. "  gameDps " .. tostring(dgame) .. "  lines " .. dcount)
 		if dl and dl[1] then
-			say("zeile1: " .. tostring(dl[1].name) .. "  dmg=" .. tostring(dl[1].dmg) .. "  dps=" .. tostring(dl[1].dps))
+			say(L("line1: ") .. tostring(dl[1].name) .. "  dmg=" .. tostring(dl[1].dmg) .. "  dps=" .. tostring(dl[1].dps))
 		end
 		if AZS_METER then
 			local rc = table.getn(AZS_METER)
@@ -1506,9 +1508,9 @@ SlashCmdList["AEGISMETER"] = function(msg)
 			say("AZS_METER: nil")
 		end
 		if AZS_IsHudShown then
-			say("eingebauter Meter sichtbar: " .. tostring(AZS_IsHudShown("meter")))
+			say(L("built-in meter visible: ") .. tostring(AZS_IsHudShown("meter")))
 		end
-		say("fenster " .. dpsWindow() .. "s  anzeige total " .. tostring(bases[mode] and "reset aktiv" or "ohne reset"))
+		say(L("window ") .. dpsWindow() .. L("s  display total ") .. tostring(bases[mode] and L("reset active") or L("no reset")))
 	elseif msg == "inspect" then
 		showDump(inspectGame())
 	elseif string.find(msg, "^globals") then
@@ -1531,7 +1533,7 @@ SlashCmdList["AEGISMETER"] = function(msg)
 			end
 		end
 		table.sort(names)
-		local out = table.getn(names) .. " Treffer (f=Funktion, t=Tabelle)" .. "\n"
+		local out = table.getn(names) .. L(" hits (f=function, t=table)") .. "\n"
 		local line = ""
 		local n
 		for n = 1, table.getn(names) do
@@ -1559,7 +1561,7 @@ SlashCmdList["AEGISMETER"] = function(msg)
 		if val == "avg" or val == "0" then
 			AegisMeterDB.dpsWindow = 0
 			histories = {}
-			say("DPS: Durchschnitt ueber den ganzen Lauf.")
+			say(L("DPS: average over the whole run."))
 		elseif tonumber(val) then
 			local nsec = math.floor(tonumber(val))
 			if nsec < 5 then
@@ -1569,9 +1571,9 @@ SlashCmdList["AEGISMETER"] = function(msg)
 			end
 			AegisMeterDB.dpsWindow = nsec
 			histories = {}
-			say("DPS: ueber die letzten " .. nsec .. " Sekunden.")
+			say(L("DPS: over the last ") .. nsec .. L(" seconds."))
 		else
-			say("DPS-Fenster: " .. dpsWindow() .. " s. Aendern: /aegismeter dps avg|10|60|120 (oder Klick auf die DPS-Zahl). Run-Log: /aegismeter log [Sekunden]")
+			say(L("DPS window: ") .. dpsWindow() .. L(" s. Change: /aegismeter dps avg|10|60|120 (or click the DPS number). Run log: /aegismeter log [seconds]"))
 		end
 		refresh()
 	else
@@ -1600,7 +1602,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "4.9",
+		version = "5.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

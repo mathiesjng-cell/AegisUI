@@ -2,6 +2,8 @@
 -- main bar art (gryphons, bar background). WoW 1.12 / Lua 5.0. Everything is best effort and
 -- pcall-guarded: buttons or textures that do not exist (custom bar addons) are skipped.
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 
 local BAR_PREFIX = {
@@ -249,7 +251,7 @@ local function buildBar()
 	xpText:SetPoint("CENTER", xp, "CENTER", 0, 0)
 
 	if AegisUI and AegisUI.register then
-		AegisUI.register("bar", "Aktionsleiste", bf, function()
+		AegisUI.register("bar", "Action bar", bf, function()
 			db().point = nil
 			bf:ClearAllPoints()
 			bf:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 16)
@@ -443,13 +445,13 @@ ev:SetScript("OnEvent", function()
 	if skinOn() or custom then
 		local ok, err = pcall(AegisUI_SkinActionBars)
 		if not ok and DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffff4444AegisBars Fehler:|r " .. tostring(err))
+			DEFAULT_CHAT_FRAME:AddMessage(L("|cffff4444AegisBars error:|r ") .. tostring(err))
 		end
 	end
 	if custom then
 		local ok, err = pcall(layoutBar)
 		if not ok and DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffff4444AegisBar Fehler:|r " .. tostring(err))
+			DEFAULT_CHAT_FRAME:AddMessage(L("|cffff4444AegisBar error:|r ") .. tostring(err))
 		end
 	end
 	if db().hideArt or custom then
@@ -468,7 +470,7 @@ if AegisUI then
 				if v then
 					pcall(AegisUI_SkinActionBars)
 				elseif DEFAULT_CHAT_FRAME then
-					DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Aktionsleisten-Look wird nach /reload deaktiviert.")
+					DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Action bar look will be disabled after /reload."))
 				end
 			end,
 			getCustom = function()
@@ -481,7 +483,7 @@ if AegisUI then
 					pcall(layoutBar)
 					pcall(applyArt)
 				elseif DEFAULT_CHAT_FRAME then
-					DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r Die originale Leiste kommt nach /reload zurueck.")
+					DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r The original bar returns after /reload."))
 				end
 			end,
 			getArt = function()
@@ -511,10 +513,10 @@ function AegisUI_BarsDebug()
 			end
 		end
 	end
-	say("Buttons gefunden: " .. found .. " von " .. total .. ", Look an: " .. tostring(skinOn()) .. ", gestylt: " .. tostring(B.skinned.ActionButton1) .. ", Update-Hook: " .. tostring(B.hooked))
+	say(L("Buttons found: ") .. found .. L(" of ") .. total .. L(", look on: ") .. tostring(skinOn()) .. L(", styled: ") .. tostring(B.skinned.ActionButton1) .. L(", update hook: ") .. tostring(B.hooked))
 	local b = getglobal("ActionButton1")
 	if b then
-		say("ActionButton1 Typ " .. tostring(b:GetObjectType()) .. ", Groesse " .. tostring(b:GetWidth()) .. "x" .. tostring(b:GetHeight()) .. ", Elternteil " .. tostring(b:GetParent() and b:GetParent():GetName()))
+		say(L("ActionButton1 type ") .. tostring(b:GetObjectType()) .. L(", size ") .. tostring(b:GetWidth()) .. "x" .. tostring(b:GetHeight()) .. L(", parent ") .. tostring(b:GetParent() and b:GetParent():GetName()))
 		local regs = { b:GetRegions() }
 		for i = 1, table.getn(regs) do
 			local r = regs[i]
@@ -531,7 +533,7 @@ function AegisUI_BarsDebug()
 			art[table.getn(art) + 1] = ART[i]
 		end
 	end
-	say("Leisten-Art vorhanden: " .. table.concat(art, ", "))
+	say(L("Bar art present: ") .. table.concat(art, ", "))
 end
 
 -- /aegis who: prints the name chain of the frame under the mouse whenever it changes
@@ -542,7 +544,7 @@ function AegisUI_Who()
 	if whoFrame and whoFrame.on then
 		whoFrame.on = false
 		whoFrame:SetScript("OnUpdate", nil)
-		DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aWho:|r aus")
+		DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aWho:|r off"))
 		return
 	end
 	if not whoFrame then
@@ -550,7 +552,7 @@ function AegisUI_Who()
 	end
 	whoFrame.on = true
 	whoLast = nil
-	DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis who beendet.")
+	DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aWho:|r on - move the mouse over the icons, /aegis who stops."))
 	whoFrame:SetScript("OnUpdate", function()
 		local f = GetMouseFocus and GetMouseFocus()
 		if f == whoLast then

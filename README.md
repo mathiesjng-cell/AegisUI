@@ -1,114 +1,104 @@
 # AegisUI
 
-UI-Pack für **Azeroth Survivors** (WoW-1.12-Client, Lua 5.0, Interface 11200). Dunkel, eckig, goldene Akzente.
+A UI pack for **Azeroth Survivors** (WoW 1.12 client, Lua 5.0, Interface 11200). Dark, square, gold accents.
 
-Das Pack besteht aus vier getrennten Addons, die zusammen ein UI ergeben. Jedes läuft auch einzeln; der Hub zeigt nur, was installiert ist.
+The pack is made of four separate addons that together form one UI. Each one also runs on its own; the hub only shows what is installed.
 
-| Addon | Inhalt |
+| Addon | What it does |
 |---|---|
-| `AegisUI` | Hub (`/aegis`), Minimap-Button, Lock/Snap, quadratische Minimap, eigene Aktionsleiste + XP-Leiste, Chat-Reskin, Skin-Engine für Fremd-Addons, Profil Export/Import |
-| `AegisMeter` | DPS-Meter mit wählbarem DPS-Fenster (Standard / 10 / 60 / 120 s) und Run-Log |
-| `AegisNav` | Wegpunkt-Pfeil, Boss-/Guardian-HP-Leiste mit Enrage-Effekt |
-| `AegisUnits` | Spieler-/Zielkarten und Nameplates |
+| `AegisUI` | Hub (`/aegis`), minimap button, lock/snap, square minimap, custom action bar + XP bar, chat reskin, skin engine for third-party addons, profile export/import |
+| `AegisMeter` | DPS meter with a selectable DPS window (default / 10 / 60 / 120 s) and a run log |
+| `AegisNav` | Waypoint arrow, boss/guardian HP bar with enrage effect |
+| `AegisUnits` | Player/target cards and nameplates |
 
 ## Installation
 
-Die Ordner `AegisUI`, `AegisMeter`, `AegisNav`, `AegisUnits` in `Interface/AddOns` kopieren und das Spiel neu starten (das Spiel liest Addons nur beim Login). `/aegis` öffnet den Hub. Nicht benötigte Module einfach weglassen.
+Copy the folders `AegisUI`, `AegisMeter`, `AegisNav` and `AegisUnits` into `Interface/AddOns` and restart the game (the game only reads addons at login). `/aegis` opens the hub. Leave out any module you do not need.
 
-## Befehle
+## Languages
 
-`/aegis`, `/aegis lock|unlock|reset`, `/aegis meter|nav|units [Befehl]`, `/aegis chat`, `/aegis profile`. Die langen Befehle `/aegismeter`, `/aegisnav`, `/aegisunits` gibt es zusätzlich.
+The pack speaks **English and German**. By default it follows the game client (German client = German, otherwise English). Override it in the hub (LAYOUT tab, "Language") or with `/aegis lang en|de|auto`, then `/reload`.
+
+## Commands
+
+`/aegis`, `/aegis lock|unlock|reset`, `/aegis meter|nav|units [command]`, `/aegis chat`, `/aegis profile`, `/aegis lang en|de|auto`.
+The full names `/aegismeter`, `/aegisnav` and `/aegisunits` work as well.
 
 ## Design
 
-| Zweck | Wert (r,g,b,a) |
+| Purpose | Value (r, g, b, a) |
 |---|---|
 | Panel | 0.04, 0.05, 0.08, 0.96 |
-| Rand | 0.14, 0.16, 0.22, 1 |
-| Gold (Akzent) | 0.78, 0.58, 0.22, 1 |
-| Zeile | 0.06, 0.07, 0.10, 1 |
-| Zeilenrand | 0.17, 0.19, 0.25, 1 |
-| Gedimmter Text | 0.49, 0.51, 0.58 |
-| Gesundheitsverlauf | Grün (0.10,0.80,0.45) → Orange (0.96,0.62,0.18) → Rot (0.74,0.16,0.26) |
+| Border | 0.14, 0.16, 0.22, 1 |
+| Gold (accent) | 0.78, 0.58, 0.22, 1 |
+| Row | 0.06, 0.07, 0.10, 1 |
+| Row border | 0.17, 0.19, 0.25, 1 |
+| Dimmed text | 0.49, 0.51, 0.58 |
+| Health ramp | green (0.10, 0.80, 0.45) → orange (0.96, 0.62, 0.18) → red (0.74, 0.16, 0.26) |
 
-Schriften: FRIZQT (Text mit Outline), ARIALN (Zahlen). Panels sind 1 px umrandet, oben eine goldene Linie.
+Fonts: FRIZQT (outlined text), ARIALN (numbers). Panels have a 1 px border and a gold line on top.
 
----
+## Features
 
-## Funktionen
+### AegisUI (hub + base)
+- **Hub window** with three tabs: LAYOUT (lock/unlock, snap, grid, square minimap, hide original frames, pixel-perfect borders, language, profile export/import, reset), MODULES (meter/nav/units/chat/action bar switches, DPS window, card spacing, run log) and SKINS (all registered skins plus experimental generic skinning of other addons, SurvivorUI replacement).
+- **Minimap button**: draggable along the map edge (Shift = free).
+- **Lock/snap**: all windows register with the hub; unlocked, they can be dragged and snap to the grid.
+- **Square minimap** with a black 2 px border.
+- **Custom action bar**: 7 slots (action slots 1–6 and 12, the ones the game uses), XP bar 1 px above it (purple fill, blue rested bar, "current / max  percent"), square menu buttons (C, B, T, Q, F, M, ESC) inside the bar, stock art (gryphons, bar textures) hidden.
+- **Chat reskin**: panel behind the chat, transparent chat background, flat Aegis-style tabs (General, Combat Log, …), mouse-wheel scrolling (Shift = page, Ctrl = top/bottom), square edit box with a gold border while typing. Switch with `/aegis chat`.
+- **Profile export/import**: settings of all four addons as copyable text.
+- **Pixel-perfect borders** in the skin engine (1 physical pixel at any resolution and UI scale).
+- **SurvivorUI integration**: switches off its action bar, unit frames and buffs when AegisUI replaces them.
 
-### AegisUI (Hub + Basis)
-- **Hub-Fenster** (`/aegis`, auch `/aegisui`, `/mui`; oder Minimap-Button) mit 3 Tabs:
-  - **LAYOUT:** Sperren/Entsperren, Snap, Raster, Quadratische Minimap, „Original ausblenden“ (Spieler-/Zielrahmen, Boss-Leiste, Gryphons + Leistenhintergrund), Reset.
-  - **MODULE:** Meter, Nav, Units ein/aus; „Eigene Aktionsleiste + XP-Leiste“; DPS-Zeitfenster (Stepper + Umschalter Standard/10/60/120 s); RUN-LOG ANZEIGEN; Karten-Abstand der Unit-Karten.
-  - **SKINS:** dynamische Liste aller registrierten Skins (an/aus), plus „SurvivorUI ersetzen“, falls SurvivorUI installiert ist.
-- Fußzeile im Hub: `UI 4.7  Meter 4.7  Nav 4.7  Units 4.7`.
-- **Minimap-Button:** an der Karte entlang ziehbar (Shift = frei), Icon `icon.tga`.
-- **Lock/Snap:** Alle Fenster (Meter, Karten, Leiste, HP-Leiste, LuckyOdds-Panel …) registrieren sich im Hub; entsperrt kann man sie ziehen, sie rasten am Raster/anderen Fenstern ein.
-- **Quadratische Minimap** mit schwarzem 2-px-Rahmen (Schalter im Hub).
-- **Eigene Aktionsleiste** (`AegisBars.lua`):
-  - 7 Slots (Aktionsslots 1–6 und 12 – nur diese nutzt das Spiel), 34×34 px, dunkles Panel + Goldlinie, verschiebbar.
-  - Icons zugeschnitten (0.08–0.92), 1-px dunkler Rahmen, Standard-Buttonrahmen entfernt (auch Bonus-, MultiBar-, Shapeshift- und Pet-Buttons).
-  - **XP-Leiste** 1 px über der Leiste: lila Füllung, blauer „Rested“-Bereich, Text „aktuell / max  Prozent“.
-  - **Menü-Buttons** (C, T, B, Q, F, M, ESC) als quadratische Buttons in der Leiste, goldener Buchstabe, Hover = goldener Rand. Sie öffnen die Fenster direkt (ToggleCharacter usw.). Die Original-Menübuttons sind unsichtbar.
-  - Original-Grafiken (Gryphons, MainMenuBar-Texturen, EndCaps) per Schalter ausgeblendet; der unsichtbare `MainMenuBar`-Rahmen hat die Maus deaktiviert (sonst fängt er Klicks ab).
-  - Debug: `/aegis bars` (Zustand der Leiste), `/aegis who` (zeigt den Frame unter der Maus – hilft bei „was liegt da noch“).
-- **SurvivorUI-Integration:** Beim ersten Login mit SurvivorUI werden dessen Aktionsleiste, Unit-Frames und Buffs abgeschaltet (Hinweis: /reload). Im Hub wieder umschaltbar.
+### Skin engine (`AegisSkin.lua`)
+Reskins other addons in-game without copying their code.
+- `AegisSkin.RegisterSkin(addonName, label, skinFn, default)` runs a skin as soon as the addon is loaded, guarded by `pcall`; errors go to the chat. Skins can be switched in the hub.
+- Helpers: `ApplyPanel`, `ApplyRow`, `SkinIcon`, `GoldLine`, `StyleText`.
+- Included skin: **LuckyOdds** (dark panel, gold line, bordered rows, icon borders, fonts).
+- Experimental generic skinning: the hub lists other loaded addons; switched on, AegisSkin guesses the main frame by name, applies the panel and gold line, crops spell icons and sets Aegis fonts. Off by default.
+- 1.12 pitfall: `SetBackdrop` invalidates previously fetched `GetRegions()` handles, so re-fetch them afterwards.
 
-### AegisUI-Skin-Engine (`AegisSkin.lua`)
-Reskinnen fremder Addons „ingame“, ohne deren Code zu kopieren:
-- `AegisSkin.RegisterSkin(addonName, label, skinFn, default)` – der Skin wird angewendet, sobald das Addon geladen ist (ADDON_LOADED + PLAYER_LOGIN), mit pcall und Fehlermeldung im Chat.
-- Helfer: `ApplyPanel`, `ApplyRow`, `SkinIcon`, `GoldLine`, `StyleText`.
-- Schalter pro Skin im Hub (SKINS-Tab), gespeichert in `AegisDB.skins`.
-- Vorhanden: **LuckyOdds** (`Skin_LuckyOdds.lua`): dunkles Panel, Goldlinie, umrandete Zeilen, Icon-Rahmen, Schriften/Farben. Der LuckyOdds-Minimap-Button bleibt absichtlich im Original.
-- Weitere Addons nach Wunsch (EllesmereUI-Look): einfach neue `Skin_<Addon>.lua` mit `RegisterSkin`.
-- Stolperfallen in 1.12: `SetBackdrop` macht zuvor geholte `GetRegions()`-Handles ungültig → danach neu holen und mit pcall arbeiten.
+### AegisMeter
+- Rows per spell with icon, damage, share and DPS; views: damage, healing, boss damage, damage taken.
+- Hover shows damage, share, DPS, hits and crits. Reset button, run timer, footer with TOTAL and DPS.
+- **DPS window**: click the DPS number in the footer to cycle default (whole-run average) → 10 → 60 → 120 s. Also in the hub or with `/aegismeter dps avg|10|60|120`.
+- **Run log**: records damage every second and a per-spell snapshot every 5 s for the current run (memory only; a new run clears it). `/aegismeter log [seconds]` or the hub button shows DPS per interval, change in percent, top three spells, peak and low.
+- Spell icons are built in (`AegisIcons.lua`), nothing external needed.
 
-### AegisMeter (DPS-Meter)
-- Zeilen pro Zauber mit Icon, Schaden, Anteil, DPS; Ansichten: Schaden / Heilung / Boss / Erlittener Schaden.
-- Hover: Schaden, Anteil, DPS, Treffer, Krits. Reset-Knopf, Zeitanzeige, Footer mit TOTAL und DPS.
-- **DPS-Zeitfenster:** Klick auf die DPS-Zahl unten rechts schaltet Standard (Schnitt über den ganzen Lauf) → 10 s → 60 s → 120 s. Auch über Hub oder `/aegismeter dps avg|10|60|120` (5–120 s möglich).
-- **Run-Log:** läuft automatisch im Run mit (Gesamtschaden pro Sekunde, alle 5 s Zauber-Snapshot), nur im Speicher, wird bei neuem Run geleert. `/aegismeter log [Sekunden]` oder Hub-Knopf: pro Intervall DPS, Änderung in %, Top-3-Zauber; Summe, Spitze, Tief. Textfeld mit Ctrl+C-Kopie.
-- **Icons eingebaut:** `AegisIcons.lua` (255 Zaubername → Icon), damit nichts „?“ ist und nichts extern nötig ist.
-- Befehle: `/aegismeter` (auch `/ameter`, `/mm`): `reset`, `debug`, `inspect`, `globals [filter]`, `dps …`, `log …`.
-- Befund Debug: Die Daten des Spiels laufen korrekt (Gesamtschaden wächst); der Eindruck „steht still“ kam vom Lauf-Schnitt.
+### AegisNav
+- Waypoint arrow with exact distance in yards (from the player and world coordinates).
+- Boss/guardian HP bar: dark panel, gold line, three-stage colour ramp.
+- **Enrage** below 30 % boss HP: pulsing fill, pulsing border, "! ENRAGE !" label.
+- A short gold flash on the arrow whenever a new target is logged.
+- Boss coordinates fall back to lair coordinates (by id) when a boss has none of its own.
 
-### AegisNav (Wegpunkt-Pfeil + Boss-HP-Leiste)
-- Pfeil zeigt zum Ziel, exakte Distanz in Yards (aus Spielerposition und Weltkoordinaten).
-- Boss-/Guardian-HP-Leiste: dunkles Panel, goldene Linie, 3-stufiger Farbverlauf.
-- **Enrage** unter 30 % Boss-HP: pulsierende Füllung (dunkelrot ↔ gold), pulsierender Rand, Label „! ENRAGE !“.
-- Boss-Koordinaten fallen auf die Lair-Koordinaten (nach ID) zurück, wenn der Boss keine eigenen hat (ingame noch ungetestet).
-- Befehle: `/aegisnav` (auch `/anav`, `/mn`).
+### AegisUnits
+- Player and target cards in the panel style, nameplate bar with panel colours and a gold line.
+- Adjustable card spacing; the original player/target frames can be hidden.
 
-### AegisUnits (Spieler-/Zielkarten + Nameplates)
-- Karten für Spieler/Ziel im Panel-Stil, Nameplate-Leiste mit Panel-Farben und Goldlinie.
-- Kartenabstand einstellbar (Hub).
-- Original-Spieler-/Zielrahmen per Schalter ausblendbar.
-- Befehle: `/aegisunits` (auch `/aunits`, `/mu`).
+## Architecture
 
----
+- **Self-registration**: each module defines `hubHook()` (called at load and again at PLAYER_LOGIN), which calls `AegisUI.register(key, label, frame, reset)` and fills `AegisUI.api.<module>`. The hub builds its rows at PLAYER_LOGIN only for modules that are present, so every addon works without AegisUI.
+- **Localisation**: every addon ships `Locale.lua` (`AegisL`). English strings are the source; `AegisL.add({ ["English"] = "Deutsch" })` adds translations; `L = AegisL.t`.
+- **Saved variables**: `AegisDB` (hub, skins, bar, minimap, language), `AegisMeterDB`, `AegisNavDB`, `AegisUnitsDB`.
+- **Game API** (AZS_*): `AZS_GetMeter/GetHealing/GetBossMeter`, `AZS_TAKEN`, `AZS_GetRunTime`, `AZS_GetBosses/Guardians/Lairs`, `AZS_LAIRS`, `AZS_CHESTS`, `AZS_RUN`, `AZS_STATS`. Map coordinates mx/my (0..1) are not the world coordinates x/y (yards).
+- **Lua 5.0 rules**: globals `this`/`arg1`/`event`; no `#`, no `select`, no `string.match`; use `table.getn`, `math.mod`, `getglobal`; `string.gsub` returns two values; at most 32 upvalues per function and 200 locals per chunk.
 
-## Architektur
+## Known points
 
-- **Selbst-Registrierung:** Jedes Modul definiert `hubHook()` (beim Laden und bei PLAYER_LOGIN) → `AegisUI.register(key, label, frame, reset)` und `AegisUI.api.<modul> = { version, … }`. Der Hub baut seine Zeilen bei PLAYER_LOGIN nur für vorhandene `api`-Einträge → jedes Addon läuft auch ohne AegisUI.
-- Gespeichert: `AegisDB` (Hub, Skins, Leiste, Minimap), `AegisMeterDB`, `AegisNavDB`, `AegisUnitsDB`.
-- Spiel-API (AZS_*): `AZS_GetMeter/GetHealing/GetBossMeter`, `AZS_TAKEN`, `AZS_GetRunTime`, `AZS_GetBosses/Guardians/Lairs`, `AZS_LAIRS`, `AZS_CHESTS`, `AZS_RUN` (px/py in Yards), `AZS_STATS` (Luck). Kartenkoordinaten mx/my (0..1) ≠ Weltkoordinaten x/y (Yards).
-- Lua-5.0-Regeln: globale `this`/`arg1`/`event`, kein `#`, kein `select`, kein `string.match`; `math.mod`, `table.getn`, `getglobal`; `string.gsub` gibt 2 Werte; max. 32 Upvalues pro Funktion, max. 200 Locals pro Chunk; Positionen nach PLAYER_LOGIN/ENTERING_WORLD neu setzen; Drag zuverlässig nur über `RegisterForDrag`.
-
-## Bekannte Punkte
-
-- Ingame ungetestet: Boss-Fallback über Lair-ID, Enrage-Visuals, Run-Log mit echten Daten.
-- Mögliche nächste Schritte: weitere Skins im EllesmereUI-Stil, alte Slash-Aliase (`/mm`, `/mn`, `/mu`, `/mui`) entfernen, LuckyOdds-Logik als eigenes Modul (Unabhängigkeit).
+- Not yet verified in game: the boss lair fallback, the enrage visuals and the run log with real data.
+- Ideas: more skins in an EllesmereUI style, minimap-button orbit correction for single known addons.
 
 ## Credits
 
-AegisUI ist ein Fan-Projekt für **Azeroth Survivors** (ein Fan-Spiel von Aethus) und steht in keiner Verbindung zu Blizzard Entertainment. Das Pack baut auf den Daten und Schnittstellen anderer Addons auf; die Autoren verdienen Dank:
+AegisUI is a fan project for **Azeroth Survivors** (a fan game by Aethus) and is not affiliated with Blizzard Entertainment. It builds on the data and interfaces of other addons, and their authors deserve thanks:
 
-| Addon / Projekt | Autor | Verwendung in AegisUI |
+| Addon / project | Author | Use in AegisUI |
 |---|---|---|
-| **AZSStats** | Slimjim | Die Zuordnung Zaubername → Icon in `AegisMeter/AegisIcons.lua` stammt zum Teil aus `AZSStatsIcons.lua`. |
-| **ASBuilder** | Ulaş Çolaker | Die Icon-Zuordnung stammt zum Teil aus `Data.lua`. |
-| **LuckyOdds** | Cadoky laut README (im `.toc` steht Ulaş Çolaker) | AegisUI gestaltet das Odds-Panel nur um (`Skin_LuckyOdds.lua`). LuckyOdds wird nicht mitgeliefert und nicht kopiert; es muss separat installiert sein. |
-| **SurvivorUI** (Standard-UI des Spiels) | Azeroth-Survivors-Team | Wird nicht mitgeliefert. AegisUI kann einzelne Teile davon abschalten und ersetzt sie durch eigene Module. |
+| **AZSStats** | Slimjim | Part of the spell name → icon mapping in `AegisMeter/AegisIcons.lua` comes from `AZSStatsIcons.lua`. |
+| **ASBuilder** | Ulaş Çolaker | Part of the icon mapping comes from `Data.lua`. |
+| **LuckyOdds** | Cadoky per its README (its `.toc` lists Ulaş Çolaker) | AegisUI only restyles the odds panel (`Skin_LuckyOdds.lua`). LuckyOdds is not included or copied; install it separately. |
+| **SurvivorUI** (the game's default UI) | Azeroth Survivors team | Not included. AegisUI can switch off parts of it and replaces them with its own modules. |
 
-Wenn du Autor eines dieser Projekte bist und eine andere Nennung oder Entfernung wünschst, bitte ein Issue aufmachen.
+If you are the author of one of these projects and want a different credit or removal, please open an issue.

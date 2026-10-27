@@ -183,7 +183,7 @@ local function skin()
 
 	-- 8) hook into AegisUI: registered window (lock / snap) + hub toggle
 	if AegisUI then
-		AegisUI.register("luck", "Luck-Fenster (LuckyOdds)", f, function()
+		AegisUI.register("luck", "Luck window (LuckyOdds)", f, function()
 			if type(LuckyOddsDB) == "table" then
 				LuckyOddsDB.point = nil
 			end
@@ -203,4 +203,4 @@ local function skin()
 	end
 end
 
-AegisSkin.RegisterSkin("LuckyOdds", "LuckyOdds (Odds-Panel)", skin, true)
+AegisSkin.RegisterSkin("LuckyOdds", "LuckyOdds (odds panel)", skin, true)
