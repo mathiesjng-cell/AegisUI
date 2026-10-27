@@ -1318,7 +1318,7 @@ loader:SetScript("OnEvent", function()
 	if AegisMeterDB.point then
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
 	else
-		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -24, 24)     -- default: bottom right
+		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -2, 2)     -- default: bottom right
 	end
 	if AegisMeterDB.mode and MODE_TITLE[AegisMeterDB.mode] then
 		mode = AegisMeterDB.mode
@@ -1723,7 +1723,7 @@ local function hubHook()
 		AegisMeterDB = AegisMeterDB or {}
 		AegisMeterDB.point, AegisMeterDB.rel, AegisMeterDB.x, AegisMeterDB.y = nil, nil, nil, nil
 		frame:ClearAllPoints()
-		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -24, 24)
+		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -2, 2)
 	end)
 	AegisUI.api.meter = {
 		version = "5.9.2",

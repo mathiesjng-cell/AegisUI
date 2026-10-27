@@ -193,7 +193,7 @@ local function placeDefaults()
 	if cf and not AegisDB.chatPlaced then
 		AegisDB.chatPlaced = true
 		cf:ClearAllPoints()
-		cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 24, 60)
+		cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 32)
 		if FCF_SavePositionAndDimensions then
 			pcall(FCF_SavePositionAndDimensions, cf)
 		end
@@ -217,7 +217,7 @@ local function resetChat()
 		applyChatSize()
 	end
 	cf:ClearAllPoints()
-	cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 24, 60)
+	cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 32)
 	if FCF_SavePositionAndDimensions then
 		pcall(FCF_SavePositionAndDimensions, cf)
 	end

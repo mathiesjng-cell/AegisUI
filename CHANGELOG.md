@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Nameplates: at most 10 full plates (target > boss/elite > screen centre), the rest shrinks and dims to 20 % (bar and texts only); trash fades to 20 % while a boss or guardian is up (both configurable in the hub)
 - Hub: DPS time window moved to the top of the Meter page
 - Reset defaults now also puts the chat back to the bottom-left corner (default size) and docks LuckyOdds to its right edge again (`UI.resetHooks`)
+- Default spacing: DPS meter 2 px from the bottom-right corner, chat 2 px from the left edge (32 px up for the edit box)
 - Hub: toggle "Original skill / jewelry rows" (hides the game's `build` HUD part)
 - `/aegis fstack`: frame inspector. Hover shows name, type, size, alpha, scale, strata/level and the parent chain; holding CTRL opens a copy window with that text (Ctrl+C copies; plain clicks are not used so nothing underneath is triggered).
 - `/aegis debug [tool]`: all internal diagnostics in one place (fstack, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag, targetcard, fix). The old direct commands keep working.
