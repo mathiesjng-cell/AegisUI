@@ -4,7 +4,7 @@
 ## SavedVariables: AegisUnitsDB
 ## OptionalDeps: AegisUI
 ## Version: 6.0.0
-## X-License: GPL-3.0
+## X-License: MIT
 
 Locale.lua
 AegisUnits.lua

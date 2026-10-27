@@ -1,7 +1,7 @@
 # AegisUI
 
 [![Version](https://img.shields.io/badge/version-6.0.0-c8942e)](CHANGELOG.md)
-[![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -115,7 +115,7 @@ If you are the author of one of these projects and want a different credit or re
 
 ## License
 
-AegisUI is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License version 3** as published by the Free Software Foundation. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; see [LICENSE](LICENSE) for the full text.
+AegisUI is released under the **MIT License**: use it, change it, share it, also in your own projects, as long as the copyright notice stays in. No warranty; see [LICENSE](LICENSE).
 
 The license covers the AegisUI code. The parts of the spell-icon mapping taken from AZSStats and ASBuilder (see Credits) remain the work of their authors.
 

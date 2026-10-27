@@ -4,7 +4,7 @@
 ## SavedVariables: AegisNavDB
 ## OptionalDeps: AegisUI
 ## Version: 6.0.0
-## X-License: GPL-3.0
+## X-License: MIT
 
 Locale.lua
 AegisNav.lua

@@ -6,10 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ## [Unreleased]
 
 ## [6.0.0] - 2026-10-27
-Major release: single `/aegis` entry point (breaking: the separate module commands are gone), timer widget, nameplate density control, visual polish, GPL-3.0 license.
+Major release: single `/aegis` entry point (breaking: the separate module commands are gone), timer widget, nameplate density control, visual polish, MIT license.
 
 ### License
-- AegisUI is now licensed under the GNU General Public License v3.0 (`LICENSE`, `## X-License: GPL-3.0` in every `.toc`)
+- AegisUI is released under the MIT License (`LICENSE`, `## X-License: MIT` in every `.toc`)
 ### Removed
 - Separate slash commands `/aegismeter`, `/aegisnav`, `/aegisunits` and the alias `/aegisui`: everything goes through `/aegis` (`/aegis meter|nav|units <command>`)
 - Diagnostic tools only under `/aegis debug <tool>` (fstack, frames, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag); `/aegis targetcard` removed (the hub toggle stays)
