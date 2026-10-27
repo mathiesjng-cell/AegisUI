@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.4.6] - 2026-10-27
+### Changed
+- Target card shows what the enemy is to the run (FINAL BOSS / BOSS / GUARDIAN / ELITE) via `AZS_UnitKind`, with the old classification as fallback.
+- The target's nameplate gets the gold caps for any special enemy.
+
 ## [5.4.5] - 2026-10-27
 ### Added
 - `docs/API.md`: reference for the pack's globals, module API, skin engine, saved variables and commands (same layout as the game's addon documentation).

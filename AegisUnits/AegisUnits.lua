@@ -260,9 +260,21 @@ local function newCard(frameName, unit, hasPower)
 		if lv and lv < 0 then
 			lvText = "LV ??"
 		end
-		local cls = UnitClassification and UnitClassification(unit)
-		if cls == "elite" or cls == "rareelite" or cls == "worldboss" then
+		-- what the enemy is to the run (game API; "guardian" is only known for the target)
+		local kind = AZS_UnitKind and AZS_UnitKind(unit)
+		if kind == "final" then
+			lvText = lvText .. "  |cffff5a4dFINAL BOSS|r"
+		elseif kind == "boss" then
+			lvText = lvText .. "  |cffff5a4dBOSS|r"
+		elseif kind == "guardian" then
+			lvText = lvText .. "  |cffff9a33GUARDIAN|r"
+		elseif kind == "elite" then
 			lvText = lvText .. "  |cffd2a24aELITE|r"
+		elseif not kind then
+			local cls = UnitClassification and UnitClassification(unit)
+			if cls == "elite" or cls == "rareelite" or cls == "worldboss" then
+				lvText = lvText .. "  |cffd2a24aELITE|r"
+			end
 		end
 		levelFs:SetText(lvText)
 
@@ -426,6 +438,12 @@ local function refreshPlate(p)
 	bar:SetPoint("TOP", p, "TOP", 0, -15)
 	local isTarget = UnitExists("target") and p:GetAlpha() >= 0.99
 	local elite = m.levelicon and m.levelicon:IsShown()
+	if isTarget and AZS_UnitKind then
+		local k = AZS_UnitKind("target")
+		if k == "final" or k == "boss" or k == "guardian" or k == "elite" then
+			elite = true
+		end
+	end
 	if m.levelicon then
 		m.levelicon:SetAlpha(0)       -- stock dragon icon replaced by the gold caps
 	end
@@ -664,7 +682,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.4.5",
+		version = "5.4.6",
 		getPlayer = function()
 			return U.player
 		end,

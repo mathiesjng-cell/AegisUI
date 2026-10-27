@@ -55,7 +55,8 @@ The addons read the run through the game's `AZS_*` API (see the game's addon doc
 | `AZS_RUN.px`, `.py` | AegisNav | the hero's position in yards, for exact distances |
 | `AZS_CHESTS` | AegisNav | cache targets |
 | `AZS_HUD_CVARS`, `AZS_SetHudShown()`, `AZS_IsHudShown()` | AegisUI, AegisNav | hiding the game's HUD parts that Aegis replaces |
-| `UnitClassification()`, `UnitIsEnemy()`, `UnitIsFriend()` | AegisUnits | elite marker, card edge colour (the cards use no `AZS_*` data) |
+| `AZS_UnitKind(unit)` | AegisUnits | target card label (final / boss / guardian / elite), gold caps on the target's nameplate |
+| `UnitClassification()`, `UnitIsEnemy()`, `UnitIsFriend()` | AegisUnits | elite marker, card edge colour (fallback and edge colour) |
 
 Combat events used (not part of the AZS API): `CHAT_MSG_SPELL_SELF_DAMAGE`,
 `CHAT_MSG_COMBAT_SELF_HITS`, `CHAT_MSG_SPELL_PERIODIC_*_DAMAGE`, `CHAT_MSG_COMBAT_*VS_SELF_HITS`,
