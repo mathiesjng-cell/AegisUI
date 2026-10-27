@@ -3,6 +3,10 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.7.3] - 2026-10-27
+### Fixed
+- Minimap buttons of other addons (LuckyOdds, AZSStats): the icon is now found by its `Interface\Icons` texture, every other texture (ring, background) is cleared instead of only hidden. `/aegis mapdiag` also lists the textures of those buttons.
+
 ## [5.7.2] - 2026-10-27
 ### Fixed
 - The zoom buttons are back: small flat +/- squares in the map's bottom-right corner (the wheel still zooms).

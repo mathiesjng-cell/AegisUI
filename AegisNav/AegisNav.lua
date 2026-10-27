@@ -631,7 +631,7 @@ local function hubHook()
 		frame:SetPoint("TOP", UIParent, "TOP", 0, -120)
 	end)
 	AegisUI.api.nav = {
-		version = "5.7.2",
+		version = "5.7.3",
 		isShown = function()
 			return frame:IsShown()
 		end,

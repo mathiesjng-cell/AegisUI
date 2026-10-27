@@ -149,14 +149,29 @@ local function flatten(b, half, needRing)
 		end
 	end
 	b.aegisFlat = true
+	-- the real icon is the texture from Interface\Icons (else the first one that is not a ring / highlight)
 	for i = 1, table.getn(regs) do
 		local r = regs[i]
 		if r.GetObjectType and r:GetObjectType() == "Texture" then
 			local tex = r:GetTexture()
-			if isRing(tex) then
-				r:Hide()
-			elseif tex and not icon and not string.find(string.lower(tex), "highlight", 1, true) then
+			if tex and type(tex) == "string" and string.find(string.lower(tex), "\\icons\\", 1, true) then
 				icon = r
+			end
+		end
+	end
+	for i = 1, table.getn(regs) do
+		local r = regs[i]
+		if r.GetObjectType and r:GetObjectType() == "Texture" then
+			local tex = r:GetTexture()
+			if r ~= icon then
+				if isRing(tex) or (icon and tex) then
+					if not (tex and string.find(string.lower(tex), "highlight", 1, true)) then
+						r:SetTexture(nil)
+						r:Hide()
+					end
+				elseif tex and not icon and not string.find(string.lower(tex), "highlight", 1, true) then
+					icon = r
+				end
 			end
 		end
 	end
@@ -296,6 +311,23 @@ local function mapDiag()
 		if par then
 			out[table.getn(out) + 1] = "parent=" .. tostring(par:GetName())
 			dump(par, "parent>")
+		end
+	end
+	local names = { "LuckyOddsMinimapButton", "AZSStatsMinimapButton" }
+	local n
+	for n = 1, table.getn(names) do
+		local b = getglobal(names[n])
+		if b then
+			local regs = { b:GetRegions() }
+			local i
+			for i = 1, table.getn(regs) do
+				local r = regs[i]
+				out[table.getn(out) + 1] = names[n] .. " region " .. i .. " " .. r:GetObjectType() .. " tex=" .. tostring(r.GetTexture and r:GetTexture()) .. " shown=" .. tostring(r:IsShown())
+			end
+			local kids = { b:GetChildren() }
+			for i = 1, table.getn(kids) do
+				out[table.getn(out) + 1] = names[n] .. " child " .. i .. " " .. tostring(kids[i]:GetName()) .. " " .. kids[i]:GetObjectType()
+			end
 		end
 	end
 	return table.concat(out, "\n")

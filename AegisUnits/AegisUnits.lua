@@ -735,7 +735,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.7.2",
+		version = "5.7.3",
 		getPlayer = function()
 			return U.player
 		end,
