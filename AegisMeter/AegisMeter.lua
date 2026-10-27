@@ -1330,7 +1330,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.9.2 " .. L("loaded. /aegis meter for commands; settings via /aegis if AegisUI is installed."))
+	say("v6.0.0 " .. L("loaded. /aegis meter for commands; settings via /aegis if AegisUI is installed."))
 	frame:ClearAllPoints()
 	if AegisMeterDB.point then
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1733,7 +1733,7 @@ local function hubHook()
 		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -2, 2)
 	end)
 	AegisUI.api.meter = {
-		version = "5.9.2",
+		version = "6.0.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

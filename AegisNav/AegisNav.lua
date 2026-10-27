@@ -898,7 +898,7 @@ local function hubHook()
 		tf:SetPoint("LEFT", UIParent, "LEFT", 24, 120)
 	end)
 	AegisUI.api.nav = {
-		version = "5.9.2",
+		version = "6.0.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

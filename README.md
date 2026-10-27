@@ -1,6 +1,7 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.9.2-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-6.0.0-c8942e)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -111,6 +112,12 @@ AegisUI is a fan project for **Azeroth Survivors** (a fan game by Aethus) and is
 | **SurvivorUI** (the game's default UI) | Azeroth Survivors team | Not included. AegisUI can switch off parts of it and replaces them with its own modules. |
 
 If you are the author of one of these projects and want a different credit or removal, please open an issue.
+
+## License
+
+AegisUI is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License version 3** as published by the Free Software Foundation. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; see [LICENSE](LICENSE) for the full text.
+
+The license covers the AegisUI code. The parts of the spell-icon mapping taken from AZSStats and ASBuilder (see Credits) remain the work of their authors.
 
 ## Commands (full reference)
 
