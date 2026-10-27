@@ -102,5 +102,13 @@ Reskinnen fremder Addons „ingame“, ohne deren Code zu kopieren:
 
 ## Credits
 
-- Die Zuordnung Zaubername → Icon in `AegisMeter/AegisIcons.lua` stammt aus **AZSStats** (Slimjim) und **ASBuilder** (Ulaş Çolaker).
-- LuckyOdds wird nur umgestaltet (Skin), nicht mitgeliefert und nicht kopiert. SurvivorUI wird nicht mitgeliefert, nur ersetzt bzw. abgeschaltet.
+AegisUI ist ein Fan-Projekt für **Azeroth Survivors** (ein Fan-Spiel von Aethus) und steht in keiner Verbindung zu Blizzard Entertainment. Das Pack baut auf den Daten und Schnittstellen anderer Addons auf; die Autoren verdienen Dank:
+
+| Addon / Projekt | Autor | Verwendung in AegisUI |
+|---|---|---|
+| **AZSStats** | Slimjim | Die Zuordnung Zaubername → Icon in `AegisMeter/AegisIcons.lua` stammt zum Teil aus `AZSStatsIcons.lua`. |
+| **ASBuilder** | Ulaş Çolaker | Die Icon-Zuordnung stammt zum Teil aus `Data.lua`. |
+| **LuckyOdds** | Cadoky laut README (im `.toc` steht Ulaş Çolaker) | AegisUI gestaltet das Odds-Panel nur um (`Skin_LuckyOdds.lua`). LuckyOdds wird nicht mitgeliefert und nicht kopiert; es muss separat installiert sein. |
+| **SurvivorUI** (Standard-UI des Spiels) | Azeroth-Survivors-Team | Wird nicht mitgeliefert. AegisUI kann einzelne Teile davon abschalten und ersetzt sie durch eigene Module. |
+
+Wenn du Autor eines dieser Projekte bist und eine andere Nennung oder Entfernung wünschst, bitte ein Issue aufmachen.
