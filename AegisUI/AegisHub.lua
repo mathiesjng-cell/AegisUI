@@ -1433,9 +1433,10 @@ SlashCmdList["AEGIS"] = function(msg)
 			local i
 			for i = 1, table.getn(kids) do
 				local f = kids[i]
-				if f:IsVisible() and f:GetLeft() and f:GetTop() then
+				local fnm = f:GetName() or ""
+				if f:IsVisible() and f:GetLeft() and f:GetTop() and not string.find(fnm, "^ChatFrame") and not string.find(fnm, "^PlayerFrame") then
 					local fs = f:GetEffectiveScale() or 1
-					if f:GetLeft() * fs < 460 * us and f:GetWidth() < 700 then
+					if f:GetLeft() * fs < 460 * us then
 						local line = string.rep("  ", depth) .. (f:GetName() or "(no name)") .. " [" .. f:GetObjectType() .. "] "
 							.. math.floor(f:GetWidth() + 0.5) .. "x" .. math.floor(f:GetHeight() + 0.5) .. " a=" .. string.format("%.2f", f:GetAlpha())
 						local regs = { f:GetRegions() }
@@ -1453,7 +1454,7 @@ SlashCmdList["AEGIS"] = function(msg)
 							end
 						end
 						out[table.getn(out) + 1] = line
-						if depth < 2 then
+						if depth < 3 then
 							scan(f, depth + 1)
 						end
 					end
