@@ -114,7 +114,7 @@ Every module has its own full command; `/aegis meter|nav|units <command>` forwar
 | `/aegis lock` | Lock all windows in place. |
 | `/aegis unlock` | Unlock: gold fields appear, drag windows, they snap to the grid on release. |
 | `/aegis reset` | Reset all window positions. |
-| `/aegis meter\|nav\|units [command]` | Forward a command to that module (without a command it toggles the module window). |
+| `/aegis meter\|nav\|units [command]` | Forward a command to that module (without a command: meter and nav toggle their window, units prints its help). |
 | `/aegis chat` | Switch the chat reskin on or off (off takes effect after `/reload`). |
 | `/aegis profile` | Open the profile window: export or import all settings as text. |
 | `/aegis lang en\|de\|auto` | Set the language (English, German, or follow the game client); then `/reload`. |
