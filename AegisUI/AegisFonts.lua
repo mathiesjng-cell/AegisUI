@@ -19,16 +19,8 @@ local function cvarOn(name)
 end
 
 
--- /aegis debug ct2: 15 s capture. Do we get damage events with numbers, and can we find the
--- nameplate frames (needed to put own numbers above enemies)?
-local diagFrame, diagWin
-local lines, counts, samples
-local EVENTS = {
-	"UNIT_COMBAT", "COMBAT_TEXT_UPDATE",
-	"CHAT_MSG_COMBAT_SELF_HITS", "CHAT_MSG_SPELL_SELF_DAMAGE", "CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE",
-	"CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS", "CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE",
-	"CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE", "CHAT_MSG_COMBAT_HOSTILEPLAYER_HITS",
-}
+-- copyable text window (diagnostics, frame lists, fstack)
+local diagWin
 
 local function showText(txt)
 	if not diagWin then
@@ -58,74 +50,12 @@ local function showText(txt)
 	diagWin:Show()
 end
 
-local function showResult()
-	showText(table.concat(lines, "\n"))
-end
-
-local function scanPlates()
-	local n, found = 0, 0
-	local kids = { WorldFrame:GetChildren() }
-	for i = 1, table.getn(kids) do
-		local f = kids[i]
-		n = n + 1
-		if f and f:IsShown() and f:GetName() == nil and f.GetCenter then
-			local x, y = f:GetCenter()
-			local w = f:GetWidth()
-			if x and y and w and w > 60 and w < 200 and found < 5 then
-				found = found + 1
-				table.insert(lines, "plate? #" .. i .. " x=" .. math.floor(x) .. " y=" .. math.floor(y) .. " w=" .. math.floor(w) .. " kids=" .. f:GetNumChildren() .. " regions=" .. f:GetNumRegions())
-			end
-		end
-	end
-	table.insert(lines, "WorldFrame children: " .. n .. ", plate candidates: " .. found)
-end
-
-local function runDiag()
-	lines, counts, samples = {}, {}, {}
-	if not diagFrame then
-		diagFrame = CreateFrame("Frame")
-		diagFrame:SetScript("OnEvent", function()
-			counts[event] = (counts[event] or 0) + 1
-			if (samples[event] or 0) < 3 then
-				samples[event] = (samples[event] or 0) + 1
-				local t = ""
-				if event == "UNIT_COMBAT" then
-					t = "unit=" .. tostring(arg1) .. " action=" .. tostring(arg2) .. " crit=" .. tostring(arg3) .. " dmg=" .. tostring(arg4) .. " school=" .. tostring(arg5)
-				else
-					t = tostring(arg1)
-				end
-				table.insert(lines, event .. ": " .. t)
-			end
-		end)
-	end
-	for i = 1, table.getn(EVENTS) do
-		diagFrame:RegisterEvent(EVENTS[i])
-	end
-	DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r ct2 - 15 s capture, please fight now ...")
-	local t0 = GetTime()
-	diagFrame:SetScript("OnUpdate", function()
-		if GetTime() - t0 < 15 then
-			return
-		end
-		diagFrame:SetScript("OnUpdate", nil)
-		diagFrame:UnregisterAllEvents()
-		table.insert(lines, "--- counts ---")
-		for i = 1, table.getn(EVENTS) do
-			table.insert(lines, EVENTS[i] .. " = " .. (counts[EVENTS[i]] or 0))
-		end
-		table.insert(lines, "--- nameplates ---")
-		scanPlates()
-		showResult()
-	end)
-end
-
 local function hubHook()
 	if not AegisUI or AegisUI.hooked_fonts then
 		return
 	end
 	AegisUI.hooked_fonts = true
 	AegisUI.api.fonts = {
-		diag = runDiag,
 		showText = showText,
 		getDamage = function()
 			return cvarOn("CombatDamage")

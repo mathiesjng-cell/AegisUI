@@ -813,12 +813,7 @@ loader:SetScript("OnEvent", function()
 	if AegisNavDB.timerHidden then
 		tf:Hide()
 	end
-	if AegisNavDB.aspect then
-		N.aspect = AegisNavDB.aspect
-	end
-	if AegisNavDB.yards then
-		N.yards = AegisNavDB.yards
-	end
+	AegisNavDB.aspect, AegisNavDB.yards = nil, nil    -- old manual map settings; the defaults are used now
 	if AegisNavDB.hidden then
 		frame:Hide()
 	end
@@ -827,23 +822,15 @@ end)
 SlashCmdList["AEGISNAV"] = function(msg)
 	msg = string.lower(msg or "")
 	AegisNavDB = AegisNavDB or {}
-	local _, _, cmd, arg = string.find(msg, "^(%S*)%s*(%S*)")
+	local _, _, cmd = string.find(msg, "^(%S*)")
 	if cmd == "next" then
 		N.manual = (N.manual or -1) + 1
 		say(L("Target changed. /aegis nav auto = automatic again."))
 	elseif cmd == "auto" then
 		N.manual = nil
 		say(L("Automatic target (fighting guardian, chest, guardian, lair)."))
-	elseif cmd == "aspect" and tonumber(arg) then
-		N.aspect = tonumber(arg)
-		AegisNavDB.aspect = N.aspect
-		say(L("Map aspect ratio ") .. N.aspect)
-	elseif cmd == "yards" and tonumber(arg) then
-		N.yards = tonumber(arg)
-		AegisNavDB.yards = N.yards
-		say(L("Map width ") .. N.yards .. L(" yd (only used for the distance display)"))
 	elseif cmd == "hud" then
-		-- /aegis nav hud <name> on|off : show or hide one of the game's own HUD parts (names: see /aegis meter inspect)
+		-- /aegis nav hud <name> on|off : show or hide one of the game's own HUD parts (names: see /aegis debug meter)
 		local _, _, hname, hstate = string.find(msg, "^hud%s+(%S+)%s*(%S*)")
 		if not hname then
 			say(L("Usage: /aegis nav hud <name> on|off"))
@@ -857,6 +844,9 @@ SlashCmdList["AEGISNAV"] = function(msg)
 			elseif hstate == "off" then
 				AegisNavDB.hud[hname] = false
 				AZS_SetHudShown(hname, false)
+			elseif hstate ~= "" then
+				say(L("Usage: /aegis nav hud <name> on|off"))
+				return
 			end
 			say(hname .. L(" visible: ") .. tostring(AZS_IsHudShown and AZS_IsHudShown(hname)))
 		end
@@ -867,7 +857,7 @@ SlashCmdList["AEGISNAV"] = function(msg)
 			local t = list[i]
 			say(t.name .. " " .. t.kind .. " x=" .. string.format("%.3f", t.x) .. " y=" .. string.format("%.3f", t.y) .. " active=" .. tostring(t.active) .. " left=" .. tostring(t.left))
 		end
-	else
+	elseif cmd == "" then
 		if frame:IsShown() then
 			frame:Hide()
 			AegisNavDB.hidden = true
@@ -875,6 +865,8 @@ SlashCmdList["AEGISNAV"] = function(msg)
 			frame:Show()
 			AegisNavDB.hidden = false
 		end
+	else
+		say(L("commands:") .. " |cffd2a24a/aegis nav|r " .. L("(show/hide)") .. "   |cffd2a24anext|r   |cffd2a24aauto|r   |cffd2a24ahud|r <name> on|off   |cffd2a24ainfo|r")
 	end
 end
 

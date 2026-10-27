@@ -12,7 +12,10 @@ Major release: single `/aegis` entry point (breaking: the separate module comman
 - AegisUI is released under the MIT License (`LICENSE`, `## X-License: MIT` in every `.toc`)
 ### Removed
 - Separate slash commands `/aegismeter`, `/aegisnav`, `/aegisunits` and the alias `/aegisui`: everything goes through `/aegis` (`/aegis meter|nav|units <command>`)
-- Diagnostic tools only under `/aegis debug <tool>` (fstack, frames, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag); `/aegis targetcard` removed (the hub toggle stays)
+- Diagnostic tools only under `/aegis debug <tool>`: fstack, frames, bars, cttest, slot, mapdiag, meter, globals
+- `/aegis meter debug` and `/aegis meter inspect` became `/aegis debug meter`, `/aegis meter globals` became `/aegis debug globals`
+- Removed: `/aegis nav aspect` and `/aegis nav yards` (the defaults are used; old saved values are cleared), `/aegis debug ct`, `ct2`, `slotparts` and `who` (covered by `cttest` and `fstack`), `/aegis targetcard` (the hub toggle stays)
+- Every command checks its arguments: wrong or unknown input prints a short Aegis help line; `/aegis` commands run protected, so a failure prints one line instead of a Lua error. `/aegis help` shows the overview
 - Clean-up: unused locals and loop-variable pre-declarations, unused constants and translations, `AegisSkin.Sharp`, the old session-clock keys in `AegisNavDB`
 ### Added
 - Visual polish, round 2: deeper obsidian insets (`AegisSkin.Bevel`: double shadow line, dark side rims, fine dark-gold lower lip, gradient dark on top), now also on every AegisMeter row

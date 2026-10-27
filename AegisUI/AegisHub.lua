@@ -1287,66 +1287,39 @@ loader:SetScript("OnEvent", function()
 	end
 end)
 
--- /aegis debug ct: what does this client use for the numbers that fly up from enemies? (diagnostic)
-local function combatTextDiag()
-	local function say(t)
-		if DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aCT:|r " .. t)
-		end
-	end
-	local names = { "floatingCombatText", "floatingCombatTextCombatDamage", "floatingCombatTextCombatHealing",
-		"floatingCombatTextCombatState", "floatingCombatTextDamageReduction", "fctDamage", "CombatDamage", "CombatHealing" }
-	for i = 1, table.getn(names) do
-		local ok, v = pcall(GetCVar, names[i])
-		if ok and v ~= nil then
-			say("CVar " .. names[i] .. " = " .. tostring(v))
-		end
-	end
-	say("DAMAGE_TEXT_FONT = " .. tostring(DAMAGE_TEXT_FONT))
-	say("SHOW_COMBAT_TEXT = " .. tostring(SHOW_COMBAT_TEXT) .. "  Blizzard_CombatText geladen: " .. tostring(IsAddOnLoaded and IsAddOnLoaded("Blizzard_CombatText")) .. "  CombatText_AddMessage: " .. tostring(CombatText_AddMessage ~= nil))
-	if type(AZS_HUD_CVARS) == "table" then
-		local line = ""
-		for k, v in pairs(AZS_HUD_CVARS) do
-			line = line .. tostring(k) .. "=" .. tostring(v) .. "  "
-		end
-		say("AZS_HUD_CVARS: " .. line)
-	end
-	local found = {}
-	for k, v in pairs(getfenv(0)) do
-		if type(k) == "string" then
-			local lk = string.lower(k)
-			if (string.find(lk, "damage", 1, true) or string.find(lk, "floating", 1, true) or string.find(lk, "combattext", 1, true)
-				or string.find(lk, "crit", 1, true) or string.find(lk, "hitnumber", 1, true)) and string.find(k, "^AZS") then
-				found[table.getn(found) + 1] = k .. "(" .. string.sub(type(v), 1, 1) .. ")"
-			end
-		end
-	end
-	table.sort(found)
-	say("AZS-Globals mit damage/floating/crit: " .. (table.getn(found) > 0 and table.concat(found, " ") or "keine"))
-end
-
 SLASH_AEGIS1 = "/aegis"
-SlashCmdList["AEGIS"] = function(msg)
+local function dispatch(msg)
 	msg = string.lower(msg or "")
 	local _, _, cmd, rest = string.find(msg, "^(%S*)%s*(.*)$")
 	cmd = cmd or ""
 	rest = rest or ""
+	local function out(t)
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage(t)
+		end
+	end
+	local function help()
+		out("|cffd2a24aAegisUI|r " .. L("commands:"))
+		out("  |cffd2a24a/aegis|r " .. L("hub") .. "   |cffd2a24alock|r | |cffd2a24aunlock|r | |cffd2a24areset|r | |cffd2a24afix|r")
+		out("  |cffd2a24a/aegis meter|r | |cffd2a24anav|r | |cffd2a24aunits|r " .. L("module commands (help: /aegis units, /aegis nav help, /aegis meter help)"))
+		out("  |cffd2a24a/aegis chat|r [on|off]   |cffd2a24aprofile|r   |cffd2a24alang|r en|de|auto   |cffd2a24abanner|r")
+		out("  |cffd2a24a/aegis debug|r " .. L("<tool>  (diagnostics)"))
+	end
+	local function debugHelp()
+		out("|cffd2a24aAegisUI debug:|r fstack, frames [s], bars, cttest, slot, mapdiag, meter, globals [filter]")
+	end
 	-- /aegis debug <tool>: the diagnostic tools exist only below "debug"
-	local DEBUG_TOOLS = { fstack = true, frames = true, who = true, bars = true, ct = true, ct2 = true, cttest = true,
-		slot = true, slotparts = true, mapdiag = true }
+	local DEBUG_TOOLS = { fstack = true, frames = true, bars = true, cttest = true, slot = true, mapdiag = true,
+		meter = true, globals = true }
 	if cmd == "debug" then
 		local _, _, c2, r2 = string.find(rest, "^(%S*)%s*(.*)$")
 		if not c2 or not DEBUG_TOOLS[c2] then
-			if DEFAULT_CHAT_FRAME then
-				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, frames [s], who, bars, ct, ct2, cttest, slot, slotparts [n], mapdiag")
-			end
+			debugHelp()
 			return
 		end
-		cmd, rest = c2, r2 or ""
-	elseif DEBUG_TOOLS[cmd] then
-		if DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r /aegis debug " .. cmd)
-		end
+		cmd, rest = "debug_" .. c2, r2 or ""
+	elseif cmd == "help" or cmd == "?" then
+		help()
 		return
 	end
 	if cmd == "banner" then
@@ -1355,7 +1328,7 @@ SlashCmdList["AEGIS"] = function(msg)
 		if DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Login banner: ") .. (AegisDB.noBanner and L("off") or L("on")))
 		end
-	elseif cmd == "fstack" then
+	elseif cmd == "debug_fstack" then
 		UI.fstack()
 	elseif cmd == "lock" then
 		UI.setLocked(true)
@@ -1363,11 +1336,7 @@ SlashCmdList["AEGIS"] = function(msg)
 		UI.setLocked(false)
 	elseif cmd == "reset" then
 		UI.resetAll()
-	elseif cmd == "who" then
-		if AegisUI_Who then
-			AegisUI_Who()
-		end
-	elseif cmd == "bars" then
+	elseif cmd == "debug_bars" then
 		if AegisUI_BarsDebug then
 			AegisUI_BarsDebug()
 		end
@@ -1376,13 +1345,14 @@ SlashCmdList["AEGIS"] = function(msg)
 		local handlers = { meter = "AEGISMETER", nav = "AEGISNAV", units = "AEGISUNITS" }
 		local h = SlashCmdList[handlers[cmd]]
 		if h then
-			h(rest)
+			local ok, err = pcall(h, rest)
+			if not ok then
+				out("|cffd2a24aAegisUI:|r " .. L("command failed: ") .. tostring(err))
+			end
 		elseif DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Module '") .. cmd .. L("' is not installed."))
 		end
-	elseif cmd == "ct" then
-		combatTextDiag()
-	elseif cmd == "slot" then
+	elseif cmd == "debug_slot" then
 		-- why is an action button dark? print what the game says about each slot
 		local list = { 1, 2, 3, 4, 5, 6, 12 }
 		for i = 1, table.getn(list) do
@@ -1417,7 +1387,7 @@ SlashCmdList["AEGIS"] = function(msg)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
 		end
-	elseif cmd == "frames" then
+	elseif cmd == "debug_frames" then
 		-- /aegis debug frames [seconds]: after the delay (time to open the card screen), list every visible frame
 		local delay = tonumber(rest) or 5
 		if delay < 0 then
@@ -1473,58 +1443,32 @@ SlashCmdList["AEGIS"] = function(msg)
 				fo.showText(table.concat(out, "\n"))
 			end
 		end)
-	elseif cmd == "mapdiag" then
+	elseif cmd == "debug_mapdiag" then
 		local f = UI.api.fonts
 		if f and f.showText and UI.api.map then
 			f.showText(UI.api.map.diag())
 		end
-	elseif cmd == "slotparts" then
-		-- every texture and child of an action button: find what darkens it
-		local n = tonumber(rest) or 1
-		local btn = getglobal("ActionButton" .. n)
-		local out = {}
-		if not btn then
-			out[1] = "no ActionButton" .. n
-		else
-			out[table.getn(out) + 1] = "ActionButton" .. n .. " shown=" .. tostring(btn:IsShown()) .. " alpha=" .. string.format("%.2f", btn:GetAlpha()) .. " strata=" .. btn:GetFrameStrata() .. " level=" .. btn:GetFrameLevel()
-			local regs = { btn:GetRegions() }
-			for i = 1, table.getn(regs) do
-				local r = regs[i]
-				local line = "region " .. i .. " " .. r:GetObjectType() .. " " .. tostring(r:GetName())
-				if r.GetTexture then
-					line = line .. " tex=" .. tostring(r:GetTexture())
-				end
-				line = line .. " shown=" .. tostring(r:IsShown()) .. " a=" .. string.format("%.2f", r:GetAlpha())
-				if r.GetVertexColor then
-					local cr, cg, cb, ca = r:GetVertexColor()
-					line = line .. " rgba=" .. string.format("%.2f %.2f %.2f %.2f", cr or 0, cg or 0, cb or 0, ca or 0)
-				end
-				out[table.getn(out) + 1] = line
-			end
-			local kids = { btn:GetChildren() }
-			for i = 1, table.getn(kids) do
-				local k = kids[i]
-				out[table.getn(out) + 1] = "child " .. i .. " " .. k:GetObjectType() .. " " .. tostring(k:GetName()) .. " shown=" .. tostring(k:IsShown()) .. " a=" .. string.format("%.2f", k:GetAlpha()) .. " level=" .. k:GetFrameLevel()
-			end
-			out[table.getn(out) + 1] = "autorepeat=" .. tostring(IsAutoRepeatAction and IsAutoRepeatAction(ActionButton_GetPagedID and ActionButton_GetPagedID(btn) or n))
-			out[table.getn(out) + 1] = "equipped=" .. tostring(IsEquippedAction and IsEquippedAction(ActionButton_GetPagedID and ActionButton_GetPagedID(btn) or n))
-			out[table.getn(out) + 1] = "checked=" .. tostring(btn.GetChecked and btn:GetChecked())
-		end
-		A("fonts", "showText", table.concat(out, "\n"))
 	elseif cmd == "fix" then
 		UI.sanitizeAll()
-	elseif cmd == "cttest" then
+	elseif cmd == "debug_cttest" then
 		A("ct", "test")
-	elseif cmd == "ct2" then
-		if AegisUI.api.fonts and AegisUI.api.fonts.diag then
-			AegisUI.api.fonts.diag()
+	elseif cmd == "debug_meter" or cmd == "debug_globals" then
+		if not (UI.api.meter and UI.api.meter.debugReport) then
+			out(L("|cffd2a24aAegisUI:|r Module '") .. "meter" .. L("' is not installed."))
+		elseif cmd == "debug_meter" then
+			UI.api.meter.debugReport()
+		else
+			UI.api.meter.globalsReport(rest ~= "" and rest or nil)
 		end
 	elseif cmd == "lang" then
 		AegisDB = AegisDB or {}
 		if rest == "de" or rest == "en" then
 			AegisDB.lang = rest
-		else
+		elseif rest == "auto" then
 			AegisDB.lang = nil
+		else
+			out("|cffd2a24aAegisUI:|r /aegis lang en|de|auto")
+			return
 		end
 		if DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Language saved. Type /reload to apply."))
@@ -1537,13 +1481,25 @@ SlashCmdList["AEGIS"] = function(msg)
 				UI.api.chat.setOn(true)
 			elseif rest == "off" then
 				UI.api.chat.setOn(false)
-			else
+			elseif rest == "" then
 				UI.api.chat.setOn(not UI.api.chat.isOn())
+			else
+				out("|cffd2a24aAegisUI:|r /aegis chat [on|off]")
 			end
 		end
 	elseif cmd == "profile" then
 		showProfile()
-	else
+	elseif cmd == "" then
 		toggleHub()
+	else
+		help()
+	end
+end
+
+-- every /aegis command runs protected: a bad argument or a missing game function prints a short line, never a Lua error
+SlashCmdList["AEGIS"] = function(msg)
+	local ok, err = pcall(dispatch, msg)
+	if not ok and DEFAULT_CHAT_FRAME then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("command failed: ") .. tostring(err))
 	end
 end

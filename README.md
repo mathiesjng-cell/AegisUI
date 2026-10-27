@@ -121,38 +121,22 @@ The license covers the AegisUI code. The parts of the spell-icon mapping taken f
 
 ## Commands (full reference)
 
-All commands go through `/aegis`. Module commands are `/aegis meter|nav|units <command>`; the diagnostic tools live under `/aegis debug <tool>`.
+All commands go through `/aegis`. Module commands are `/aegis meter|nav|units <command>`; the diagnostic tools live under `/aegis debug <tool>`. A wrong or unknown argument prints a short help line instead of an error.
 
 ### `/aegis` (hub and general)
 
 | Command | Description |
 |---|---|
 | `/aegis` | Open or close the hub window. |
+| `/aegis help` | Short command overview (also shown for an unknown command). |
 | `/aegis lock` | Lock all windows in place. |
 | `/aegis unlock` | Unlock: gold fields appear, drag windows, they snap to the grid on release. |
 | `/aegis reset` | Reset all window positions. |
 | `/aegis fix` | Move windows that ended up off screen back onto it. |
-| `/aegis meter\|nav\|units [command]` | Module commands (without a command: meter and nav toggle their window, units prints its help). |
-| `/aegis chat` | Switch the chat reskin on or off (off takes effect after `/reload`). |
+| `/aegis chat [on\|off]` | Switch the chat reskin on or off (off takes effect after `/reload`). |
 | `/aegis profile` | Open the profile window: export or import all settings as text. |
 | `/aegis lang en\|de\|auto` | Set the language (English, German, or follow the game client); then `/reload`. |
 | `/aegis banner` | Switch the login banner off and on. |
-| `/aegis debug` | List of the diagnostic tools. |
-
-### `/aegis debug <tool>` (diagnostics)
-
-| Command | Description |
-|---|---|
-| `/aegis debug fstack` | Frame inspector: hover a frame, hold CTRL to copy its name. |
-| `/aegis debug frames [seconds]` | After the delay, list every visible frame in a copy window. |
-| `/aegis debug who` | Shows the name of the frame under the mouse; run it again to stop. |
-| `/aegis debug bars` | State of the custom action bar. |
-| `/aegis debug ct` | Combat-text CVars and globals. |
-| `/aegis debug ct2` | 15 s capture of combat events and nameplate frames, result in a copyable window. |
-| `/aegis debug cttest` | Show test numbers (white, gold crit, red damage taken). |
-| `/aegis debug slot` | State of each action slot (usable, cooldown, colour). |
-| `/aegis debug slotparts [n]` | Textures and children of action button n, in a copyable window. |
-| `/aegis debug mapdiag` | List the minimap's child frames in a copy window. |
 
 ### `/aegis meter` (DPS meter)
 
@@ -160,11 +144,8 @@ All commands go through `/aegis`. Module commands are `/aegis meter|nav|units <c
 |---|---|
 | `/aegis meter` | Show or hide the meter. |
 | `/aegis meter reset` | Reset the current view (the game's own meter keeps its numbers). |
-| `/aegis meter dps avg\|10\|60\|120` | DPS window: whole-run average or the last N seconds (5–120 s possible). Without a value it prints the current window. |
+| `/aegis meter dps avg\|5-120` | DPS window: whole-run average or the last N seconds. Without a value it prints the current window. |
 | `/aegis meter log [seconds]` | Show the run log of the current run; optional interval length in seconds (minimum 5, default 10). |
-| `/aegis meter debug` | Print what the game hands to the meter (run it twice in combat, a few seconds apart). |
-| `/aegis meter inspect` | Dump the game's data tables (bosses, guardians, lairs, run) into a copy window. |
-| `/aegis meter globals [filter]` | List the game's `AZS_*` API functions, or everything matching the filter. |
 
 ### `/aegis nav` (waypoint arrow, boss HP bar)
 
@@ -173,10 +154,8 @@ All commands go through `/aegis`. Module commands are `/aegis meter|nav|units <c
 | `/aegis nav` | Show or hide the arrow. |
 | `/aegis nav next` | Switch to the next target manually. |
 | `/aegis nav auto` | Back to automatic target choice (fighting guardian, chest, guardian, lair). |
-| `/aegis nav aspect <n>` | Map aspect ratio used for the direction. |
-| `/aegis nav yards <n>` | Map width in yards (only for the distance display when no world coordinates exist). |
 | `/aegis nav hud <name> on\|off` | Show or hide one of the game's own HUD parts (for example the original boss bar). |
-| `/aegis nav info` | Debug: list all targets with coordinates and state. |
+| `/aegis nav info` | List all targets with coordinates and state. |
 
 ### `/aegis units` (player/target cards, nameplates)
 
@@ -184,6 +163,19 @@ All commands go through `/aegis`. Module commands are `/aegis meter|nav|units <c
 |---|---|
 | `/aegis units player on\|off` | Player card on or off. |
 | `/aegis units target on\|off` | Target card on or off. |
-| `/aegis units gap <pixels>` | Distance of the two cards from the screen centre (default 110). |
 | `/aegis units plates on\|off` | Nameplate bars on or off (fully active after `/reload`). |
 | `/aegis units stock on\|off` | Show or hide the game's default player and target frames. |
+| `/aegis units gap <0-600>` | Distance of the two cards from the screen centre (default 110). |
+
+### `/aegis debug <tool>` (diagnostics)
+
+| Command | Description |
+|---|---|
+| `/aegis debug fstack` | Frame inspector: hover a frame (name, size, parent chain), hold CTRL to copy it. |
+| `/aegis debug frames [seconds]` | After the delay, list every visible frame in a copy window. |
+| `/aegis debug bars` | State of the custom action bar. |
+| `/aegis debug cttest` | Show test numbers (white, gold crit, red damage taken). |
+| `/aegis debug slot` | State of each action slot (usable, cooldown, colour). |
+| `/aegis debug mapdiag` | List the minimap's child frames in a copy window. |
+| `/aegis debug meter` | What the game hands to the meter plus its data tables (bosses, guardians, lairs, run), in a copy window. |
+| `/aegis debug globals [filter]` | List the game's `AZS_*` API, or every global matching the filter. |

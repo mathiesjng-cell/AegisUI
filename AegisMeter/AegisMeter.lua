@@ -1608,83 +1608,91 @@ local function logReport(step)
 	return out
 end
 
+-- diagnostics, opened via /aegis debug meter and /aegis debug globals [filter]
+local function debugReport()
+	local outl = {}
+	local dl, dtotal, dgame
+	if AZS_GetMeter then
+		dl, dtotal, dgame = AZS_GetMeter()
+	end
+	local dcount = 0
+	if dl then
+		dcount = table.getn(dl)
+	end
+	outl[table.getn(outl) + 1] = "runtime " .. tostring(AZS_GetRunTime and AZS_GetRunTime()) .. "  total " .. tostring(dtotal) .. "  gameDps " .. tostring(dgame) .. "  lines " .. dcount
+	if dl and dl[1] then
+		outl[table.getn(outl) + 1] = "line1: " .. tostring(dl[1].name) .. "  dmg=" .. tostring(dl[1].dmg) .. "  dps=" .. tostring(dl[1].dps)
+	end
+	if AZS_METER then
+		outl[table.getn(outl) + 1] = "AZS_METER lines " .. table.getn(AZS_METER) .. "  first dmg=" .. tostring(AZS_METER[1] and AZS_METER[1].dmg)
+	end
+	if AZS_IsHudShown then
+		outl[table.getn(outl) + 1] = "built-in meter visible: " .. tostring(AZS_IsHudShown("meter"))
+	end
+	outl[table.getn(outl) + 1] = "window " .. dpsWindow() .. " s, reset " .. tostring(bases[mode] ~= nil)
+	showDump(table.concat(outl, "\n") .. "\n\n" .. inspectGame())
+end
+
+local function globalsReport(filter)
+	-- the game's own API: every AZS_* global plus anything that looks like map/guardian/waypoint
+	local names = {}
+	for k, v in pairs(getfenv(0)) do
+		if type(k) == "string" then
+			local lk = string.lower(k)
+			local hit
+			if filter then
+				hit = string.find(lk, filter, 1, true) ~= nil
+			else
+				hit = string.find(k, "^AZS") ~= nil or string.find(lk, "guardian", 1, true) ~= nil or string.find(lk, "waypoint", 1, true) ~= nil
+			end
+			if hit then
+				names[table.getn(names) + 1] = k .. "(" .. string.sub(type(v), 1, 1) .. ")"
+			end
+		end
+	end
+	table.sort(names)
+	local text = table.getn(names) .. L(" hits (f=function, t=table)") .. "\n"
+	local line = ""
+	for n = 1, table.getn(names) do
+		line = line .. names[n] .. " "
+		if string.len(line) > 70 then
+			text = text .. line .. "\n"
+			line = ""
+		end
+	end
+	showDump(text .. line)
+end
+
+local function meterHelp()
+	say(L("commands:") .. " |cffd2a24a/aegis meter|r " .. L("(show/hide)") .. "   |cffd2a24areset|r   |cffd2a24adps|r avg|5-120   |cffd2a24alog|r [s]")
+end
+
 SlashCmdList["AEGISMETER"] = function(msg)
 	msg = string.lower(msg or "")
-	if msg == "reset" then
+	local _, _, cmd, val = string.find(msg, "^(%S*)%s*(%S*)")
+	if cmd == "" then
+		AegisMeterDB = AegisMeterDB or {}
+		if frame:IsShown() then
+			frame:Hide()
+			AegisMeterDB.hidden = true
+		else
+			frame:Show()
+			AegisMeterDB.hidden = false
+		end
+	elseif cmd == "reset" then
 		doReset()
 		refresh()
-	elseif msg == "debug" then
-		-- what does the game actually hand us? run it twice during a fight, a few seconds apart
-		local dl, dtotal, dgame
-		if AZS_GetMeter then
-			dl, dtotal, dgame = AZS_GetMeter()
+	elseif cmd == "log" then
+		local st = tonumber(val)
+		if val ~= "" and not st then
+			meterHelp()
+			return
 		end
-		local dcount = 0
-		if dl then
-			dcount = table.getn(dl)
-		end
-		say("runtime " .. tostring(AZS_GetRunTime and AZS_GetRunTime()) .. "  total " .. tostring(dtotal) .. "  gameDps " .. tostring(dgame) .. "  lines " .. dcount)
-		if dl and dl[1] then
-			say(L("line1: ") .. tostring(dl[1].name) .. "  dmg=" .. tostring(dl[1].dmg) .. "  dps=" .. tostring(dl[1].dps))
-		end
-		if AZS_METER then
-			local rc = table.getn(AZS_METER)
-			local rd = nil
-			if AZS_METER[1] then
-				rd = AZS_METER[1].dmg
-			end
-			say("AZS_METER lines " .. rc .. "  erste dmg=" .. tostring(rd))
-		else
-			say("AZS_METER: nil")
-		end
-		if AZS_IsHudShown then
-			say(L("built-in meter visible: ") .. tostring(AZS_IsHudShown("meter")))
-		end
-		say(L("window ") .. dpsWindow() .. L("s  display total ") .. tostring(bases[mode] and L("reset active") or L("no reset")))
-	elseif msg == "inspect" then
-		showDump(inspectGame())
-	elseif string.find(msg, "^globals") then
-		-- lists the game's own API: every AZS_* global plus anything that looks like map/guardian/waypoint
-		local _, _, filter = string.find(msg, "^globals%s+(%S+)")
-		local names = {}
-		for k, v in pairs(getfenv(0)) do
-			if type(k) == "string" then
-				local lk = string.lower(k)
-				local hit = false
-				if filter then
-					hit = string.find(lk, filter, 1, true) ~= nil
-				else
-					hit = string.find(k, "^AZS") ~= nil or string.find(lk, "guardian", 1, true) ~= nil or string.find(lk, "waypoint", 1, true) ~= nil
-				end
-				if hit then
-					names[table.getn(names) + 1] = k .. "(" .. string.sub(type(v), 1, 1) .. ")"
-				end
-			end
-		end
-		table.sort(names)
-		local out = table.getn(names) .. L(" hits (f=function, t=table)") .. "\n"
-		local line = ""
-		for n = 1, table.getn(names) do
-			line = line .. names[n] .. " "
-			if string.len(line) > 70 then
-				out = out .. line .. "\n"
-				line = ""
-			end
-		end
-		out = out .. line
-		showDump(out)
-	elseif string.find(msg, "^log") then
-		local _, _, v = string.find(msg, "^log%s*(%d+)")
-		if v then
-			local st = tonumber(v)
-			if st < 5 then
-				st = 5
-			end
-			runLog.step = st
+		if st then
+			runLog.step = math.max(5, math.floor(st))
 		end
 		showDump(logReport(runLog.step))
-	elseif string.find(msg, "^dps") then
-		local _, _, val = string.find(msg, "^dps%s*(%S*)")
+	elseif cmd == "dps" then
 		AegisMeterDB = AegisMeterDB or {}
 		if val == "avg" or val == "0" then
 			AegisMeterDB.dpsWindow = 0
@@ -1700,19 +1708,15 @@ SlashCmdList["AEGISMETER"] = function(msg)
 			AegisMeterDB.dpsWindow = nsec
 			histories = {}
 			say(L("DPS: over the last ") .. nsec .. L(" seconds."))
+		elseif val == "" then
+			say(L("DPS window: ") .. dpsWindow() .. " s")
 		else
-			say(L("DPS window: ") .. dpsWindow() .. L(" s. Change: /aegis meter dps avg|10|60|120 (or click the DPS number). Run log: /aegis meter log [seconds]"))
+			meterHelp()
+			return
 		end
 		refresh()
 	else
-		AegisMeterDB = AegisMeterDB or {}
-		if frame:IsShown() then
-			frame:Hide()
-			AegisMeterDB.hidden = true
-		else
-			frame:Show()
-			AegisMeterDB.hidden = false
-		end
+		meterHelp()
 	end
 end
 
@@ -1747,6 +1751,8 @@ local function hubHook()
 			AegisMeterDB.hidden = not on
 		end,
 		cycleDps = cycleDps,
+		debugReport = debugReport,
+		globalsReport = globalsReport,
 		getRows = function()
 			return maxRows
 		end,

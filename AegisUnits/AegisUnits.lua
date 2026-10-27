@@ -884,7 +884,14 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 	msg = string.lower(msg or "")
 	AegisUnitsDB = AegisUnitsDB or {}
 	local _, _, what, state = string.find(msg, "^(%S*)%s*(%S*)")
-	local on = state ~= "off"
+	local function usage()
+		say(L("commands:") .. " |cffd2a24a/aegis units|r player|target|plates|stock on|off   |cffd2a24agap|r <0-600>")
+	end
+	if (what == "player" or what == "target" or what == "plates" or what == "stock") and state ~= "on" and state ~= "off" then
+		usage()
+		return
+	end
+	local on = state == "on"
 	if what == "player" then
 		U.player = on
 		AegisUnitsDB.player = on
@@ -896,7 +903,7 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 		say(L("Player frame ") .. (on and L("on") or L("off")))
 	elseif what == "gap" then
 		local n = tonumber(state)
-		if n then
+		if n and n >= 0 and n <= 600 then
 			AegisUnitsDB.gap = math.floor(n + 0.5)
 			layoutCards()
 			say(L("Distance from center ") .. n)
@@ -918,7 +925,7 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 		setStock(not on)
 		say(L("Default player and target frames ").. (on and L("visible") or L("hidden")))
 	else
-		say(L("/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (default player frame)"))
+		usage()
 	end
 end
 

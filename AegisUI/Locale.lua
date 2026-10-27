@@ -184,8 +184,6 @@ AegisL.add({
 	["|cffd2a24aAegisUI:|r Chat reskin will be disabled after /reload."] = "|cffd2a24aAegisUI:|r Chat-Reskin wird nach /reload deaktiviert.",
 	["|cffd2a24aAegisUI:|r Module '"] = "|cffd2a24aAegisUI:|r Modul '",
 	["|cffd2a24aAegisUI:|r The original bar returns after /reload."] = "|cffd2a24aAegisUI:|r Die originale Leiste kommt nach /reload zurueck.",
-	["|cffd2a24aWho:|r off"] = "|cffd2a24aWho:|r aus",
-	["|cffd2a24aWho:|r on - move the mouse over the icons, /aegis debug who stops."] = "|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis debug who beendet.",
 	["|cffff4444AegisBar error:|r "] = "|cffff4444AegisBar Fehler:|r ",
 	["|cffff4444AegisBars error:|r "] = "|cffff4444AegisBars Fehler:|r ",
 	["Timer widget (session / boss / lair)"] = "Timer-Widget (Sitzung / Boss / Lair)",
@@ -196,4 +194,9 @@ AegisL.add({
 	["Chat"] = "Chat",
 	["Chat font size"] = "Chat-Schriftgroesse",
 	["Rows follow the time window"] = "Zeilen folgen dem Zeitfenster",
+	["commands:"] = "Befehle:",
+	["hub"] = "Hub",
+	["module commands (help: /aegis units, /aegis nav help, /aegis meter help)"] = "Modulbefehle (Hilfe: /aegis units, /aegis nav help, /aegis meter help)",
+	["<tool>  (diagnostics)"] = "<Werkzeug>  (Diagnose)",
+	["command failed: "] = "Befehl fehlgeschlagen: ",
 })

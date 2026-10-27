@@ -35,7 +35,6 @@ AegisL.add({
 	["  (average "] = "  (Schnitt ",
 	[" DPS at "] = " DPS bei ",
 	[" hits (f=function, t=table)"] = " Treffer (f=Funktion, t=Tabelle)",
-	[" s. Change: /aegis meter dps avg|10|60|120 (or click the DPS number). Run log: /aegis meter log [seconds]"] = " s. Aendern: /aegis meter dps avg|10|60|120 (oder Klick auf die DPS-Zahl). Run-Log: /aegis meter log [Sekunden]",
 	[" seconds."] = " Sekunden.",
 	["). The built-in meter keeps its numbers."] = "). Der eingebaute Meter behaelt seine Zahlen.",
 	["AEGISMETER RUN LOG  (interval "] = "AEGISMETER RUN-LOG  (Intervall ",
@@ -61,8 +60,7 @@ AegisL.add({
 	["line1: "] = "zeile1: ",
 	["loaded. /aegis meter for commands; settings via /aegis if AegisUI is installed."] = "geladen. /aegis meter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.",
 	["Kills"] = "Kills",
-	["no reset"] = "ohne reset",
-	["reset active"] = "reset aktiv",
-	["s  display total "] = "s  anzeige total ",
 	["window "] = "fenster ",
+	["commands:"] = "Befehle:",
+	["(show/hide)"] = "(ein/aus)",
 })

@@ -36,7 +36,6 @@ AegisL.add({
 	[" (combat)"] = " (Kampf)",
 	[" targets, heading "] = " Ziele, Heading ",
 	[" visible: "] = " sichtbar: ",
-	[" yd (only used for the distance display)"] = " yd (nur fuer die Entfernungsanzeige)",
 	["AZS_SetHudShown is missing in this client."] = "AZS_SetHudShown fehlt in diesem Client.",
 	["Arrow / boss HP"] = "Pfeil / Boss-HP",
 	["Automatic target (fighting guardian, chest, guardian, lair)."] = "Automatisches Ziel (kaempfender Guardian, Truhe, Guardian, Lair).",
@@ -47,8 +46,6 @@ AegisL.add({
 	["Boss"] = "Boss",
 	["Timer"] = "Timer",
 	["Error: "] = "Fehler: ",
-	["Map aspect ratio "] = "Karten-Seitenverhaeltnis ",
-	["Map width "] = "Kartenbreite ",
 	["Target changed. /aegis nav auto = automatic again."] = "Ziel gewechselt. /aegis nav auto = wieder automatisch.",
 	["Usage: /aegis nav hud <name> on|off"] = "Benutzung: /aegis nav hud <name> on|off",
 	["here!"] = "da!",
@@ -56,4 +53,6 @@ AegisL.add({
 	["no target"] = "kein Ziel",
 	["off"] = "aus",
 	["on"] = "an",
+	["commands:"] = "Befehle:",
+	["(show/hide)"] = "(ein/aus)",
 })

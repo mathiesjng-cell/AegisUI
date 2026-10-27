@@ -32,7 +32,6 @@ end
 
 AegisL.add({
 	[", default 110)"] = ", Standard 110)",
-	["/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (default player frame)"] = "/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (Standard-Spielerfeld)",
 	["Default player and target frames "] = "Standard-Spieler- und Zielfeld ",
 	["Distance from center "] = "Abstand zur Mitte ",
 	["Error: "] = "Fehler: ",
@@ -47,4 +46,5 @@ AegisL.add({
 	["on"] = "an",
 	["on (fully active after /reload or restart)"] = "an (wirkt nach /reload bzw. Neustart voll)",
 	["visible"] = "sichtbar",
+	["commands:"] = "Befehle:",
 })
