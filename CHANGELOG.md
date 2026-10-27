@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.5.0] - 2026-10-27
+### Added
+- Appearance settings (hub, LAYOUT tab): background opacity (50-100 %), border opacity, black outline on/off, reset. Chat panel, meter and action bar follow them live (`AegisSkin.GetLook/SetLook/ResetLook/TrackPanel/RefreshLook`).
+- Hub tabs scroll with the mouse wheel when their content is longer than the window.
+- Target card dimming: the card fades (alpha only) between 0.15 and 1 over 0.15 s and is fully visible only for bosses and guardians. Hub toggle and `/aegis targetcard [toggle]`.
+- Meter header: kill counter right-aligned ("Kills: 1.2k"), run timer can be switched off; minimum width 220 px.
+- Clean minimap option: no zoom buttons, mouse wheel zooms, zone name in the Aegis font.
+- Combat guard: windows lock automatically when combat starts and unlock again afterwards; unlocking in combat is refused.
+
+### Changed
+- The action bar panel uses the solid look (neutral near-black with outline).
+
 ## [5.4.14] - 2026-10-27
 ### Added
 - Action bar: "Never dim action icons" (the game's self-casting spells flip between usable and not usable all the time, which blacked out the Auto Shot slot) and "Hide short cooldown sweeps (< 2 s)". Both on by default.

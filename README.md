@@ -1,6 +1,6 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.4.14-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.5.0-c8942e)](CHANGELOG.md)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -131,6 +131,7 @@ Every module has its own full command; `/aegis meter|nav|units <command>` forwar
 | `/aegis cttest` | Show test numbers (white, gold crit, red damage taken). |
 | `/aegis ct` | Debug: combat-text CVars and globals. |
 | `/aegis ct2` | Debug: 15 s capture of combat events and nameplate frames, result in a copyable window. |
+| `/aegis targetcard [toggle]` | Switch the dimming of the target card (dimmed unless boss / guardian). |
 | `/aegis slot` | Debug: state of each action slot (usable, cooldown, colour). |
 | `/aegis slotparts [n]` | Debug: textures and children of action button n, in a copyable window. |
 | `/aegis fix` | Move windows that ended up off screen back onto it. |

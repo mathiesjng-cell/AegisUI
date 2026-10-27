@@ -339,6 +339,20 @@ pf:SetScript("OnDragStop", function()
 end)
 
 -- the target card can be dragged too (while unlocked); both cards stay symmetric
+-- smooth alpha fade (0.15 -> 1 in 0.15 s); the card's size never changes
+tf:SetScript("OnUpdate", function()
+	local t = this.aTarget or 1
+	local a = this:GetAlpha()
+	if a ~= t then
+		local step = (arg1 or 0) * (0.85 / 0.15)
+		if a < t then
+			a = math.min(t, a + step)
+		else
+			a = math.max(t, a - step)
+		end
+		this:SetAlpha(a)
+	end
+end)
 tf:SetMovable(true)
 tf:SetClampedToScreen(true)
 tf:RegisterForDrag("LeftButton")
@@ -564,7 +578,19 @@ ticker:SetScript("OnUpdate", function()
 			if U.target and UnitExists("target") then
 				tf:Show()
 				targetCard.update()
+				if U.fade then
+					-- dim unless the target is a boss / guardian (alpha fade only, no scaling)
+					local k = AZS_UnitKind and AZS_UnitKind("target")
+					if k == "boss" or k == "final" or k == "guardian" then
+						tf.aTarget = 1
+					else
+						tf.aTarget = 0.15
+					end
+				else
+					tf.aTarget = 1
+				end
 			elseif U.target and AegisUI and not AegisUI.locked then
+				tf.aTarget = 1
 				tf:Show()          -- unlocked: show the card even without a target so it can be placed
 			else
 				tf:Hide()
@@ -610,6 +636,9 @@ loader:SetScript("OnEvent", function()
 	end
 	if d.target == false then
 		U.target = false
+	end
+	if d.fade then
+		U.fade = true
 	end
 	if d.plates == false then
 		U.plates = false
@@ -682,7 +711,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.4.14",
+		version = "5.5.0",
 		getPlayer = function()
 			return U.player
 		end,
@@ -695,6 +724,17 @@ local function hubHook()
 			else
 				pf:Hide()
 				tf:Hide()
+			end
+		end,
+		getTargetFade = function()
+			return U.fade and true or false
+		end,
+		setTargetFade = function(on)
+			AegisUnitsDB = AegisUnitsDB or {}
+			U.fade = on and true or false
+			AegisUnitsDB.fade = U.fade
+			if not U.fade then
+				tf.aTarget = 1
 			end
 		end,
 		getTarget = function()

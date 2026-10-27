@@ -32,6 +32,18 @@ if not AegisL then
 end
 
 AegisL.add({
+	["APPEARANCE"] = "AUSSEHEN",
+	["Background opacity"] = "Hintergrund-Deckkraft",
+	["Border opacity"] = "Rand-Deckkraft",
+	["Black outline around panels"] = "Schwarzer Außenrand um Panels",
+	["Reset appearance to defaults"] = "Aussehen zurücksetzen",
+	["Clean minimap (no zoom buttons, wheel zooms)"] = "Aufgeräumte Minimap (keine Zoom-Knöpfe, Mausrad zoomt)",
+	["Dim target card unless boss / guardian"] = "Zielkarte dimmen, außer bei Boss / Guardian",
+	["Run timer"] = "Lauf-Timer",
+	["Target card dimming: "] = "Zielkarte dimmen: ",
+	["on"] = "an",
+	["Not in combat: windows can only be unlocked out of combat."] = "Nicht im Kampf: Fenster lassen sich nur außerhalb des Kampfes entsperren.",
+	["|cffd2a24aAegisUI:|r The zone name font returns after /reload."] = "|cffd2a24aAegisUI:|r Die Schrift des Zonennamens kommt nach /reload zurück.",
 	["Never dim action icons"] = "Aktionsicons nie abdunkeln",
 	["Hide short cooldown sweeps (< 2 s)"] = "Kurze Abklingzeit-Animation ausblenden (< 2 s)",
 	["|cffd2a24aAegisUI:|r Cooldown sweeps update with the next cooldown."] = "|cffd2a24aAegisUI:|r Die Abklingzeit-Animation ändert sich mit der nächsten Abklingzeit.",

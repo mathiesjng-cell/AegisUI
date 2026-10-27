@@ -513,6 +513,7 @@ frame:SetBackdrop({
 frame:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
 frame:SetBackdropBorderColor(C_EDGE[1], C_EDGE[2], C_EDGE[3], C_EDGE[4])
 -- 1 px black outline outside the edge (contrast on bright ground)
+local outerTex = {}
 do
 	local function bar(p1, x1, y1, p2, x2, y2)
 		local t = frame:CreateTexture(nil, "BACKGROUND")
@@ -520,6 +521,7 @@ do
 		t:SetVertexColor(0, 0, 0, 1)
 		t:SetPoint(p1, frame, p1, x1, y1)
 		t:SetPoint(p2, frame, p2, x2, y2)
+		outerTex[table.getn(outerTex) + 1] = t
 	end
 	bar("TOPLEFT", -1, 1, "TOPRIGHT", 1, 0)
 	bar("BOTTOMLEFT", -1, 0, "BOTTOMRIGHT", 1, -1)
@@ -586,10 +588,15 @@ titleText:SetPoint("LEFT", timeBadge, "RIGHT", 7, 0)
 titleText:SetTextColor(1, 1, 1)
 titleText:SetText(MODE_TITLE.damage)
 
+local killsText = frame:CreateFontString(nil, "OVERLAY")
+killsText:SetFont(FONT_NUM, 11, "OUTLINE")
+killsText:SetTextColor(0.78, 0.80, 0.86)
+
 local modeBtn = CreateFrame("Button", nil, frame)
 modeBtn:SetWidth(108)
 modeBtn:SetHeight(18)
 modeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -4)
+killsText:SetPoint("RIGHT", modeBtn, "LEFT", -8, 0)
 modeBtn:SetBackdrop({
 	bgFile = SOLID,
 	edgeFile = SOLID,
@@ -1093,13 +1100,30 @@ refresh = function()
 		if AegisMeterDB and AegisMeterDB.noTitle then
 			t = ""
 		end
-		if not (AegisMeterDB and AegisMeterDB.noKills) then
-			if t ~= "" then
-				t = t .. "  "
-			end
-			t = t .. "|cff7d8294" .. killCount() .. " " .. L("kills") .. "|r"
-		end
 		titleText:SetText(t)
+		if AegisMeterDB and AegisMeterDB.noKills then
+			killsText:SetText("")
+		else
+			local k = killCount()
+			local ks = tostring(k)
+			if k >= 1000000 then
+				ks = (math.floor(k / 100000 + 0.5) / 10) .. "M"
+			elseif k >= 1000 then
+				ks = (math.floor(k / 100 + 0.5) / 10) .. "k"
+			end
+			killsText:SetText("|cff7d8294" .. L("Kills") .. ":|r " .. ks)
+		end
+		-- the run timer can be switched off; the title then moves to the left edge
+		local noTimer = AegisMeterDB and AegisMeterDB.noTimer
+		titleText:ClearAllPoints()
+		if noTimer then
+			timeBadge:Hide()
+			titleText:SetPoint("LEFT", frame, "LEFT", 10, 0)
+			titleText:SetPoint("TOP", frame, "TOP", 0, -8)
+		else
+			timeBadge:Show()
+			titleText:SetPoint("LEFT", timeBadge, "RIGHT", 7, 0)
+		end
 	end
 	modeLabel:SetText(MODE_BTN[mode] or "DPS")
 	timeText:SetText(fmtTime(runTime()))
@@ -1219,8 +1243,8 @@ local function applyLayout()
 		maxRows = ROWS
 	end
 	WIDTH = math.floor(d.width or 360)
-	if WIDTH < 260 then
-		WIDTH = 260
+	if WIDTH < 220 then
+		WIDTH = 220
 	elseif WIDTH > 520 then
 		WIDTH = 520
 	end
@@ -1289,7 +1313,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.4.14 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.5.0 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1668,6 +1692,9 @@ local function hubHook()
 		return
 	end
 	AegisUI.hooked_meter = true
+	if AegisSkin and AegisSkin.TrackPanel then
+		AegisSkin.TrackPanel(frame, { 0.04, 0.04, 0.04 }, C_EDGE, outerTex)
+	end
 	AegisUI.register("meter", "DPS-Meter", frame, function()
 		AegisMeterDB = AegisMeterDB or {}
 		AegisMeterDB.point, AegisMeterDB.rel, AegisMeterDB.x, AegisMeterDB.y = nil, nil, nil, nil
@@ -1675,7 +1702,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "5.4.14",
+		version = "5.5.0",
 		isShown = function()
 			return frame:IsShown()
 		end,
@@ -1711,6 +1738,14 @@ local function hubHook()
 		setTitle = function(on)
 			AegisMeterDB = AegisMeterDB or {}
 			AegisMeterDB.noTitle = (not on) or nil
+			refresh()
+		end,
+		getTimer = function()
+			return not (AegisMeterDB and AegisMeterDB.noTimer)
+		end,
+		setTimer = function(on)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.noTimer = (not on) or nil
 			refresh()
 		end,
 		getKills = function()

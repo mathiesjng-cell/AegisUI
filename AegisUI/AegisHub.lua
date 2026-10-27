@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.4.14"
+local VERSION = "5.5.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -487,7 +487,9 @@ local function selectTab(n)
 	local i
 	for i = 1, table.getn(tabFrames) do
 		if i == n then
+			tabFrames[i].scroll:SetVerticalScroll(0)
 			tabFrames[i]:Show()
+			tabFrames[i].placeThumb()
 			tabButtons[i].text:SetTextColor(1, 0.86, 0.45)
 			tabButtons[i].line:Show()
 		else
@@ -501,7 +503,10 @@ local function selectTab(n)
 end
 
 local function startTab(n)
-	host = tabFrames[n]
+	if host and host ~= win and host.SetHeight then
+		host:SetHeight(cursor + 12)      -- the tab built before this one is now complete
+	end
+	host = tabFrames[n].content
 	cursor = 6
 end
 
@@ -513,6 +518,50 @@ local function buildTabs()
 		f:SetPoint("TOPLEFT", win, "TOPLEFT", 0, -(TOP_TABS + TAB_H + 4))
 		f:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", 0, 0)
 		f:Hide()
+		-- content scrolls with the mouse wheel when it is longer than the window
+		local sf = CreateFrame("ScrollFrame", nil, f)
+		sf:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+		sf:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 24)
+		local c = CreateFrame("Frame", nil, sf)
+		c:SetWidth(W)
+		c:SetHeight(400)
+		sf:SetScrollChild(c)
+		sf:EnableMouseWheel(true)
+		local thumb = f:CreateTexture(nil, "OVERLAY")
+		thumb:SetTexture(SOLID)
+		thumb:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 0.8)
+		thumb:SetWidth(2)
+		thumb:SetHeight(36)
+		thumb:Hide()
+		f.thumb = thumb
+		local function place(frame)
+			local range = tonumber(frame:GetVerticalScrollRange()) or 0
+			if range <= 0 then
+				thumb:Hide()
+				return
+			end
+			local h = tonumber(frame:GetHeight()) or 300
+			local frac = (tonumber(frame:GetVerticalScroll()) or 0) / range
+			thumb:ClearAllPoints()
+			thumb:SetPoint("TOPRIGHT", f, "TOPRIGHT", -2, -(frac * (h - 36)))
+			thumb:Show()
+		end
+		sf:SetScript("OnMouseWheel", function()
+			local range = tonumber(this:GetVerticalScrollRange()) or 0
+			local v = (tonumber(this:GetVerticalScroll()) or 0) - (arg1 or 0) * 30
+			if v < 0 then
+				v = 0
+			elseif v > range then
+				v = range
+			end
+			this:SetVerticalScroll(v)
+			place(this)
+		end)
+		f.content = c
+		f.scroll = sf
+		f.placeThumb = function()
+			place(sf)
+		end
 		tabFrames[i] = f
 		local b = CreateFrame("Button", nil, win)
 		b:SetWidth(tw)
@@ -562,6 +611,7 @@ local function buildContent()
 	end)
 	if api.map then
 		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
+		toggle(L("Clean minimap (no zoom buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
 	end
 	if api.units or api.nav then
 		cursor = cursor + 4
@@ -581,6 +631,23 @@ local function buildContent()
 		toggle(L("Never dim action icons"), function() return A("bars", "getNoDim") end, function(v) A("bars", "setNoDim", v) end)
 		toggle(L("Hide short cooldown sweeps (< 2 s)"), function() return A("bars", "getShortCd") end, function(v) A("bars", "setShortCd", v) end)
 		toggle(L("Gryphons + bar background"), function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
+	end
+	if AegisSkin and AegisSkin.GetLook then
+		cursor = cursor + 4
+		section(L("APPEARANCE"))
+		stepper(L("Background opacity"), function() local bg = AegisSkin.GetLook() return bg end, function(v) AegisSkin.SetLook("bg", v) end, 2, 50, 100, function(v)
+			return math.floor(v + 0.5) .. " %"
+		end)
+		stepper(L("Border opacity"), function() local _, e = AegisSkin.GetLook() return e end, function(v) AegisSkin.SetLook("edge", v) end, 10, 0, 100, function(v)
+			return math.floor(v + 0.5) .. " %"
+		end)
+		toggle(L("Black outline around panels"), function() local _, _, o = AegisSkin.GetLook() return o end, function(v) AegisSkin.SetLook("outer", v) end)
+		action(function()
+			return L("Reset appearance to defaults"), 1, 0.86, 0.45
+		end, function()
+			AegisSkin.ResetLook()
+		end)
+		cursor = cursor + 4
 	end
 	toggle(L("Pixel-perfect borders (after /reload)"), function() return not (AegisDB and AegisDB.pixel == false) end, function(v)
 		AegisDB = AegisDB or {}
@@ -677,6 +744,7 @@ local function buildContent()
 		any = true
 		toggle(L("Player card"), function() return A("units", "getPlayer") end, function(v) A("units", "setPlayer", v) end)
 		toggle(L("Target card"), function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
+		toggle(L("Dim target card unless boss / guardian"), function() return A("units", "getTargetFade") end, function(v) A("units", "setTargetFade", v) end)
 		toggle(L("Mob nameplates"), function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
 	end
 	if api.bars then
@@ -700,6 +768,7 @@ local function buildContent()
 				return math.floor(v + 0.5) .. " px"
 			end)
 			toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
+			toggle(L("Run timer"), function() return A("meter", "getTimer") end, function(v) A("meter", "setTimer", v) end)
 			toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
 			stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
 				-- 0 = average over the whole run; the smallest real window is 5 s
@@ -842,6 +911,9 @@ local function buildContent()
 	local start = 1
 	if AegisDB and AegisDB.tab and tabFrames[AegisDB.tab] then
 		start = AegisDB.tab
+	end
+	if host and host ~= win and host.SetHeight then
+		host:SetHeight(cursor + 12)
 	end
 	selectTab(start)
 end
@@ -1151,6 +1223,12 @@ SlashCmdList["AEGIS"] = function(msg)
 			out[table.getn(out) + 1] = "checked=" .. tostring(btn.GetChecked and btn:GetChecked())
 		end
 		A("fonts", "showText", table.concat(out, "\n"))
+	elseif cmd == "targetcard" then
+		if rest == "toggle" or rest == "" then
+			local on = not A("units", "getTargetFade")
+			A("units", "setTargetFade", on)
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Target card dimming: ") .. (on and L("on") or L("off")))
+		end
 	elseif cmd == "fix" then
 		UI.sanitizeAll()
 	elseif cmd == "cttest" then

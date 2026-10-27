@@ -203,7 +203,12 @@ local function buildBar()
 	bf:EnableMouse(true)
 	bf:SetClampedToScreen(true)
 	if AegisSkin and AegisSkin.ApplyPanel then
-		AegisSkin.ApplyPanel(bf)
+		if AegisSkin.ApplySolid then
+			AegisSkin.ApplySolid(bf)
+			AegisSkin.OuterBlack(bf)
+		else
+			AegisSkin.ApplyPanel(bf)
+		end
 		AegisSkin.GoldLine(bf)
 	end
 	bf:RegisterForDrag("LeftButton")

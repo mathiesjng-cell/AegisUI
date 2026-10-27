@@ -210,6 +210,10 @@ function UI.refreshOverlays()
 end
 
 function UI.setLocked(v, quiet)
+	if not v and UnitAffectingCombat and UnitAffectingCombat("player") then
+		say(L("Not in combat: windows can only be unlocked out of combat."))
+		return
+	end
 	UI.locked = v and true or false
 	AegisDB = AegisDB or {}
 	AegisDB.locked = UI.locked
@@ -256,11 +260,27 @@ end
 local core = CreateFrame("Frame")
 core:RegisterEvent("ADDON_LOADED")
 core:RegisterEvent("PLAYER_ENTERING_WORLD")
+core:RegisterEvent("PLAYER_REGEN_DISABLED")
+core:RegisterEvent("PLAYER_REGEN_ENABLED")
 core:RegisterEvent("DISPLAY_SIZE_CHANGED")
 core:RegisterEvent("UI_SCALE_CHANGED")
 core.acc = 0
 core.fix = 0
 core:SetScript("OnEvent", function()
+	if event == "PLAYER_REGEN_DISABLED" then
+		-- combat: lock automatically, restore afterwards
+		if not UI.locked then
+			UI.setLocked(true, true)
+			core.relock = true
+		end
+		return
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if core.relock then
+			core.relock = nil
+			UI.setLocked(false, true)
+		end
+		return
+	end
 	if event == "PLAYER_ENTERING_WORLD" or event == "DISPLAY_SIZE_CHANGED" or event == "UI_SCALE_CHANGED" then
 		core.fix = 2          -- let every module place its frame first, then check bounds
 		return

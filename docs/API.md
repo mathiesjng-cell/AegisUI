@@ -117,7 +117,8 @@ into the module's own saved variable.
 | `getRows()` / `setRows(n)` | rows shown, 3 to 10 |
 | `getWidth()` / `setWidth(n)` | window width, 260 to 520 px |
 | `getTitle()` / `setTitle(on)` | title text in the header |
-| `getKills()` / `setKills(on)` | kill counter in the header |
+| `getKills()` / `setKills(on)` | kill counter in the header (right-aligned) |
+| `getTimer()` / `setTimer(on)` | run timer badge in the header |
 
 ### `api.nav` (AegisNav)
 
@@ -137,6 +138,7 @@ into the module's own saved variable.
 | `getPlates()` / `setPlates(on)` | nameplate restyle |
 | `getStockHidden()` / `setStockHidden(hide)` | hide the stock player/target frames |
 | `getGap()` / `setGap(n)` | distance of each card from the screen centre, px |
+| `getTargetFade()` / `setTargetFade(on)` | dim the target card (alpha 0.15) unless the target is a boss or guardian |
 
 ### `api.bars`, `api.map`, `api.survivor`, `api.chat`, `api.ct`, `api.fonts` (AegisUI)
 
@@ -148,6 +150,7 @@ into the module's own saved variable.
 | `bars` | `getNoDim()` / `setNoDim(v)` | keep action icons at full brightness |
 | `bars` | `getShortCd()` / `setShortCd(v)` | hide cooldown sweeps shorter than 2 s |
 | `map` | `getSquare()` / `setSquare(v)` | square minimap |
+| `map` | `getClean()` / `setClean(v)` | no zoom buttons, wheel zoom, Aegis zone font |
 | `survivor` | `getOff(key)` / `setOff(key, off)` | switch off a part of SurvivorUI |
 | `chat` | `isOn()` / `setOn(on)` | chat reskin (off takes effect after `/reload`) |
 | `chat` | `debugTabs()` | print tab geometry |
@@ -183,6 +186,9 @@ Restyles other addons without copying their code.
 |---|---|
 | `px()` | size of one physical pixel in UI units |
 | `RegisterSkin(addonName, label, skinFn, defaultState)` | skin applied once the addon is loaded (pcall, errors go to chat) |
+| `GetLook()` → `bg, edge, outer` | appearance settings: background %, border %, outline on/off |
+| `SetLook(key, value)` / `ResetLook()` | change (`bg`, `edge`, `outer`) or reset; panels follow live |
+| `TrackPanel(frame, bgRGB, edgeRGB, outlineTextures)` / `RefreshLook()` | let a panel follow the appearance settings |
 | `ApplyPanel(frame)` / `ApplySolid(frame)` | panel backdrop and border; `ApplySolid` uses the neutral `solid` colour |
 | `OuterBlack(frame)` | 1 px black outline outside the edge |
 | `ApplyRow(frame)` | darker bordered row or button |
@@ -220,6 +226,8 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 |---|---|
 | `locked`, `snap`, `grid` | layout state |
 | `lang` | `"en"`, `"de"` or nil (auto) |
+| `look` | appearance: `bg` (50-100), `edge` (0-100), `outer` (false = no outline) |
+| `mapClean` | clean minimap on |
 | `pixel` | pixel-perfect borders |
 | `square` | square minimap |
 | `chat` | `false` = chat reskin off |
@@ -236,7 +244,7 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 
 `point, rel, x, y` (position), `mode` (`damage`, `healing`, `boss`, `taken`), `hidden`,
 `dpsWindow` (seconds, `0` = whole run), `rows` (3–10), `width` (260–520), `noTitle`, `noKills`,
-`dump` (last text window, not exported).
+`noTimer`, `dump` (last text window, not exported).
 
 ### `AegisNavDB`
 
@@ -244,7 +252,7 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 
 ### `AegisUnitsDB`
 
-`player`, `target`, `plates` (switches), `stock` (hide stock frames), `gap`, `bottom` (card layout).
+`player`, `target`, `plates` (switches), `fade` (dim target card), `stock` (hide stock frames), `gap`, `bottom` (card layout).
 
 Profile export/import (`/aegis profile`) writes all four tables as one `AEGIS1:` text (meter `dump`
 left out).

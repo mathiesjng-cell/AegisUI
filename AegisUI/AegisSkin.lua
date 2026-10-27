@@ -88,10 +88,69 @@ end
 -- neutral near-black, 96 % opaque: for panels that sit over bright zones (snow, desert)
 AegisSkin.color.solid = { 0.04, 0.04, 0.04, 0.96 }
 
+-- Look settings (global, in AegisDB.look): background opacity %, border opacity %, black outline.
+-- Panels register with TrackPanel and follow the settings live.
+AegisSkin.tracked = {}
+local LOOK_DEFAULT = { bg = 96, edge = 100, outer = true }
+
+function AegisSkin.GetLook()
+	local d = AegisDB and AegisDB.look
+	return (d and d.bg) or LOOK_DEFAULT.bg, (d and d.edge) or LOOK_DEFAULT.edge, not (d and d.outer == false)
+end
+
+-- frame, background rgb, border rgb, optional list of outline textures
+function AegisSkin.TrackPanel(frame, bgc, edgec, outerTex)
+	local i
+	for i = 1, table.getn(AegisSkin.tracked) do
+		if AegisSkin.tracked[i].f == frame then
+			return
+		end
+	end
+	AegisSkin.tracked[table.getn(AegisSkin.tracked) + 1] = { f = frame, bg = bgc, edge = edgec, outer = outerTex }
+	AegisSkin.RefreshLook()
+end
+
+function AegisSkin.RefreshLook()
+	local bg, edge, outer = AegisSkin.GetLook()
+	local i, j
+	for i = 1, table.getn(AegisSkin.tracked) do
+		local t = AegisSkin.tracked[i]
+		pcall(function()
+			t.f:SetBackdropColor(t.bg[1], t.bg[2], t.bg[3], bg / 100)
+			t.f:SetBackdropBorderColor(t.edge[1], t.edge[2], t.edge[3], edge / 100)
+			local list = t.outer or t.f.aegisOuterTex
+			if list then
+				for j = 1, table.getn(list) do
+					if outer then
+						list[j]:Show()
+					else
+						list[j]:Hide()
+					end
+				end
+			end
+		end)
+	end
+end
+
+function AegisSkin.SetLook(key, value)
+	AegisDB = AegisDB or {}
+	AegisDB.look = AegisDB.look or {}
+	AegisDB.look[key] = value
+	AegisSkin.RefreshLook()
+end
+
+function AegisSkin.ResetLook()
+	if AegisDB then
+		AegisDB.look = nil
+	end
+	AegisSkin.RefreshLook()
+end
+
 function AegisSkin.ApplySolid(frame)
 	AegisSkin.ApplyPanel(frame)
 	local c = AegisSkin.color.solid
 	frame:SetBackdropColor(c[1], c[2], c[3], c[4])
+	AegisSkin.TrackPanel(frame, c, AegisSkin.color.edge)
 end
 
 -- 1 px black outline OUTSIDE the panel edge (sharpens the dark-gold border on bright ground).
@@ -101,6 +160,7 @@ function AegisSkin.OuterBlack(frame)
 		return
 	end
 	frame.aegisOuter = true
+	frame.aegisOuterTex = {}
 	local p = AegisSkin.px()
 	local function bar(p1, x1, y1, p2, x2, y2)
 		local t = frame:CreateTexture(nil, "BACKGROUND")
@@ -108,6 +168,7 @@ function AegisSkin.OuterBlack(frame)
 		t:SetVertexColor(0, 0, 0, 1)
 		t:SetPoint(p1, frame, p1, x1, y1)
 		t:SetPoint(p2, frame, p2, x2, y2)
+		frame.aegisOuterTex[table.getn(frame.aegisOuterTex) + 1] = t
 	end
 	bar("TOPLEFT", -p, p, "TOPRIGHT", p, 0)
 	bar("BOTTOMLEFT", -p, 0, "BOTTOMRIGHT", p, -p)
@@ -333,6 +394,7 @@ gen:RegisterEvent("PLAYER_LOGIN")
 gen:SetScript("OnEvent", function()
 	AegisSkin.loggedIn = true
 	AegisSkin.pxCache = nil
+	AegisSkin.RefreshLook()
 	AegisSkin.Discover()
 	if AegisDB and AegisDB.generic then
 		local name, on

@@ -1,5 +1,7 @@
 -- AegisMap: square minimap with a black border (toggle in the hub). WoW 1.12 / Lua 5.0.
 
+local L = AegisL.t
+
 local SOLID = "Interface\\Buttons\\WHITE8X8"
 
 -- Square minimap with a black border -----------------------------------------
@@ -72,6 +74,41 @@ local function applyMap()
 	end
 end
 
+-- Clean minimap: no zoom buttons (the mouse wheel zooms), zone name in the Aegis font
+local function applyClean()
+	if not Minimap then
+		return
+	end
+	local on = AegisDB and AegisDB.mapClean
+	local names = { "MinimapZoomIn", "MinimapZoomOut" }
+	local i
+	for i = 1, table.getn(names) do
+		local b = getglobal(names[i])
+		if b then
+			if on then
+				b:Hide()
+			else
+				b:Show()
+			end
+		end
+	end
+	if on then
+		Minimap:EnableMouseWheel(true)
+		Minimap:SetScript("OnMouseWheel", function()
+			local z = Minimap:GetZoom()
+			if arg1 > 0 and z < Minimap:GetZoomLevels() - 1 then
+				Minimap:SetZoom(z + 1)
+			elseif arg1 < 0 and z > 0 then
+				Minimap:SetZoom(z - 1)
+			end
+		end)
+		local zt = getglobal("MinimapZoneText")
+		if zt and zt.SetFont then
+			zt:SetFont("Fonts\\ARIALN.TTF", 11, "OUTLINE")
+		end
+	end
+end
+
 local mapEv = CreateFrame("Frame")
 mapEv:RegisterEvent("PLAYER_LOGIN")
 mapEv:SetScript("OnEvent", function()
@@ -80,12 +117,24 @@ mapEv:SetScript("OnEvent", function()
 		MAPSQ.on = AegisDB.square
 	end
 	pcall(applyMap)
+	pcall(applyClean)
 end)
 
 if AegisUI then
 	AegisUI.api.map = {
 		getSquare = function()
 			return MAPSQ.on
+		end,
+		getClean = function()
+			return AegisDB and AegisDB.mapClean and true or false
+		end,
+		setClean = function(v)
+			AegisDB = AegisDB or {}
+			AegisDB.mapClean = v and true or false
+			pcall(applyClean)
+			if not v and DEFAULT_CHAT_FRAME then
+				DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r The zone name font returns after /reload."))
+			end
 		end,
 		setSquare = function(v)
 			MAPSQ.on = v and true or false

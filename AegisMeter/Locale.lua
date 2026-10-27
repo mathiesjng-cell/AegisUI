@@ -62,6 +62,7 @@ AegisL.add({
 	["line1: "] = "zeile1: ",
 	["loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."] = "geladen. /aegismeter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.",
 	["kills"] = "Kills",
+	["Kills"] = "Kills",
 	["no reset"] = "ohne reset",
 	["reset active"] = "reset aktiv",
 	["s  display total "] = "s  anzeige total ",
