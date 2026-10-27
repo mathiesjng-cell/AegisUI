@@ -15,7 +15,6 @@ if not AegisL then
 		return "en"
 	end
 	function AegisL.add(t)
-		local k, v
 		for k, v in pairs(t) do
 			AegisL.de[k] = v
 		end
@@ -36,7 +35,7 @@ AegisL.add({
 	["  (average "] = "  (Schnitt ",
 	[" DPS at "] = " DPS bei ",
 	[" hits (f=function, t=table)"] = " Treffer (f=Funktion, t=Tabelle)",
-	[" s. Change: /aegismeter dps avg|10|60|120 (or click the DPS number). Run log: /aegismeter log [seconds]"] = " s. Aendern: /aegismeter dps avg|10|60|120 (oder Klick auf die DPS-Zahl). Run-Log: /aegismeter log [Sekunden]",
+	[" s. Change: /aegis meter dps avg|10|60|120 (or click the DPS number). Run log: /aegis meter log [seconds]"] = " s. Aendern: /aegis meter dps avg|10|60|120 (oder Klick auf die DPS-Zahl). Run-Log: /aegis meter log [Sekunden]",
 	[" seconds."] = " Sekunden.",
 	["). The built-in meter keeps its numbers."] = "). Der eingebaute Meter behaelt seine Zahlen.",
 	["AEGISMETER RUN LOG  (interval "] = "AEGISMETER RUN-LOG  (Intervall ",
@@ -60,8 +59,7 @@ AegisL.add({
 	["\nTotal: "] = "\nGesamt: ",
 	["built-in meter visible: "] = "eingebauter Meter sichtbar: ",
 	["line1: "] = "zeile1: ",
-	["loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."] = "geladen. /aegismeter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.",
-	["kills"] = "Kills",
+	["loaded. /aegis meter for commands; settings via /aegis if AegisUI is installed."] = "geladen. /aegis meter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.",
 	["Kills"] = "Kills",
 	["no reset"] = "ohne reset",
 	["reset active"] = "reset aktiv",

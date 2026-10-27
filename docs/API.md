@@ -49,7 +49,7 @@ The addons read the run through the game's `AZS_*` API (see the game's addon doc
 | `AZS_GetRunTime()` | AegisMeter | timer badge, DPS windows, run log |
 | `AZS_RUN.kills` | AegisMeter | kill counter (falls back to counting "dies" messages of the combat log) |
 | `AZS_SPELLS` | AegisMeter | cooldown bar under the spell icon |
-| `AZS_GetPhase()`, `AZS_GetUpcomingBosses()`, `AZS_SCHEDULE`, `AZS_UNITS`, `AZS_ZONE` | AegisMeter | `/aegismeter inspect` and `globals` diagnostics |
+| `AZS_GetPhase()`, `AZS_GetUpcomingBosses()`, `AZS_SCHEDULE`, `AZS_UNITS`, `AZS_ZONE` | AegisMeter | `/aegis meter inspect` and `globals` diagnostics |
 | `AZS_GetBosses()`, `AZS_GetGuardians()` | AegisNav, AegisMeter (debug) | boss/guardian HP bar, arrow targets |
 | `AZS_GetLairs()`, `AZS_LAIRS`, `AZS_GetFlaggedLair()` | AegisNav | arrow targets (`mx`, `my`, `x`, `y`) |
 | `AZS_RUN.px`, `.py` | AegisNav | the hero's position in yards, for exact distances |
@@ -160,7 +160,7 @@ into the module's own saved variable.
 | `fonts` | `getHealing()` / `setHealing(on)`, `hasHealing()` | the client's healing numbers (CVar `CombatHealing`) |
 | `fonts` | `getFont()` / `setFont(on)` | ARIALN as number font (after a restart) |
 | `fonts` | `getDamage()` / `setDamage(on)` | the client's damage numbers (CVar `CombatDamage`) |
-| `fonts` | `diag()` | `/aegis ct2` capture |
+| `fonts` | `diag()` | `/aegis debug ct2` capture |
 | `fonts` | `showText(text)` | open the copyable diagnostics window |
 
 ---
@@ -270,10 +270,11 @@ left out).
 
 | command | module |
 |---|---|
-| `/aegis`, `/aegisui` | hub, layout, chat, profile, language, diagnostics |
-| `/aegismeter` | DPS meter |
-| `/aegisnav` | waypoint arrow, boss bar |
-| `/aegisunits` | cards, nameplates |
+| `/aegis` | hub, layout, chat, profile, language |
+| `/aegis debug <tool>` | diagnostics |
+| `/aegis meter <command>` | DPS meter |
+| `/aegis nav <command>` | waypoint arrow, boss bar |
+| `/aegis units <command>` | cards, nameplates |
 
 The full list with descriptions is in the README (section "Commands (full reference)").
 

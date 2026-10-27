@@ -15,7 +15,6 @@ if not AegisL then
 		return "en"
 	end
 	function AegisL.add(t)
-		local k, v
 		for k, v in pairs(t) do
 			AegisL.de[k] = v
 		end
@@ -33,7 +32,7 @@ end
 
 AegisL.add({
 	[", default 110)"] = ", Standard 110)",
-	["/aegisunits player on|off   /aegisunits target on|off   /aegisunits gap <n>   /aegisunits plates on|off   /aegisunits stock on|off (default player frame)"] = "/aegisunits player on|off   /aegisunits target on|off   /aegisunits gap <n>   /aegisunits plates on|off   /aegisunits stock on|off (Standard-Spielerfeld)",
+	["/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (default player frame)"] = "/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (Standard-Spielerfeld)",
 	["Default player and target frames "] = "Standard-Spieler- und Zielfeld ",
 	["Distance from center "] = "Abstand zur Mitte ",
 	["Error: "] = "Fehler: ",
@@ -41,7 +40,7 @@ AegisL.add({
 	["Player frame "] = "Spielerfeld ",
 	["Target card"] = "Zielkarte",
 	["Target frame "] = "Zielfeld ",
-	["Usage: /aegisunits gap <pixels>  (current "] = "Benutzung: /aegisunits gap <Pixel>  (aktuell ",
+	["Usage: /aegis units gap <pixels>  (current "] = "Benutzung: /aegis units gap <Pixel>  (aktuell ",
 	["hidden"] = "versteckt",
 	["off"] = "aus",
 	["off (back to default after restart)"] = "aus (nach Neustart wieder Standard)",

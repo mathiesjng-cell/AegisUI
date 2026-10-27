@@ -80,7 +80,6 @@ local function styleButton(btn)
 end
 
 function AegisUI_SkinActionBars()
-	local i, n
 	for i = 1, table.getn(BAR_PREFIX) do
 		for n = 1, BAR_PREFIX[i][2] do
 			local btn = getglobal(BAR_PREFIX[i][1] .. n)
@@ -114,7 +113,6 @@ end
 -- every texture the stock bar frames draw themselves (their named parts are in ART)
 local function hideStockRegions()
 	local frames = { "MainMenuBar", "MainMenuBarArtFrame" }
-	local i, j
 	for i = 1, table.getn(frames) do
 		local f = getglobal(frames[i])
 		if f and f.GetRegions then
@@ -135,7 +133,6 @@ local function applyArt()
 	if hide then
 		hideStockRegions()
 	end
-	local i
 	for i = 1, table.getn(ART) do
 		local t = getglobal(ART[i])
 		if t then
@@ -266,7 +263,6 @@ local function buildBar()
 		end, function(s)
 			-- the stock action buttons are not children of the bar: they follow its scale
 			local names = { "ActionButton", "BonusActionButton" }
-			local k, i
 			for k = 1, 2 do
 				for i = 1, 12 do
 					local btn = getglobal(names[k] .. i)
@@ -366,7 +362,6 @@ local function layoutMicro()
 	local x = PAD + n * (SIZE + GAP) - GAP + 6
 	local startX = x
 	local count = 0
-	local i
 	for i = 1, table.getn(MICRO) do
 		local b = getglobal(MICRO[i])
 		if b and b:IsShown() then
@@ -415,7 +410,6 @@ local function layoutBar()
 	bf:Show()
 	-- move the stock buttons onto our bar (they keep their own parents and paging)
 	local names = { "ActionButton", "BonusActionButton" }
-	local k, i
 	for k = 1, 2 do
 		for i = 1, table.getn(SLOTS) do
 			local btn = getglobal(names[k] .. SLOTS[i])
@@ -583,7 +577,6 @@ function AegisUI_BarsDebug()
 		DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aBars:|r " .. t)
 	end
 	local found, total = 0, 0
-	local i, n
 	for i = 1, table.getn(BAR_PREFIX) do
 		for n = 1, BAR_PREFIX[i][2] do
 			total = total + 1
@@ -615,8 +608,8 @@ function AegisUI_BarsDebug()
 	say(L("Bar art present: ") .. table.concat(art, ", "))
 end
 
--- /aegis who: prints the name chain of the frame under the mouse whenever it changes
--- (hover the unknown buttons, then type /aegis who again to stop)
+-- /aegis debug who: prints the name chain of the frame under the mouse whenever it changes
+-- (hover the unknown buttons, then type /aegis debug who again to stop)
 local whoFrame = nil
 local whoLast = nil
 function AegisUI_Who()
@@ -631,7 +624,7 @@ function AegisUI_Who()
 	end
 	whoFrame.on = true
 	whoLast = nil
-	DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aWho:|r on - move the mouse over the icons, /aegis who stops."))
+	DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aWho:|r on - move the mouse over the icons, /aegis debug who stops."))
 	whoFrame:SetScript("OnUpdate", function()
 		local f = GetMouseFocus and GetMouseFocus()
 		if f == whoLast then

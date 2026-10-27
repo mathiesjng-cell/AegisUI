@@ -1,6 +1,6 @@
 -- AegisChat: restyles ChatFrame1 in the Aegis look (WoW 1.12 / Lua 5.0).
 -- Dark panel behind the chat, transparent chat background, no scroll buttons, mouse-wheel
--- scrolling (Shift = page, Ctrl = top/bottom), square edit box below the chat with a gold border
+-- scrolling (Shift = page, Ctrl = top/bottom), square edit box inside the chat's bottom edge with a gold border
 -- while typing. Switch it on/off in the hub (module tab) or with /aegis chat; "off" needs /reload.
 
 local L = AegisL.t
@@ -49,7 +49,6 @@ local function build()
 
 	-- stock scroll / menu buttons off (they would re-show themselves, so hide again on show)
 	local names = { "ChatFrame1UpButton", "ChatFrame1DownButton", "ChatFrame1BottomButton", "ChatFrameMenuButton" }
-	local i
 	for i = 1, table.getn(names) do
 		quiet(function()
 			local b = getglobal(names[i])
@@ -91,20 +90,19 @@ local function build()
 		end)
 	end)
 
-	-- edit box right under the chat
+	-- edit box inside the chat's bottom edge (placeEdit keeps it there after the game's own layout pass)
 	quiet(function()
 		local eb = ChatFrameEditBox
 		if not eb then
 			return
 		end
 		eb:ClearAllPoints()
-		eb:SetPoint("TOPLEFT", cf, "BOTTOMLEFT", -4, -8)
-		eb:SetPoint("TOPRIGHT", cf, "BOTTOMRIGHT", 4, -8)
+		eb:SetPoint("BOTTOMLEFT", cf, "BOTTOMLEFT", -4, -4)
+		eb:SetPoint("BOTTOMRIGHT", cf, "BOTTOMRIGHT", 4, -4)
 		eb:SetHeight(22)
 		local parts = { "ChatFrameEditBoxLeft", "ChatFrameEditBoxMid", "ChatFrameEditBoxRight",
 			"ChatFrameEditBoxFocusLeft", "ChatFrameEditBoxFocusMid", "ChatFrameEditBoxFocusRight" }
 		local function stripArt()
-			local k
 			for k = 1, table.getn(parts) do
 				quiet(function()
 					local t = getglobal(parts[k])
@@ -373,7 +371,6 @@ local function styleTab(i)
 	-- hide the stock tab textures (left/middle/right, selected, highlight, glow)
 	quiet(function()
 		local regs = { tab:GetRegions() }
-		local k
 		for k = 1, table.getn(regs) do
 			local r = regs[k]
 			quiet(function()
@@ -418,7 +415,6 @@ tabFrame:SetScript("OnUpdate", function()
 	tabAcc = 0
 	syncPanel()
 	syncGrip()
-	local i
 	for i = 1, 7 do
 		styleTab(i)
 	end
@@ -426,7 +422,6 @@ end)
 
 -- /aegis chat tabs: print what the client reports for every chat tab (for debugging)
 local function debugTabs()
-	local i
 	for i = 1, 7 do
 		local tab = getglobal("ChatFrame" .. i .. "Tab")
 		if tab and DEFAULT_CHAT_FRAME then

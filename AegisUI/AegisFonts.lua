@@ -19,7 +19,7 @@ local function cvarOn(name)
 end
 
 
--- /aegis ct2: 15 s capture. Do we get damage events with numbers, and can we find the
+-- /aegis debug ct2: 15 s capture. Do we get damage events with numbers, and can we find the
 -- nameplate frames (needed to put own numbers above enemies)?
 local diagFrame, diagWin
 local lines, counts, samples

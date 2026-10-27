@@ -33,7 +33,6 @@ ev:SetScript("OnEvent", function()
 		return
 	end
 	AegisDB.svDone = true
-	local i
 	for i = 1, table.getn(PARTS) do
 		SurvivorUI_SetFeature(PARTS[i].key, false)
 	end

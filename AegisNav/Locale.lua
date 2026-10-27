@@ -15,7 +15,6 @@ if not AegisL then
 		return "en"
 	end
 	function AegisL.add(t)
-		local k, v
 		for k, v in pairs(t) do
 			AegisL.de[k] = v
 		end
@@ -46,13 +45,12 @@ AegisL.add({
 	["Guardian"] = "Waechter",
 	["FIGHT"] = "KAMPF",
 	["Boss"] = "Boss",
-	["Lair"] = "Lair",
 	["Timer"] = "Timer",
 	["Error: "] = "Fehler: ",
 	["Map aspect ratio "] = "Karten-Seitenverhaeltnis ",
 	["Map width "] = "Kartenbreite ",
-	["Target changed. /aegisnav auto = automatic again."] = "Ziel gewechselt. /aegisnav auto = wieder automatisch.",
-	["Usage: /aegisnav hud <name> on|off"] = "Benutzung: /aegisnav hud <name> on|off",
+	["Target changed. /aegis nav auto = automatic again."] = "Ziel gewechselt. /aegis nav auto = wieder automatisch.",
+	["Usage: /aegis nav hud <name> on|off"] = "Benutzung: /aegis nav hud <name> on|off",
 	["here!"] = "da!",
 	["no position"] = "keine Position",
 	["no target"] = "kein Ziel",

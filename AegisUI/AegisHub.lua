@@ -320,7 +320,6 @@ local function ser(v, depth)
 			return "nil"
 		end
 		local out = "{"
-		local k, x
 		for k, x in pairs(v) do
 			local kk = nil
 			if type(k) == "number" then
@@ -342,7 +341,6 @@ local PROFILE_DBS = { ui = "AegisDB", meter = "AegisMeterDB", nav = "AegisNavDB"
 
 local function exportProfile()
 	local pack = {}
-	local key, gname
 	for key, gname in pairs(PROFILE_DBS) do
 		local t = getglobal(gname)
 		if type(t) == "table" then
@@ -352,7 +350,6 @@ local function exportProfile()
 	if pack.meter then
 		-- the copy window text is no setting
 		local copy = {}
-		local k, v
 		for k, v in pairs(pack.meter) do
 			if k ~= "dump" then
 				copy[k] = v
@@ -380,7 +377,6 @@ local function importProfile(text)
 		return false, L("Profile unreadable.")
 	end
 	local n = 0
-	local key, gname
 	for key, gname in pairs(PROFILE_DBS) do
 		if type(pack[key]) == "table" then
 			setglobal(gname, pack[key])
@@ -485,7 +481,6 @@ local TOP_TABS = 36
 local TAB_H = 24
 
 local function selectTab(n)
-	local i
 	for i = 1, table.getn(tabFrames) do
 		if i == n then
 			tabFrames[i].scroll:SetVerticalScroll(0)
@@ -519,7 +514,6 @@ local function buildTabs()
 	sep:SetWidth(1)
 	sep:SetPoint("TOPLEFT", win, "TOPLEFT", SIDE, -29)
 	sep:SetPoint("BOTTOMLEFT", win, "BOTTOMLEFT", SIDE, 1)
-	local i
 	for i = 1, table.getn(TABS) do
 		local f = CreateFrame("Frame", nil, win)
 		f:SetPoint("TOPLEFT", win, "TOPLEFT", SIDE + 1, -30)
@@ -723,7 +717,6 @@ local function buildContent()
 		cursor = cursor + 4
 		section(L("WINDOW SIZE"))
 		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "timer", "Timer widget" }, { "chat", "Chat" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
-		local ki
 		for ki = 1, table.getn(keys) do
 			local key = keys[ki][1]
 			stepper(L(keys[ki][2]), function()
@@ -988,7 +981,6 @@ local function buildContent()
 	local sk = AegisSkin
 	local n = 0
 	if sk and sk.order then
-		local i
 		for i = 1, table.getn(sk.order) do
 			local name = sk.order[i]
 			local d = sk.registry[name]
@@ -1029,7 +1021,6 @@ local function buildContent()
 			cursor = cursor + 4
 			section(L("MORE ADDONS (EXPERIMENTAL)"))
 			local shown = 0
-			local j
 			for j = 1, table.getn(found) do
 				if shown < 6 then
 					local nm = found[j].name
@@ -1058,7 +1049,6 @@ local function buildContent()
 		cursor = cursor + 4
 		section(L("REPLACE SURVIVORUI"))
 		local sv = api.survivor
-		local i
 		for i = 1, table.getn(sv.parts) do
 			local part = sv.parts[i]
 			toggle(L(part.label) .. L(" off"), function() return sv.getOff(part.key) end, function(v) sv.setOff(part.key, v) end)
@@ -1072,7 +1062,6 @@ local function buildContent()
 	foot:SetPoint("BOTTOMLEFT", win, "BOTTOMLEFT", PAD + 2, 5)
 	local line = "UI " .. VERSION
 	local names = { { "meter", "Meter" }, { "nav", "Nav" }, { "units", "Units" } }
-	local k
 	for k = 1, table.getn(names) do
 		local m = api[names[k][1]]
 		if m then
@@ -1134,7 +1123,6 @@ bnEv:SetScript("OnEvent", function()
 	end
 	local line = "AEGIS v" .. VERSION
 	local names = { { "meter", "Meter" }, { "nav", "Nav" }, { "units", "Units" } }
-	local k
 	for k = 1, table.getn(names) do
 		local m = UI.api[names[k][1]]
 		if m then
@@ -1149,7 +1137,6 @@ bnEv:SetScript("OnEvent", function()
 end)
 
 local function refreshAll()
-	local i
 	for i = 1, table.getn(updaters) do
 		updaters[i]()
 	end
@@ -1300,7 +1287,7 @@ loader:SetScript("OnEvent", function()
 	end
 end)
 
--- /aegis ct: what does this client use for the numbers that fly up from enemies? (diagnostic)
+-- /aegis debug ct: what does this client use for the numbers that fly up from enemies? (diagnostic)
 local function combatTextDiag()
 	local function say(t)
 		if DEFAULT_CHAT_FRAME then
@@ -1309,7 +1296,6 @@ local function combatTextDiag()
 	end
 	local names = { "floatingCombatText", "floatingCombatTextCombatDamage", "floatingCombatTextCombatHealing",
 		"floatingCombatTextCombatState", "floatingCombatTextDamageReduction", "fctDamage", "CombatDamage", "CombatHealing" }
-	local i
 	for i = 1, table.getn(names) do
 		local ok, v = pcall(GetCVar, names[i])
 		if ok and v ~= nil then
@@ -1319,7 +1305,6 @@ local function combatTextDiag()
 	say("DAMAGE_TEXT_FONT = " .. tostring(DAMAGE_TEXT_FONT))
 	say("SHOW_COMBAT_TEXT = " .. tostring(SHOW_COMBAT_TEXT) .. "  Blizzard_CombatText geladen: " .. tostring(IsAddOnLoaded and IsAddOnLoaded("Blizzard_CombatText")) .. "  CombatText_AddMessage: " .. tostring(CombatText_AddMessage ~= nil))
 	if type(AZS_HUD_CVARS) == "table" then
-		local k, v
 		local line = ""
 		for k, v in pairs(AZS_HUD_CVARS) do
 			line = line .. tostring(k) .. "=" .. tostring(v) .. "  "
@@ -1327,7 +1312,6 @@ local function combatTextDiag()
 		say("AZS_HUD_CVARS: " .. line)
 	end
 	local found = {}
-	local k, v
 	for k, v in pairs(getfenv(0)) do
 		if type(k) == "string" then
 			local lk = string.lower(k)
@@ -1342,22 +1326,28 @@ local function combatTextDiag()
 end
 
 SLASH_AEGIS1 = "/aegis"
-SLASH_AEGIS2 = "/aegisui"
 SlashCmdList["AEGIS"] = function(msg)
 	msg = string.lower(msg or "")
 	local _, _, cmd, rest = string.find(msg, "^(%S*)%s*(.*)$")
 	cmd = cmd or ""
 	rest = rest or ""
-	-- /aegis debug <tool>: all internal diagnostics in one place (the old direct names keep working)
+	-- /aegis debug <tool>: the diagnostic tools exist only below "debug"
+	local DEBUG_TOOLS = { fstack = true, frames = true, who = true, bars = true, ct = true, ct2 = true, cttest = true,
+		slot = true, slotparts = true, mapdiag = true }
 	if cmd == "debug" then
 		local _, _, c2, r2 = string.find(rest, "^(%S*)%s*(.*)$")
-		if not c2 or c2 == "" then
+		if not c2 or not DEBUG_TOOLS[c2] then
 			if DEFAULT_CHAT_FRAME then
-				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, frames [s], who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
+				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, frames [s], who, bars, ct, ct2, cttest, slot, slotparts [n], mapdiag")
 			end
 			return
 		end
 		cmd, rest = c2, r2 or ""
+	elseif DEBUG_TOOLS[cmd] then
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r /aegis debug " .. cmd)
+		end
+		return
 	end
 	if cmd == "banner" then
 		AegisDB = AegisDB or {}
@@ -1395,7 +1385,6 @@ SlashCmdList["AEGIS"] = function(msg)
 	elseif cmd == "slot" then
 		-- why is an action button dark? print what the game says about each slot
 		local list = { 1, 2, 3, 4, 5, 6, 12 }
-		local i
 		for i = 1, table.getn(list) do
 			local id = list[i]
 			local btn = getglobal("ActionButton" .. id)
@@ -1429,7 +1418,7 @@ SlashCmdList["AEGIS"] = function(msg)
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
 		end
 	elseif cmd == "frames" then
-		-- /aegis frames [seconds]: after the delay (time to open the card screen), list every visible frame
+		-- /aegis debug frames [seconds]: after the delay (time to open the card screen), list every visible frame
 		local delay = tonumber(rest) or 5
 		if delay < 0 then
 			delay = 0
@@ -1448,7 +1437,6 @@ SlashCmdList["AEGIS"] = function(msg)
 			local out = {}
 			local function scan(parent, depth)
 				local kids = { parent:GetChildren() }
-				local i
 				for i = 1, table.getn(kids) do
 					local f = kids[i]
 					local nm = f:GetName() or ""
@@ -1459,7 +1447,7 @@ SlashCmdList["AEGIS"] = function(msg)
 							.. " " .. (f:GetFrameStrata() or "?") .. " lvl" .. (f:GetFrameLevel() or 0)
 							.. (f:IsMouseEnabled() and " mouse" or "")
 						local regs = { f:GetRegions() }
-						local r, shown = 1, 0
+						local shown = 0
 						for r = 1, table.getn(regs) do
 							local o = regs[r]
 							if shown < 2 and o:IsShown() then
@@ -1500,7 +1488,6 @@ SlashCmdList["AEGIS"] = function(msg)
 		else
 			out[table.getn(out) + 1] = "ActionButton" .. n .. " shown=" .. tostring(btn:IsShown()) .. " alpha=" .. string.format("%.2f", btn:GetAlpha()) .. " strata=" .. btn:GetFrameStrata() .. " level=" .. btn:GetFrameLevel()
 			local regs = { btn:GetRegions() }
-			local i
 			for i = 1, table.getn(regs) do
 				local r = regs[i]
 				local line = "region " .. i .. " " .. r:GetObjectType() .. " " .. tostring(r:GetName())
@@ -1524,12 +1511,6 @@ SlashCmdList["AEGIS"] = function(msg)
 			out[table.getn(out) + 1] = "checked=" .. tostring(btn.GetChecked and btn:GetChecked())
 		end
 		A("fonts", "showText", table.concat(out, "\n"))
-	elseif cmd == "targetcard" then
-		if rest == "toggle" or rest == "" then
-			local on = not A("units", "getTargetFade")
-			A("units", "setTargetFade", on)
-			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Target card dimming: ") .. (on and L("on") or L("off")))
-		end
 	elseif cmd == "fix" then
 		UI.sanitizeAll()
 	elseif cmd == "cttest" then

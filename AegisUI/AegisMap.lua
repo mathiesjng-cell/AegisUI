@@ -58,7 +58,6 @@ local function applyMap()
 		GetMinimapShape = nil
 	end
 	local names = { "MinimapBorder", "MinimapBorderTop" }
-	local i
 	for i = 1, table.getn(names) do
 		local o = getglobal(names[i])
 		if o and o.Hide then
@@ -81,7 +80,6 @@ local function applyClean()
 	end
 	local on = not (AegisDB and AegisDB.mapClean == false)
 	local names = {}
-	local i
 	for i = 1, table.getn(names) do
 		local b = getglobal(names[i])
 		if b then
@@ -139,7 +137,6 @@ local function flatten(b, half, needRing)
 	needRing = true       -- only real buttons (they carry a ring texture); map markers and the player arrow stay untouched
 	local icon
 	local regs = { b:GetRegions() }
-	local i
 	if needRing then
 		local has = false
 		for i = 1, table.getn(regs) do
@@ -221,7 +218,6 @@ local function flatZoom(name, text, y)
 	end
 	b.aegisFlat = true
 	local regs = { b:GetRegions() }
-	local i
 	for i = 1, table.getn(regs) do
 		if regs[i].Hide then
 			regs[i]:Hide()
@@ -308,7 +304,6 @@ local function flattenAll()
 		return
 	end
 	local half = (Minimap:GetWidth() or 140) / 2
-	local i
 	for i = 1, table.getn(HIDE_NAMES) do
 		local o = getglobal(HIDE_NAMES[i])
 		if o and o.Hide then
@@ -324,7 +319,6 @@ local function flattenAll()
 	if par and par ~= UIParent then
 		lists[2] = { par:GetChildren() }
 	end
-	local j
 	for j = 1, table.getn(lists) do
 		for i = 1, table.getn(lists[j]) do
 			pcall(flatten, lists[j][i], half)
@@ -353,12 +347,11 @@ local function flattenAll()
 	end
 end
 
--- list the minimap's children (for /aegis mapdiag)
+-- list the minimap's children (for /aegis debug mapdiag)
 local function mapDiag()
 	local out = {}
 	local function dump(f, tag)
 		local kids = { f:GetChildren() }
-		local i
 		for i = 1, table.getn(kids) do
 			local k = kids[i]
 			out[table.getn(out) + 1] = tag .. " " .. tostring(k:GetName()) .. " " .. k:GetObjectType() .. " " .. math.floor((k:GetWidth() or 0) + 0.5) .. "x" .. math.floor((k:GetHeight() or 0) + 0.5) .. " shown=" .. tostring(k:IsShown()) .. " flat=" .. tostring(k.aegisFlat)
@@ -373,12 +366,10 @@ local function mapDiag()
 		end
 	end
 	local names = { "LuckyOddsMinimapButton", "AZSStatsMinimapButton" }
-	local n
 	for n = 1, table.getn(names) do
 		local b = getglobal(names[n])
 		if b then
 			local regs = { b:GetRegions() }
-			local i
 			for i = 1, table.getn(regs) do
 				local r = regs[i]
 				out[table.getn(out) + 1] = names[n] .. " region " .. i .. " " .. r:GetObjectType() .. " tex=" .. tostring(r.GetTexture and r:GetTexture()) .. " shown=" .. tostring(r:IsShown())

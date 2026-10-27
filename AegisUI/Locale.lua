@@ -15,7 +15,6 @@ if not AegisL then
 		return "en"
 	end
 	function AegisL.add(t)
-		local k, v
 		for k, v in pairs(t) do
 			AegisL.de[k] = v
 		end
@@ -32,20 +31,16 @@ if not AegisL then
 end
 
 AegisL.add({
-	["APPEARANCE"] = "AUSSEHEN",
 	["Background opacity"] = "Hintergrund-Deckkraft",
 	["Border opacity"] = "Rand-Deckkraft",
 	["Black outline around panels"] = "Schwarzer Außenrand um Panels",
-	["Reset appearance to defaults"] = "Aussehen zurücksetzen",
 	["Clean minimap (flat buttons, wheel zooms)"] = "Aufgeräumte Minimap (flache Knöpfe, Mausrad zoomt)",
 	["Dim target card unless boss / guardian"] = "Zielkarte dimmen, außer bei Boss / Guardian",
 	["Run timer"] = "Lauf-Timer",
-	["Target card dimming: "] = "Zielkarte dimmen: ",
 	["on"] = "an",
 	["Not in combat: windows can only be unlocked out of combat."] = "Nicht im Kampf: Fenster lassen sich nur außerhalb des Kampfes entsperren.",
 	["|cffd2a24aAegisUI:|r The zone name font returns after /reload."] = "|cffd2a24aAegisUI:|r Die Schrift des Zonennamens kommt nach /reload zurück.",
 	["Never dim action icons"] = "Aktionsicons nie abdunkeln",
-	["Hide short cooldown sweeps (< 2 s)"] = "Kurze Abklingzeit-Animation ausblenden (< 2 s)",
 	["|cffd2a24aAegisUI:|r Cooldown sweeps update with the next cooldown."] = "|cffd2a24aAegisUI:|r Die Abklingzeit-Animation ändert sich mit der nächsten Abklingzeit.",
 	["Moved back on screen: "] = "Zurück auf den Bildschirm geholt: ",
 	["All windows are on screen."] = "Alle Fenster sind auf dem Bildschirm.",
@@ -128,11 +123,10 @@ AegisL.add({
 	["WINDOW SIZE"] = "FENSTERGROESSE",
 	["Or drag the gold + in a window's corner while unlocked."] = "Oder im entsperrten Modus das goldene + in der Fensterecke ziehen.",
 	["hover a frame, hold CTRL to copy its name"] = "Frame anfahren, STRG halten zum Kopieren des Namens",
-	["hover a frame, hold CTRL to copy its name. /aegis fstack stops."] = "Frame anfahren, STRG halten zum Kopieren des Namens. /aegis fstack beendet.",
+	["hover a frame, hold CTRL to copy its name. /aegis debug fstack stops."] = "Frame anfahren, STRG halten zum Kopieren des Namens. /aegis debug fstack beendet.",
 	["Show DoT ticks dimmed (crits only mode)"] = "DoT-Ticks gedimmt zeigen (Modus Nur Crits)",
 	["/aegis opens the settings"] = "/aegis oeffnet die Einstellungen",
 	["Login banner: "] = "Login-Banner: ",
-	["DISPLAY"] = "ANZEIGE",
 	["DPS time window"] = "DPS-Zeitfenster",
 	["DPS window: "] = "DPS-Fenster: ",
 	["DPS window: default (click = next)"] = "DPS-Fenster: Standard (Klick = naechstes)",
@@ -152,10 +146,8 @@ AegisL.add({
 	["Locked. Positions are fixed."] = "Gesperrt. Positionen sind fixiert.",
 	["Luck window (LuckyOdds)"] = "Luck-Fenster (LuckyOdds)",
 	["LuckyOdds (odds panel)"] = "LuckyOdds (Odds-Panel)",
-	["MODULES"] = "MODULE",
 	["MORE ADDONS (EXPERIMENTAL)"] = "WEITERE ADDONS (EXPERIMENTELL)",
 	["Mob nameplates"] = "Nameplates der Mobs",
-	["No modules (AegisMeter, AegisNav, AegisUnits) loaded."] = "Keine Module (AegisMeter, AegisNav, AegisUnits) geladen.",
 	["No skins registered."] = "Keine Skins registriert.",
 	["Not a valid profile (must start with AEGIS1:)."] = "Kein gueltiges Profil (muss mit AEGIS1: beginnen).",
 	["OFF"] = "AUS",
@@ -173,7 +165,6 @@ AegisL.add({
 	["RESET POSITIONS"] = "POSITIONEN ZURUECKSETZEN",
 	["Right-click: lock"] = "Rechtsklick: sperren",
 	["Right-click: unlock"] = "Rechtsklick: entsperren",
-	["SETTINGS"] = "EINSTELLUNGEN",
 	["SHOW RUN LOG"] = "RUN-LOG ANZEIGEN",
 	["Snap to grid"] = "Einrasten (Snap)",
 	["Square minimap"] = "Quadratische Minimap",
@@ -194,7 +185,7 @@ AegisL.add({
 	["|cffd2a24aAegisUI:|r Module '"] = "|cffd2a24aAegisUI:|r Modul '",
 	["|cffd2a24aAegisUI:|r The original bar returns after /reload."] = "|cffd2a24aAegisUI:|r Die originale Leiste kommt nach /reload zurueck.",
 	["|cffd2a24aWho:|r off"] = "|cffd2a24aWho:|r aus",
-	["|cffd2a24aWho:|r on - move the mouse over the icons, /aegis who stops."] = "|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis who beendet.",
+	["|cffd2a24aWho:|r on - move the mouse over the icons, /aegis debug who stops."] = "|cffd2a24aWho:|r an - Maus ueber die Symbole bewegen, /aegis debug who beendet.",
 	["|cffff4444AegisBar error:|r "] = "|cffff4444AegisBar Fehler:|r ",
 	["|cffff4444AegisBars error:|r "] = "|cffff4444AegisBars Fehler:|r ",
 	["Timer widget (session / boss / lair)"] = "Timer-Widget (Sitzung / Boss / Lair)",

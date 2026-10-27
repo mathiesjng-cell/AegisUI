@@ -6,7 +6,6 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 
-local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
 local C_GOLD = { 0.78, 0.58, 0.22, 1 }
 local C_ROW = { 0.06, 0.07, 0.10, 1 }
@@ -33,7 +32,6 @@ local function skin()
 
 	-- 1) hide the stock decoration textures (stripe bands, rule line)
 	local regions = { f:GetRegions() }
-	local i
 	for i = 1, table.getn(regions) do
 		local r = regions[i]
 		pcall(function()
@@ -65,7 +63,6 @@ local function skin()
 	gold:SetPoint("TOPRIGHT", f, "TOPRIGHT", -1, -1)
 
 	-- 3) bordered rows behind the text (textures, so the original text stays on top)
-	local n
 	for n = 1, NROWS do
 		local y = -TOP - (n - 1) * ROW_H
 		local edge = f:CreateTexture(nil, "BACKGROUND")
@@ -134,7 +131,6 @@ local function skin()
 	end
 	-- value cells: LuckyOdds recolours them on every refresh, so route that through our colours
 	if f.rows then
-		local r, c
 		for r = 1, table.getn(f.rows) do
 			for c = 1, 3 do
 				local cell = f.rows[r].cells[c]

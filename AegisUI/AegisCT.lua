@@ -7,13 +7,11 @@
 --   * damage you take rises over your character (red)
 -- Needs enemy nameplates switched on (default key V) to sit exactly above the enemy.
 
-local L = AegisL.t
 
 local FONT = "Fonts\\ARIALN.TTF"
 local WINDOW = 0.3
 local POOL = 30
 local MAXN = 6          -- numbers per 0.3 s window
-local MODES = { "off", "crit", "all" }
 local SIZES = { small = 13, medium = 16, large = 20 }
 
 local function cfg()
@@ -200,11 +198,7 @@ local function findPlates()
 	for k in pairs(plates) do
 		plates[k] = nil
 	end
-	local ratio = 1
-	local ps, us = WorldFrame:GetEffectiveScale(), UIParent:GetEffectiveScale()
-	if ps and us and us > 0 then
-		ratio = ps / us
-	end
+	local us = UIParent:GetEffectiveScale()
 	local midX, midY = (GetScreenWidth() or 1024) / 2, (GetScreenHeight() or 768) * 0.45
 	local tname = UnitExists("target") and UnitName("target") or nil
 	local kids = { WorldFrame:GetChildren() }
@@ -260,10 +254,8 @@ local function flush()
 		any = true
 		break
 	end
-	local n = 0
 	if any then
 		findPlates()
-		local sc = UIParent:GetEffectiveScale()
 		local midx = (GetScreenWidth() or 1024) / 2
 		local topy = (GetScreenHeight() or 768) * 0.62
 		-- only enemies whose nameplate is on screen get a number (no pile at a fixed spot);
@@ -341,12 +333,12 @@ local function onChat(evt, msg)
 		return
 	end
 	if DEALT[evt] then
-		local _, _, sp, name, num = string.find(msg, "^Your (.-) crits (.-) for (%d+)")
+		local _, _, _, name, num = string.find(msg, "^Your (.-) crits (.-) for (%d+)")
 		if num then
 			addDealt(name, tonumber(num), true)
 			return
 		end
-		_, _, sp, name, num = string.find(msg, "^Your (.-) hits (.-) for (%d+)")
+		_, _, _, name, num = string.find(msg, "^Your (.-) hits (.-) for (%d+)")
 		if num then
 			addDealt(name, tonumber(num), false)
 			return

@@ -215,9 +215,7 @@ local function scanIcons()
 	end
 
 	if GetNumTalentTabs and GetNumTalents and GetTalentInfo then
-		local tab
 		for tab = 1, (GetNumTalentTabs() or 0) do
-			local t
 			for t = 1, (GetNumTalents(tab) or 0) do
 				local tname, ticon = GetTalentInfo(tab, t)
 				remember(tname, ticon)
@@ -226,7 +224,6 @@ local function scanIcons()
 	end
 
 	if GetInventoryItemLink and GetInventoryItemTexture then
-		local slot
 		for slot = 1, 19 do
 			local link = GetInventoryItemLink("player", slot)
 			local tex = GetInventoryItemTexture("player", slot)
@@ -315,7 +312,6 @@ local function pull(view)
 		end
 		local lines = {}
 		local total = 0
-		local n
 		for n = 1, table.getn(AZS_TAKEN) do
 			local e = AZS_TAKEN[n]
 			local src = e.source or ""
@@ -442,7 +438,6 @@ local function windowRates(view, now, sum, list)
 	end
 	if cnt == 0 or now - hist[cnt].t >= 0.25 then
 		local snap = { t = now, total = sum, spells = {} }
-		local n
 		for n = 1, table.getn(list) do
 			snap.spells[list[n].name] = list[n].dmg
 		end
@@ -456,7 +451,6 @@ local function windowRates(view, now, sum, list)
 	if span < 1 then
 		return nil
 	end
-	local n
 	for n = 1, table.getn(list) do
 		local item = list[n]
 		local dealt = item.dmg - (base.spells[item.name] or 0)
@@ -480,7 +474,6 @@ local function doReset()
 		return
 	end
 	local map = {}
-	local n
 	for n = 1, table.getn(lines) do
 		local l = lines[n]
 		if l.name then
@@ -659,7 +652,6 @@ local function pickMode(view)
 	refresh()
 end
 
-local k
 for k = 1, table.getn(MODES) do
 	local view = MODES[k]
 	local item = CreateFrame("Button", nil, menu)
@@ -718,7 +710,6 @@ local away = 0
 menu:SetScript("OnShow", function()
 	away = 0
 	modeArrow:SetText("^")
-	local n
 	for n = 1, table.getn(menuItems) do
 		local it = menuItems[n]
 		if it.view == mode then
@@ -784,7 +775,7 @@ local function cycleDps(to)
 	local cur = dpsWindow()
 	local nxt = to
 	if nxt == nil then
-		local i, idx = 1, 0
+		local idx = 0
 		for i = 1, table.getn(PRESETS) do
 			if PRESETS[i] == cur then
 				idx = i
@@ -870,7 +861,6 @@ emptyText:Hide()
 
 -- rows
 local rows = {}
-local i
 for i = 1, ROWS do
 	local row = CreateFrame("Frame", nil, frame)
 	row:SetWidth(WIDTH - PAD * 2)
@@ -1014,7 +1004,6 @@ local function fillRows(list, sum, count)
 	-- cooldowns, matched to rows by spell name
 	local cdMap = {}
 	if AZS_SPELLS then
-		local cn
 		for cn = 1, table.getn(AZS_SPELLS) do
 			local sp = AZS_SPELLS[cn]
 			if sp.key and sp.key ~= "" then
@@ -1028,7 +1017,6 @@ local function fillRows(list, sum, count)
 		top = list[1].dmg
 	end
 	local innerW = WIDTH - PAD * 2 - 2
-	local r
 	for r = 1, ROWS do
 		local row = rows[r]
 		local data = list[r]
@@ -1166,7 +1154,6 @@ refresh = function()
 
 	local list = {}
 	local sum = 0
-	local n
 	for n = 1, table.getn(lines) do
 		local l = lines[n]
 		if l.name and l.name ~= "" then
@@ -1213,7 +1200,6 @@ refresh = function()
 	if headRate and winSec > 0 and not (AegisMeterDB and AegisMeterDB.recent == false) then
 		local recent = {}
 		local rsum = 0
-		local q
 		for q = 1, table.getn(list) do
 			local it = list[q]
 			if it.win and it.win > 0 then
@@ -1281,7 +1267,6 @@ local function applyLayout()
 		WIDTH = 520
 	end
 	frame:SetWidth(WIDTH)
-	local k
 	for k = 1, ROWS do
 		rows[k]:SetWidth(WIDTH - PAD * 2)
 	end
@@ -1345,7 +1330,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.9.2 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.9.2 " .. L("loaded. /aegis meter for commands; settings via /aegis if AegisUI is installed."))
 	frame:ClearAllPoints()
 	if AegisMeterDB.point then
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1475,7 +1460,6 @@ local function serialize(v, depth, budget)
 		return "{...}"
 	end
 	local parts = {}
-	local k, x
 	local n = 0
 	for k, x in pairs(v) do
 		n = n + 1
@@ -1491,7 +1475,6 @@ end
 local function inspectGame()
 	local out = ""
 	local names = { "AZS_GetGuardians", "AZS_GetLairs", "AZS_GetFlaggedLair", "AZS_GetBosses", "AZS_GetUpcomingBosses", "AZS_GetPhase" }
-	local i
 	for i = 1, table.getn(names) do
 		local fn = getglobal(names[i])
 		if type(fn) == "function" then
@@ -1511,7 +1494,7 @@ local function inspectGame()
 end
 
 -- Run log: damage totals once per second plus per-spell snapshots every 5 s, kept in memory
--- for the current run only (a new run clears it). /aegismeter log shows it.
+-- for the current run only (a new run clears it). /aegis meter log shows it.
 local runLog = { s = {}, snaps = {}, lastT = 0, step = 10 }
 local LOG_MAX = 7200
 local logAcc = 0
@@ -1541,7 +1524,6 @@ logFrame:SetScript("OnUpdate", function()
 	runLog.lastT = t
 	table.insert(runLog.s, { t = t, total = total })
 	if table.getn(runLog.s) > LOG_MAX then
-		local k
 		for k = 1, 600 do
 			table.remove(runLog.s, 1)
 		end
@@ -1549,7 +1531,6 @@ logFrame:SetScript("OnUpdate", function()
 	local key = math.floor(t / 5)
 	if not runLog.snaps[key] then
 		local map = {}
-		local n
 		for n = 1, table.getn(lines) do
 			if lines[n].name then
 				map[lines[n].name] = tonumber(lines[n].dmg) or 0
@@ -1578,7 +1559,6 @@ local function logReport(step)
 	local mark = prevT + step
 	local prevDps = nil
 	local peak, peakT, low, lowT = 0, 0, nil, 0
-	local i
 	for i = 1, n do
 		local e = sm[i]
 		if e.t >= mark then
@@ -1593,7 +1573,6 @@ local function logReport(step)
 			local b = runLog.snaps[math.floor(e.t / 5)]
 			if a and b and b.t > a.t then
 				local arr = {}
-				local name, dmg
 				for name, dmg in pairs(b.spells) do
 					local d = dmg - (a.spells[name] or 0)
 					if d > 0 then
@@ -1603,7 +1582,6 @@ local function logReport(step)
 				table.sort(arr, function(x, y)
 					return x.d > y.d
 				end)
-				local k
 				for k = 1, 3 do
 					if arr[k] then
 						top = top .. arr[k].name .. " " .. fmtAvg(arr[k].d / (b.t - a.t)) .. "  "
@@ -1630,7 +1608,6 @@ local function logReport(step)
 	return out
 end
 
-SLASH_AEGISMETER1 = "/aegismeter"
 SlashCmdList["AEGISMETER"] = function(msg)
 	msg = string.lower(msg or "")
 	if msg == "reset" then
@@ -1670,7 +1647,6 @@ SlashCmdList["AEGISMETER"] = function(msg)
 		-- lists the game's own API: every AZS_* global plus anything that looks like map/guardian/waypoint
 		local _, _, filter = string.find(msg, "^globals%s+(%S+)")
 		local names = {}
-		local k, v
 		for k, v in pairs(getfenv(0)) do
 			if type(k) == "string" then
 				local lk = string.lower(k)
@@ -1688,7 +1664,6 @@ SlashCmdList["AEGISMETER"] = function(msg)
 		table.sort(names)
 		local out = table.getn(names) .. L(" hits (f=function, t=table)") .. "\n"
 		local line = ""
-		local n
 		for n = 1, table.getn(names) do
 			line = line .. names[n] .. " "
 			if string.len(line) > 70 then
@@ -1726,7 +1701,7 @@ SlashCmdList["AEGISMETER"] = function(msg)
 			histories = {}
 			say(L("DPS: over the last ") .. nsec .. L(" seconds."))
 		else
-			say(L("DPS window: ") .. dpsWindow() .. L(" s. Change: /aegismeter dps avg|10|60|120 (or click the DPS number). Run log: /aegismeter log [seconds]"))
+			say(L("DPS window: ") .. dpsWindow() .. L(" s. Change: /aegis meter dps avg|10|60|120 (or click the DPS number). Run log: /aegis meter log [seconds]"))
 		end
 		refresh()
 	else

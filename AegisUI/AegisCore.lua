@@ -34,7 +34,6 @@ end
 local SCALE_MIN, SCALE_MAX = 0.5, 2.5
 
 local function findEntry(key)
-	local i
 	for i = 1, table.getn(UI.list) do
 		if UI.list[i].key == key then
 			return UI.list[i]
@@ -84,7 +83,6 @@ function UI.setScale(key, s, keepCorner, nosave)
 end
 
 function UI.applyScales()
-	local i
 	for i = 1, table.getn(UI.list) do
 		local e = UI.list[i]
 		local s = AegisDB and AegisDB.scales and AegisDB.scales[e.key]
@@ -107,7 +105,6 @@ local function saveEntry(e)
 end
 
 function UI.resetScales()
-	local i
 	for i = 1, table.getn(UI.list) do
 		local e = UI.list[i]
 		if AegisDB and AegisDB.scales and AegisDB.scales[e.key] then
@@ -135,7 +132,6 @@ local function guideLines(skip)
 	local sw, sh = UIParent:GetWidth(), UIParent:GetHeight()
 	local xs = { 0, sw / 2, sw }
 	local ys = { 0, sh / 2, sh }
-	local i
 	for i = 1, table.getn(UI.list) do
 		local f = UI.list[i].frame
 		if f ~= skip and f:IsShown() and f:GetLeft() then
@@ -155,7 +151,6 @@ end
 local function pullTo(mine, lines, limit)
 	local best = nil
 	local bd = limit + 0.001
-	local i, j
 	for i = 1, table.getn(mine) do
 		for j = 1, table.getn(lines) do
 			local d = lines[j] - mine[i]
@@ -207,7 +202,6 @@ end
 
 function UI.sanitizeAll(quiet)
 	local n = 0
-	local i
 	for i = 1, table.getn(UI.list) do
 		if UI.clampFrame(UI.list[i].frame) then
 			n = n + 1
@@ -333,7 +327,6 @@ local function makeOverlay(e)
 end
 
 function UI.refreshOverlays()
-	local i
 	for i = 1, table.getn(UI.list) do
 		local e = UI.list[i]
 		local want = (not UI.locked) and e.frame:IsShown()
@@ -384,7 +377,6 @@ end
 
 function UI.resetAll()
 	UI.resetScales()
-	local i
 	for i = 1, table.getn(UI.list) do
 		if UI.list[i].reset then
 			UI.list[i].reset()
@@ -398,7 +390,7 @@ function UI.resetAll()
 	say(L("Positions reset."))
 end
 
--- /aegis fstack: frame inspector. Hover any frame: name, type, size, parent chain, alpha, strata/level.
+-- /aegis debug fstack: frame inspector. Hover any frame: name, type, size, parent chain, alpha, strata/level.
 -- Hold CTRL to pick the frame under the mouse: its name and parent chain open in a copy window
 -- (Ctrl+C copies the selection, the 1.12 client has no clipboard API). Plain clicks are not used on
 -- purpose: they would also click whatever lies under the cursor.
@@ -446,7 +438,7 @@ function UI.fstack(on)
 		fstack:SetScript("OnUpdate", function()
 			local f = GetMouseFocus and GetMouseFocus()
 			if not f or f == this or f == WorldFrame then
-				this.text:SetText("|cffd2a24a/aegis fstack|r  " .. L("hover a frame, hold CTRL to copy its name"))
+				this.text:SetText("|cffd2a24a/aegis debug fstack|r  " .. L("hover a frame, hold CTRL to copy its name"))
 				this:SetHeight(24)
 				this.cur = nil
 			else
@@ -475,7 +467,7 @@ function UI.fstack(on)
 	end
 	if on then
 		fstack:Show()
-		say("fstack: " .. L("hover a frame, hold CTRL to copy its name. /aegis fstack stops."))
+		say("fstack: " .. L("hover a frame, hold CTRL to copy its name. /aegis debug fstack stops."))
 	else
 		fstack:Hide()
 	end

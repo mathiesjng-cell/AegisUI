@@ -127,7 +127,6 @@ function AegisSkin.GetLook(mod)
 end
 
 function AegisSkin.TrackPanel(frame, bgc, edgec, outerTex, mod, noEdge)
-	local i
 	for i = 1, table.getn(AegisSkin.tracked) do
 		if AegisSkin.tracked[i].f == frame then
 			return
@@ -138,7 +137,6 @@ function AegisSkin.TrackPanel(frame, bgc, edgec, outerTex, mod, noEdge)
 end
 
 function AegisSkin.RefreshLook()
-	local i, j
 	for i = 1, table.getn(AegisSkin.tracked) do
 		local t = AegisSkin.tracked[i]
 		local bg, edge, outer, solid, bgp, edgep = AegisSkin.GetLook(t.mod)
@@ -190,7 +188,6 @@ local function fontWalk(frame, size, preset, depth)
 		return
 	end
 	local regs = { frame:GetRegions() }
-	local i
 	for i = 1, table.getn(regs) do
 		local r = regs[i]
 		if r.GetObjectType and r:GetObjectType() == "FontString" then
@@ -222,7 +219,6 @@ local function fontWalk(frame, size, preset, depth)
 end
 
 function AegisSkin.RefreshFonts()
-	local i
 	for i = 1, table.getn(AegisSkin.tracked) do
 		local t = AegisSkin.tracked[i]
 		if t.mod then
@@ -379,14 +375,6 @@ function AegisSkin.GoldLine(frame)
 	return t
 end
 
--- razor-sharp numbers: outline plus a hard 1 px drop shadow
-function AegisSkin.Sharp(fs)
-	if fs and fs.SetShadowColor then
-		fs:SetShadowColor(0, 0, 0, 1)
-		fs:SetShadowOffset(1, -1)
-	end
-end
-
 -- fontString: kind "text" (outlined) or "num" (numbers)
 function AegisSkin.StyleText(fs, kind, size, r, g, b)
 	if not fs or not fs.SetFont then
@@ -448,7 +436,6 @@ local ev = CreateFrame("Frame")
 ev:RegisterEvent("ADDON_LOADED")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:SetScript("OnEvent", function()
-	local i
 	for i = 1, table.getn(AegisSkin.order) do
 		AegisSkin.ApplySkin(AegisSkin.order[i])
 	end
@@ -471,7 +458,6 @@ function AegisSkin.Discover()
 	if GetNumAddOns then
 		n = GetNumAddOns()
 	end
-	local i
 	for i = 1, n do
 		local name, title = GetAddOnInfo(i)
 		if name and not SKIP[name] and not string.find(name, "^Blizzard_") and not AegisSkin.registry[name]
@@ -485,7 +471,6 @@ end
 
 local function findMainFrame(addon)
 	local tries = { addon, addon .. "Frame", addon .. "_Frame", addon .. "MainFrame", addon .. "_MainFrame", addon .. "Main", addon .. "_Main" }
-	local i
 	for i = 1, table.getn(tries) do
 		local f = getglobal(tries[i])
 		if type(f) == "table" and f.GetObjectType and f.SetBackdrop then
@@ -498,7 +483,6 @@ end
 local function restyleRegions(frame)
 	-- re-fetch after SetBackdrop (older handles go stale) and guard every call
 	local regs = { frame:GetRegions() }
-	local i
 	for i = 1, table.getn(regs) do
 		local r = regs[i]
 		pcall(function()
@@ -531,7 +515,6 @@ local function walk(frame, depth)
 		return
 	end
 	local kids = { frame:GetChildren() }
-	local i
 	for i = 1, table.getn(kids) do
 		pcall(walk, kids[i], depth - 1)
 	end
@@ -543,7 +526,7 @@ function AegisSkin.SkinGenericFrame(frame)
 	end
 	frame.aegisGeneric = true
 	AegisSkin.ApplyPanel(frame)
-	local ok = pcall(AegisSkin.GoldLine, frame)
+	pcall(AegisSkin.GoldLine, frame)
 	walk(frame, 3)
 	return true
 end
@@ -585,7 +568,6 @@ gen:SetScript("OnEvent", function()
 	end)
 	AegisSkin.Discover()
 	if AegisDB and AegisDB.generic then
-		local name, on
 		for name, on in pairs(AegisDB.generic) do
 			if on then
 				local f = findMainFrame(name)

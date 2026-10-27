@@ -584,7 +584,6 @@ local function refreshPlate(p, small, faded)
 		local k2 = AZS_UnitKind("target")
 		special = (k2 == "final" or k2 == "boss" or k2 == "guardian")
 	end
-	local ci
 	for ci = 1, table.getn(m.crown) do
 		if elite then
 			m.crown[ci]:Show()
@@ -605,7 +604,7 @@ local function refreshPlate(p, small, faded)
 		m.raidicon:ClearAllPoints()
 		m.raidicon:SetPoint("RIGHT", bar, "LEFT", -3, 0)
 	end
-	local mn, mx = bar:GetMinMaxValues()
+	local _, mx = bar:GetMinMaxValues()
 	local v = bar:GetValue()
 	if mx and mx > 0 and v then
 		m.txt:SetText(math.floor(v / mx * 100 + 0.5) .. "%")
@@ -650,7 +649,6 @@ local function bossSet()
 	U.bossOn = false
 	local ok, bs = pcall(AZS_GetBosses or function() end)
 	if ok and type(bs) == "table" then
-		local i
 		for i = 1, table.getn(bs) do
 			if bs[i].name then
 				U.bossNames[bs[i].name] = true
@@ -660,7 +658,6 @@ local function bossSet()
 	end
 	local ok2, gs = pcall(AZS_GetGuardians or function() end)
 	if ok2 and type(gs) == "table" then
-		local j
 		for j = 1, table.getn(gs) do
 			if gs[j].awake then
 				U.bossOn = true
@@ -684,7 +681,6 @@ local function rankPlates()
 	U.rank = r
 	local n = 0
 	local cx = (GetScreenWidth and GetScreenWidth() or 1024) / 2 * (UIParent:GetEffectiveScale() or 1)
-	local i
 	for i = 1, table.getn(U.list) do
 		local p = U.list[i]
 		if p:IsVisible() and p.my then
@@ -715,7 +711,6 @@ local function rankPlates()
 			e.p, e.score = p, score
 		end
 	end
-	local k
 	for k = n + 1, table.getn(r) do
 		r[k].p = nil
 	end
@@ -737,7 +732,6 @@ local function scanPlates()
 	end
 	U.childCount = n
 	local kids = { WorldFrame:GetChildren() }
-	local i
 	for i = 1, n do
 		local f = kids[i]
 		if f and U.known[f] == nil then
@@ -757,7 +751,6 @@ end
 local STOCK = { "PlayerFrame", "TargetFrame" }
 
 local function setStock(hide)
-	local i
 	for i = 1, table.getn(STOCK) do
 		local f = getglobal(STOCK[i])
 		if f then
@@ -795,7 +788,6 @@ ticker:SetScript("OnUpdate", function()
 			U.stockAcc = 0
 			-- the game may move the stock frame back; push it out again
 			if U.stockHidden then
-				local k
 				for k = 1, table.getn(STOCK) do
 					local sf = getglobal(STOCK[k])
 					if sf and sf:GetLeft() and sf:GetLeft() > -300 then
@@ -834,7 +826,6 @@ ticker:SetScript("OnUpdate", function()
 			local ranked, n = rankPlates()
 			local cap = plateCap()
 			local fade = bossOn and plateFade()
-			local i
 			for i = 1, n do
 				local p = ranked[i].p
 				local nm = p.my.name:GetText()
@@ -889,7 +880,6 @@ loader:SetScript("OnEvent", function()
 	end
 end)
 
-SLASH_AEGISUNITS1 = "/aegisunits"
 SlashCmdList["AEGISUNITS"] = function(msg)
 	msg = string.lower(msg or "")
 	AegisUnitsDB = AegisUnitsDB or {}
@@ -911,7 +901,7 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 			layoutCards()
 			say(L("Distance from center ") .. n)
 		else
-			say(L("Usage: /aegisunits gap <pixels>  (current ") .. ((AegisUnitsDB and AegisUnitsDB.gap) or 110) .. L(", default 110)"))
+			say(L("Usage: /aegis units gap <pixels>  (current ") .. ((AegisUnitsDB and AegisUnitsDB.gap) or 110) .. L(", default 110)"))
 		end
 	elseif what == "target" then
 		U.target = on
@@ -928,7 +918,7 @@ SlashCmdList["AEGISUNITS"] = function(msg)
 		setStock(not on)
 		say(L("Default player and target frames ").. (on and L("visible") or L("hidden")))
 	else
-		say(L("/aegisunits player on|off   /aegisunits target on|off   /aegisunits gap <n>   /aegisunits plates on|off   /aegisunits stock on|off (default player frame)"))
+		say(L("/aegis units player on|off   /aegis units target on|off   /aegis units gap <n>   /aegis units plates on|off   /aegis units stock on|off (default player frame)"))
 	end
 end
 

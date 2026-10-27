@@ -11,7 +11,7 @@ local ARROW = "Interface\\AddOns\\AegisNav\\arrow"
 
 local N = {
 	enabled = true,
-	manual = nil,     -- nil = auto, otherwise index into the target list (/aegisnav next)
+	manual = nil,     -- nil = auto, otherwise index into the target list (/aegis nav next)
 	aspect = 1.5,     -- map width / height, needed to turn map units into a real angle
 	yards = 2400,     -- rough width of the map in yards (only used for the distance text)
 	heading = nil,    -- clockwise from north, radians
@@ -58,7 +58,6 @@ local function collect()
 	local lairs = {}
 	local ok2, l = pcall(AZS_GetLairs or function() end)
 	if ok2 and type(l) == "table" then
-		local i
 		for i = 1, table.getn(l) do
 			local x, y = coordsOf(l[i])
 			if x then
@@ -71,7 +70,6 @@ local function collect()
 	local used = {}
 	local ok, g = pcall(AZS_GetGuardians or function() end)
 	if ok and type(g) == "table" then
-		local i, j
 		for i = 1, table.getn(g) do
 			local e = g[i]
 			local x, y = coordsOf(e)
@@ -93,7 +91,6 @@ local function collect()
 	end
 	local okb, bs = pcall(AZS_GetBosses or function() end)
 	if okb and type(bs) == "table" then
-		local i, j
 		for i = 1, table.getn(bs) do
 			local x, y = coordsOf(bs[i])
 			local wx, wy = worldOf(bs[i])
@@ -123,7 +120,6 @@ local function collect()
 		c = nil
 	end
 	if ok3 and type(c) == "table" then
-		local i
 		for i = 1, table.getn(c) do
 			local x, y = coordsOf(c[i])
 			local wx, wy = worldOf(c[i])
@@ -132,7 +128,6 @@ local function collect()
 			end
 		end
 	end
-	local j
 	for j = 1, table.getn(lairs) do
 		if not used[j] then
 			list[table.getn(list) + 1] = { name = "Lair " .. lairs[j].index, x = lairs[j].x, y = lairs[j].y, wx = lairs[j].wx, wy = lairs[j].wy,
@@ -150,7 +145,6 @@ end
 
 local function nearest(list, px, py, test)
 	local best, bd
-	local i
 	for i = 1, table.getn(list) do
 		local t = list[i]
 		if test(t) then
@@ -183,7 +177,6 @@ local function choose(list, px, py)
 	t = nearest(list, px, py, function(x) return x.kind == "lair" and x.active end)
 	if t then return t end
 	local soon, best
-	local i
 	for i = 1, n do
 		local x = list[i]
 		if x.kind == "lair" and x.left and x.left >= 0 and (not soon or x.left < soon) then
@@ -329,7 +322,6 @@ local function readHealth()
 	-- 1) a boss that is up (e.g. Warchief Rend Blackhand)
 	local okb, bs = pcall(AZS_GetBosses or function() end)
 	if okb and type(bs) == "table" then
-		local i
 		for i = 1, table.getn(bs) do
 			local e = bs[i]
 			local hp = tonumber(e.hp)
@@ -342,7 +334,6 @@ local function readHealth()
 	-- 2) otherwise the guardian that is awake (= being fought)
 	local ok, g = pcall(AZS_GetGuardians or function() end)
 	if ok and type(g) == "table" then
-		local i
 		for i = 1, table.getn(g) do
 			local e = g[i]
 			if e.awake then
@@ -358,7 +349,7 @@ local function readHealth()
 end
 
 local function updateBar()
-	local hp, mx, nm, isBoss = readHealth()
+	local hp, mx, _, isBoss = readHealth()
 	if not hp then
 		hpBack:Hide()
 		return
@@ -547,7 +538,6 @@ local function enforceHud()
 	if not AZS_SetHudShown or not AZS_IsHudShown or not AegisNavDB or not AegisNavDB.hud then
 		return
 	end
-	local name, want
 	for name, want in pairs(AegisNavDB.hud) do
 		local shown = AZS_IsHudShown(name) and true or false
 		if shown ~= want then
@@ -670,7 +660,6 @@ local function setRow(i, name, val, nr, ng, nb, vr, vg, vb, alpha, strike)
 end
 
 local function hideRowsFrom(n)
-	local i
 	for i = n, table.getn(T.rows) do
 		T.rows[i].name:Hide()
 		T.rows[i].val:Hide()
@@ -712,7 +701,6 @@ local function timerUpdate()
 	T.pass = pass
 	local okU, up = pcall(AZS_GetUpcomingBosses or function() end)
 	if okU and type(up) == "table" then
-		local i
 		for i = 1, table.getn(up) do
 			local key = up[i].index or i
 			local b = T.bosses[key] or {}
@@ -723,7 +711,6 @@ local function timerUpdate()
 	local alive = {}
 	local okA, al = pcall(AZS_GetBosses or function() end)
 	if okA and type(al) == "table" then
-		local i
 		for i = 1, table.getn(al) do
 			if al[i].name then
 				alive[al[i].name] = true
@@ -736,12 +723,11 @@ local function timerUpdate()
 	setRow(n, L("Run"), rt and clock(rt) or "--:--:--", 0.85, 0.75, 0.40, 0.85, 0.75, 0.40, 1, false)
 
 	local keys = {}
-	local k, b
-	for k, b in pairs(T.bosses) do
+	local b
+	for k in pairs(T.bosses) do
 		keys[table.getn(keys) + 1] = k
 	end
 	table.sort(keys)
-	local ki
 	for ki = 1, table.getn(keys) do
 		b = T.bosses[keys[ki]]
 		if n < MAX_ROWS and b.name then
@@ -764,7 +750,6 @@ local function timerUpdate()
 	-- guardians: UP (asleep), fighting, or the respawn countdown of an empty lair
 	local okL, l = pcall(AZS_GetLairs or function() end)
 	if okL and type(l) == "table" then
-		local i
 		for i = 1, table.getn(l) do
 			if n < MAX_ROWS then
 				n = n + 1
@@ -820,6 +805,7 @@ loader:SetScript("OnEvent", function()
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisNavDB.point, UIParent, AegisNavDB.rel or AegisNavDB.point, AegisNavDB.x or 0, AegisNavDB.y or 0)
 	end
+	AegisNavDB.sessStart, AegisNavDB.sessSeen = nil, nil    -- old session-clock keys
 	if AegisNavDB.tpoint then
 		tf:ClearAllPoints()
 		tf:SetPoint(AegisNavDB.tpoint, UIParent, AegisNavDB.trel or AegisNavDB.tpoint, AegisNavDB.tx or 0, AegisNavDB.ty or 0)
@@ -838,14 +824,13 @@ loader:SetScript("OnEvent", function()
 	end
 end)
 
-SLASH_AEGISNAV1 = "/aegisnav"
 SlashCmdList["AEGISNAV"] = function(msg)
 	msg = string.lower(msg or "")
 	AegisNavDB = AegisNavDB or {}
 	local _, _, cmd, arg = string.find(msg, "^(%S*)%s*(%S*)")
 	if cmd == "next" then
 		N.manual = (N.manual or -1) + 1
-		say(L("Target changed. /aegisnav auto = automatic again."))
+		say(L("Target changed. /aegis nav auto = automatic again."))
 	elseif cmd == "auto" then
 		N.manual = nil
 		say(L("Automatic target (fighting guardian, chest, guardian, lair)."))
@@ -858,10 +843,10 @@ SlashCmdList["AEGISNAV"] = function(msg)
 		AegisNavDB.yards = N.yards
 		say(L("Map width ") .. N.yards .. L(" yd (only used for the distance display)"))
 	elseif cmd == "hud" then
-		-- /aegisnav hud <name> on|off : show or hide one of the game's own HUD parts (names: see /aegismeter inspect)
+		-- /aegis nav hud <name> on|off : show or hide one of the game's own HUD parts (names: see /aegis meter inspect)
 		local _, _, hname, hstate = string.find(msg, "^hud%s+(%S+)%s*(%S*)")
 		if not hname then
-			say(L("Usage: /aegisnav hud <name> on|off"))
+			say(L("Usage: /aegis nav hud <name> on|off"))
 		elseif not AZS_SetHudShown then
 			say(L("AZS_SetHudShown is missing in this client."))
 		else
@@ -877,7 +862,6 @@ SlashCmdList["AEGISNAV"] = function(msg)
 		end
 	elseif cmd == "info" then
 		local list = collect()
-		local i
 		say(table.getn(list) .. L(" targets, heading ") .. tostring(N.heading) .. ", GetPlayerFacing " .. tostring(GetPlayerFacing ~= nil))
 		for i = 1, table.getn(list) do
 			local t = list[i]
