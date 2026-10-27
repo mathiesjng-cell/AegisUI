@@ -187,16 +187,19 @@ end
 
 -- first start: chat pinned bottom-left; the LuckyOdds window docks to the chat's right edge
 -- (only while neither has a saved position of its own)
--- the input line moves above the chat so the chat itself can sit flush in the screen corner
+-- the input line sits inside the chat's bottom edge so the chat itself can stay flush in the screen corner
 local function placeEdit()
 	local eb = ChatFrameEditBox
 	local cf = ChatFrame1
 	if not eb or not cf then
 		return
 	end
+	-- while typing the input line covers the bottom of the chat panel (flush with its edges)
 	eb:ClearAllPoints()
-	eb:SetPoint("BOTTOMLEFT", cf, "TOPLEFT", 0, 26)
-	eb:SetPoint("BOTTOMRIGHT", cf, "TOPRIGHT", 0, 26)
+	eb:SetPoint("BOTTOMLEFT", cf, "BOTTOMLEFT", -4, -4)
+	eb:SetPoint("BOTTOMRIGHT", cf, "BOTTOMRIGHT", 4, -4)
+	eb:SetHeight(22)
+	eb:SetFrameStrata("DIALOG")
 end
 
 local function placeDefaults()
