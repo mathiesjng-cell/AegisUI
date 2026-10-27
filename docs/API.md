@@ -339,3 +339,4 @@ DEFAULT_CHAT_FRAME:AddMessage(L("Kill counter"));
 | `nav.timerShown()` / `nav.setTimerShown(on)` | timer widget (session clock, next boss, soonest lair fill); registry key `timer` |
 | `units.getCap()` / `units.setCap(n)` | max full nameplates (default 10) |
 | `units.getBossFade()` / `units.setBossFade(on)` | fade trash plates to 20 % while a boss / guardian is up |
+| `meter.getRecent()` / `meter.setRecent(on)` | rows follow the DPS time window (default on; the window itself is `getDps/setDps`) |

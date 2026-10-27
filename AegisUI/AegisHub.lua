@@ -802,6 +802,7 @@ local function buildContent()
 			end
 			return v .. " s"
 		end)
+		toggle(L("Rows follow the time window"), function() return A("meter", "getRecent") end, function(v) A("meter", "setRecent", v) end)
 		action(function()
 			local w = A("meter", "getDps") or 10
 			if w == 0 then

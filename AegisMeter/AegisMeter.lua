@@ -464,6 +464,7 @@ local function windowRates(view, now, sum, list)
 			dealt = 0
 		end
 		item.dps = dealt / span
+		item.win = dealt
 	end
 	local head = sum - (base.total or 0)
 	if head < 0 then
@@ -1205,7 +1206,32 @@ refresh = function()
 		shownRate = headRate
 	end
 
-	totalText:SetText("|cff7d8294TOTAL:|r |cffffffff" .. fmtBig(sum) .. "|r")
+	-- rows follow the time window too: ranking, bars and values show what was dealt in the last N seconds.
+	-- Out of combat (nothing dealt in the window) the whole-run numbers stay on screen.
+	local totalShown = sum
+	if headRate and winSec > 0 and not (AegisMeterDB and AegisMeterDB.recent == false) then
+		local recent = {}
+		local rsum = 0
+		local q
+		for q = 1, table.getn(list) do
+			local it = list[q]
+			if it.win and it.win > 0 then
+				it.whole = it.dmg
+				it.dmg = it.win
+				rsum = rsum + it.win
+				recent[table.getn(recent) + 1] = it
+			end
+		end
+		if table.getn(recent) > 0 then
+			table.sort(recent, function(a, c)
+				return a.dmg > c.dmg
+			end)
+			list = recent
+			sum = rsum
+		end
+	end
+
+	totalText:SetText("|cff7d8294TOTAL:|r |cffffffff" .. fmtBig(totalShown) .. "|r")
 	avgText:SetText("|cff7d8294" .. rateLabel .. "|r |cffffc533" .. fmtAvg(shownRate) .. "|r")
 
 	local count = table.getn(list)
@@ -1758,6 +1784,13 @@ local function hubHook()
 			AegisMeterDB = AegisMeterDB or {}
 			AegisMeterDB.width = n
 			applyLayout()
+		end,
+		getRecent = function()
+			return not (AegisMeterDB and AegisMeterDB.recent == false)
+		end,
+		setRecent = function(on)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.recent = on and true or false
 		end,
 		getTitle = function()
 			return AegisMeterDB and AegisMeterDB.showTitle and true or false
