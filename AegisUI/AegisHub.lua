@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.7.0"
+local VERSION = "5.7.1"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -924,7 +924,7 @@ local function buildContent()
 		action(function()
 			return L("RESET DEFAULTS"), 0.80, 0.83, 0.90
 		end, function()
-			A("map", "setClean", false)
+			A("map", "setClean", true)
 			refreshAllHook()
 		end)
 	else
@@ -1312,6 +1312,11 @@ SlashCmdList["AEGIS"] = function(msg)
 				txt = txt .. " btnA=" .. string.format("%.2f", btn:GetAlpha() or 0)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
+		end
+	elseif cmd == "mapdiag" then
+		local f = UI.api.fonts
+		if f and f.showText and UI.api.map then
+			f.showText(UI.api.map.diag())
 		end
 	elseif cmd == "slotparts" then
 		-- every texture and child of an action button: find what darkens it

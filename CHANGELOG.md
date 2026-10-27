@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.7.1] - 2026-10-27
+### Changed
+- Clean minimap is now on by default and also restyles the buttons around the map: round gold rings removed, flat square dark frames with a gold edge, buttons moved onto the edge of the square map. Close X, world map button, calendar sun and zoom buttons are hidden (the wheel zooms).
+### Added
+- `/aegis mapdiag`: lists the minimap's child frames in a copy window.
+
 ## [5.7.0] - 2026-10-27
 ### Added
 - Per-module font size (8-24 px, 12 = original sizes, all texts scale proportionally) and font choice (Default, Arial Narrow, Friz Quadrata, Morpheus, Skurri) for Meter and Units (`AegisSkin.GetFont/RefreshFonts`, keys `fsize` / `fontp`). Reset Defaults restores the original fonts.

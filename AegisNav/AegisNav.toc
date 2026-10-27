@@ -3,7 +3,7 @@
 ## Notes: Waypoint arrow with boss / guardian HP bar for Azeroth Survivors (part of the AegisUI pack)
 ## SavedVariables: AegisNavDB
 ## OptionalDeps: AegisUI
-## Version: 5.7.0
+## Version: 5.7.1
 
 Locale.lua
 AegisNav.lua

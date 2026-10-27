@@ -79,7 +79,7 @@ local function applyClean()
 	if not Minimap then
 		return
 	end
-	local on = AegisDB and AegisDB.mapClean
+	local on = not (AegisDB and AegisDB.mapClean == false)
 	local names = { "MinimapZoomIn", "MinimapZoomOut" }
 	local i
 	for i = 1, table.getn(names) do
@@ -109,6 +109,135 @@ local function applyClean()
 	end
 end
 
+
+-- Flat minimap buttons: strip the round gold rings, give every button a small square dark frame with a gold
+-- edge and sit them on the edge of the square map (same angle as before). Hidden: close X, world map
+-- button, calendar sun, zoom buttons (the wheel zooms).
+local GOLD = { 0.78, 0.58, 0.22 }
+local HIDE_NAMES = { "MinimapToggleButton", "MiniMapWorldMapButton", "GameTimeFrame", "MinimapZoomIn", "MinimapZoomOut" }
+local STOCK = { "MiniMapTracking", "MiniMapBattlefieldFrame", "MiniMapMailFrame", "MiniMapMeetingStoneFrame", "MiniMapPing" }
+
+local function isRing(tex)
+	if not tex or type(tex) ~= "string" then
+		return false
+	end
+	local t = string.lower(tex)
+	return string.find(t, "border", 1, true) or string.find(t, "minimap-background", 1, true) or string.find(t, "ring", 1, true) or string.find(t, "trackingborder", 1, true)
+end
+
+local function flatten(b, half)
+	if b.aegisFlat or b:GetName() == "AegisHubMinimapButton" or b == Minimap then
+		return
+	end
+	local w, h = b:GetWidth(), b:GetHeight()
+	if not w or not h or w < 8 or h < 8 or w > 50 or h > 50 then
+		return
+	end
+	b.aegisFlat = true
+	local icon
+	local regs = { b:GetRegions() }
+	local i
+	for i = 1, table.getn(regs) do
+		local r = regs[i]
+		if r.GetObjectType and r:GetObjectType() == "Texture" then
+			local tex = r:GetTexture()
+			if isRing(tex) then
+				r:Hide()
+			elseif tex and not icon and not string.find(string.lower(tex), "highlight", 1, true) then
+				icon = r
+			end
+		end
+	end
+	local bg = CreateFrame("Frame", nil, b)
+	local lv = b:GetFrameLevel() - 1
+	if lv < 0 then
+		lv = 0
+	end
+	bg:SetFrameLevel(lv)
+	if icon then
+		bg:SetPoint("TOPLEFT", icon, "TOPLEFT", -2, 2)
+		bg:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 2, -2)
+		icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	else
+		bg:SetPoint("TOPLEFT", b, "TOPLEFT", 4, -4)
+		bg:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", -4, 4)
+	end
+	bg:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
+		insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+	bg:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
+	bg:SetBackdropBorderColor(GOLD[1], GOLD[2], GOLD[3], 1)
+	-- move onto the square's edge, keeping the direction
+	local bx, by = b:GetCenter()
+	local mx, my = Minimap:GetCenter()
+	if bx and mx and AegisUISquare and AegisUISquare() then
+		local bs, ms = b:GetEffectiveScale(), Minimap:GetEffectiveScale()
+		local dx, dy = (bx * bs - mx * ms) / ms, (by * bs - my * ms) / ms
+		local m = math.max(math.abs(dx), math.abs(dy))
+		if m > 1 then
+			local k = (half + 8) / m
+			b:ClearAllPoints()
+			b:SetPoint("CENTER", Minimap, "CENTER", dx * k, dy * k)
+		end
+	end
+end
+
+local function flattenAll()
+	if not Minimap or not (AegisDB and AegisDB.mapClean ~= false) then
+		return
+	end
+	local half = (Minimap:GetWidth() or 140) / 2
+	local i
+	for i = 1, table.getn(HIDE_NAMES) do
+		local o = getglobal(HIDE_NAMES[i])
+		if o and o.Hide then
+			o:Hide()
+			if o.Show and not o.aegisNoShow then
+				o.aegisNoShow = true
+				o.Show = function() end
+			end
+		end
+	end
+	local lists = { { Minimap:GetChildren() } }
+	local par = Minimap:GetParent()
+	if par and par ~= UIParent then
+		lists[2] = { par:GetChildren() }
+	end
+	local j
+	for j = 1, table.getn(lists) do
+		for i = 1, table.getn(lists[j]) do
+			pcall(flatten, lists[j][i], half)
+		end
+	end
+	for i = 1, table.getn(STOCK) do
+		local o = getglobal(STOCK[i])
+		if o and o.GetRegions then
+			pcall(flatten, o, half)
+		end
+	end
+end
+
+-- list the minimap's children (for /aegis mapdiag)
+local function mapDiag()
+	local out = {}
+	local function dump(f, tag)
+		local kids = { f:GetChildren() }
+		local i
+		for i = 1, table.getn(kids) do
+			local k = kids[i]
+			out[table.getn(out) + 1] = tag .. " " .. tostring(k:GetName()) .. " " .. k:GetObjectType() .. " " .. math.floor((k:GetWidth() or 0) + 0.5) .. "x" .. math.floor((k:GetHeight() or 0) + 0.5) .. " shown=" .. tostring(k:IsShown()) .. " flat=" .. tostring(k.aegisFlat)
+		end
+	end
+	if Minimap then
+		dump(Minimap, "Minimap>")
+		local par = Minimap:GetParent()
+		if par then
+			out[table.getn(out) + 1] = "parent=" .. tostring(par:GetName())
+			dump(par, "parent>")
+		end
+	end
+	return table.concat(out, "\n")
+end
+
 local mapEv = CreateFrame("Frame")
 mapEv:RegisterEvent("PLAYER_LOGIN")
 mapEv:SetScript("OnEvent", function()
@@ -118,20 +247,37 @@ mapEv:SetScript("OnEvent", function()
 	end
 	pcall(applyMap)
 	pcall(applyClean)
+	-- other addons add their minimap buttons a little later
+	local t = 0
+	local done = 0
+	local f = CreateFrame("Frame")
+	f:SetScript("OnUpdate", function()
+		t = t + (arg1 or 0)
+		if t > 2 and done == 0 then
+			done = 1
+			pcall(flattenAll)
+		elseif t > 6 and done == 1 then
+			done = 2
+			pcall(flattenAll)
+			this:SetScript("OnUpdate", nil)
+		end
+	end)
 end)
 
 if AegisUI then
 	AegisUI.api.map = {
+		diag = mapDiag,
 		getSquare = function()
 			return MAPSQ.on
 		end,
 		getClean = function()
-			return AegisDB and AegisDB.mapClean and true or false
+			return not (AegisDB and AegisDB.mapClean == false)
 		end,
 		setClean = function(v)
 			AegisDB = AegisDB or {}
 			AegisDB.mapClean = v and true or false
 			pcall(applyClean)
+			pcall(flattenAll)
 			if not v and DEFAULT_CHAT_FRAME then
 				DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r The zone name font returns after /reload."))
 			end
