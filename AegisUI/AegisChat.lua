@@ -184,6 +184,26 @@ local function bootChatSize()
 	applyChatSize()
 end
 
+-- first start: chat pinned bottom-left; the LuckyOdds window docks to the chat's right edge
+-- (only while neither has a saved position of its own)
+local function placeDefaults()
+	local cf = ChatFrame1
+	AegisDB = AegisDB or {}
+	if cf and not AegisDB.chatPlaced then
+		AegisDB.chatPlaced = true
+		cf:ClearAllPoints()
+		cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 24, 60)
+		if FCF_SavePositionAndDimensions then
+			pcall(FCF_SavePositionAndDimensions, cf)
+		end
+	end
+	local lf = getglobal("LuckyOddsFrame")
+	if cf and lf and not (type(LuckyOddsDB) == "table" and LuckyOddsDB.point) then
+		lf:ClearAllPoints()
+		lf:SetPoint("BOTTOMLEFT", cf, "BOTTOMRIGHT", 14, 0)
+	end
+end
+
 local function setChatSize(w, h)
 	AegisDB = AegisDB or {}
 	if w < CHAT_MIN_W then
@@ -370,6 +390,7 @@ sizeF:SetScript("OnUpdate", function()
 		if sizeT > 2.5 then
 			sizeT = nil
 			applyChatSize()
+			pcall(placeDefaults)
 		end
 	end
 end)

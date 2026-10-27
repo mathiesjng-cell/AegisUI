@@ -135,6 +135,8 @@ Every module has its own full command; `/aegis meter|nav|units <command>` forwar
 | `/aegis slot` | Debug: state of each action slot (usable, cooldown, colour). |
 | `/aegis slotparts [n]` | Debug: textures and children of action button n, in a copyable window. |
 | `/aegis mapdiag` | List the minimap's child frames in a copy window. |
+| `/aegis fstack` | Frame inspector: hover a frame, hold CTRL to copy its name. |
+| `/aegis debug` | List of all diagnostic tools (`/aegis debug <tool>`). |
 | `/aegis fix` | Move windows that ended up off screen back onto it. |
 | `/aegis bars` | Debug: state of the custom action bar. |
 | `/aegis who` | Debug: shows the name of the frame under the mouse; run it again to stop. |

@@ -251,6 +251,9 @@ local function buildBar()
 	xpFill:SetVertexColor(0.55, 0.30, 0.95, 1)
 	xpFill:SetPoint("TOPLEFT", xp, "TOPLEFT", 1, -1)
 	xpFill:SetHeight(10)
+	if AegisSkin and AegisSkin.Bevel then
+		AegisSkin.Bevel(xp)
+	end
 	xpText = xp:CreateFontString(nil, "OVERLAY")
 	xpText:SetFont("Fonts\\ARIALN.TTF", 10, "OUTLINE")
 	xpText:SetPoint("CENTER", xp, "CENTER", 0, 0)

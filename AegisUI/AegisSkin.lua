@@ -273,6 +273,36 @@ function AegisSkin.ApplySolid(frame, mod)
 	AegisSkin.TrackPanel(frame, c, AegisSkin.color.edge, nil, mod)
 end
 
+-- Inset look for status bars: a dark 1 px line under the top edge, a faint light line above the bottom
+-- edge and a soft vertical gradient over the bar, so it looks set into the panel instead of flat.
+function AegisSkin.Bevel(frame)
+	if not frame or frame.aegisBevel then
+		return
+	end
+	frame.aegisBevel = true
+	local top = frame:CreateTexture(nil, "OVERLAY")
+	top:SetTexture(SOLID)
+	top:SetVertexColor(0, 0, 0, 0.55)
+	top:SetHeight(1)
+	top:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+	top:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
+	local bot = frame:CreateTexture(nil, "OVERLAY")
+	bot:SetTexture(SOLID)
+	bot:SetVertexColor(1, 1, 1, 0.08)
+	bot:SetHeight(1)
+	bot:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 1, 1)
+	bot:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+	local g = frame:CreateTexture(nil, "OVERLAY")
+	g:SetTexture(SOLID)
+	g:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -2)
+	g:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 2)
+	if g.SetGradientAlpha then
+		g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.18, 1, 1, 1, 0.10)
+	else
+		g:SetVertexColor(1, 1, 1, 0.04)
+	end
+end
+
 -- 1 px black outline OUTSIDE the panel edge (sharpens the dark-gold border on bright ground).
 -- Four textures on the panel itself, so they follow its strata/level automatically.
 function AegisSkin.OuterBlack(frame)

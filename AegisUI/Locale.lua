@@ -127,6 +127,8 @@ AegisL.add({
 	["Unlocked: drag the gold + at the chat's top-right corner."] = "Entsperrt: das goldene + an der oberen rechten Chat-Ecke ziehen.",
 	["WINDOW SIZE"] = "FENSTERGROESSE",
 	["Or drag the gold + in a window's corner while unlocked."] = "Oder im entsperrten Modus das goldene + in der Fensterecke ziehen.",
+	["hover a frame, hold CTRL to copy its name"] = "Frame anfahren, STRG halten zum Kopieren des Namens",
+	["hover a frame, hold CTRL to copy its name. /aegis fstack stops."] = "Frame anfahren, STRG halten zum Kopieren des Namens. /aegis fstack beendet.",
 	["DISPLAY"] = "ANZEIGE",
 	["DPS time window"] = "DPS-Zeitfenster",
 	["DPS window: "] = "DPS-Fenster: ",

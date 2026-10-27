@@ -393,6 +393,89 @@ function UI.resetAll()
 	say(L("Positions reset."))
 end
 
+-- /aegis fstack: frame inspector. Hover any frame: name, type, size, parent chain, alpha, strata/level.
+-- Hold CTRL to pick the frame under the mouse: its name and parent chain open in a copy window
+-- (Ctrl+C copies the selection, the 1.12 client has no clipboard API). Plain clicks are not used on
+-- purpose: they would also click whatever lies under the cursor.
+local fstack
+local function describe(f)
+	local out = {}
+	local name = f:GetName()
+	out[1] = "name: " .. tostring(name)
+	out[2] = "type: " .. f:GetObjectType()
+	out[3] = "size: " .. math.floor((f:GetWidth() or 0) + 0.5) .. " x " .. math.floor((f:GetHeight() or 0) + 0.5)
+	out[4] = string.format("alpha: %.2f  scale: %.2f", f:GetAlpha() or 0, f:GetScale() or 1)
+	if f.GetFrameStrata then
+		out[5] = "strata: " .. tostring(f:GetFrameStrata()) .. "  level: " .. tostring(f:GetFrameLevel())
+	end
+	local chain = {}
+	local p = f:GetParent()
+	local n = 0
+	while p and n < 6 do
+		chain[table.getn(chain) + 1] = tostring(p:GetName() or "?")
+		p = p:GetParent()
+		n = n + 1
+	end
+	out[table.getn(out) + 1] = "parents: " .. table.concat(chain, " < ")
+	return out
+end
+
+function UI.fstack(on)
+	if not fstack then
+		fstack = CreateFrame("Frame", "AegisFstackFrame", UIParent)
+		fstack:SetFrameStrata("TOOLTIP")
+		fstack:SetWidth(280)
+		fstack:SetHeight(96)
+		fstack:EnableMouse(false)
+		fstack:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
+			insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+		fstack:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
+		fstack:SetBackdropBorderColor(0.78, 0.58, 0.22, 1)
+		fstack.text = fstack:CreateFontString(nil, "OVERLAY")
+		fstack.text:SetFont(FONT_NUM, 11, "OUTLINE")
+		fstack.text:SetPoint("TOPLEFT", fstack, "TOPLEFT", 6, -6)
+		fstack.text:SetWidth(268)
+		fstack.text:SetJustifyH("LEFT")
+		fstack:Hide()
+		fstack.ctl = false
+		fstack:SetScript("OnUpdate", function()
+			local f = GetMouseFocus and GetMouseFocus()
+			if not f or f == this or f == WorldFrame then
+				this.text:SetText("|cffd2a24a/aegis fstack|r  " .. L("hover a frame, hold CTRL to copy its name"))
+				this:SetHeight(24)
+				this.cur = nil
+			else
+				local lines = describe(f)
+				this.cur = f
+				this.text:SetText(table.concat(lines, "\n"))
+				this:SetHeight(12 * table.getn(lines) + 12)
+			end
+			local x, y = GetCursorPosition()
+			local sc = UIParent:GetEffectiveScale()
+			this:ClearAllPoints()
+			this:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x / sc + 16, y / sc + 16)
+			local ctl = IsControlKeyDown() and true or false
+			if ctl and not this.ctl and this.cur then
+				local lines = describe(this.cur)
+				local api = UI.api and UI.api.fonts
+				if api and api.showText then
+					api.showText(table.concat(lines, "\n"))
+				end
+			end
+			this.ctl = ctl
+		end)
+	end
+	if on == nil then
+		on = not fstack:IsShown()
+	end
+	if on then
+		fstack:Show()
+		say("fstack: " .. L("hover a frame, hold CTRL to copy its name. /aegis fstack stops."))
+	else
+		fstack:Hide()
+	end
+end
+
 -- Loading ----------------------------------------------------------------
 
 local core = CreateFrame("Frame")

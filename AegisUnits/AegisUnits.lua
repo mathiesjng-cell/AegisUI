@@ -184,6 +184,9 @@ local function newCard(frameName, unit, hasPower)
 		fill:SetHeight(h - 2)
 		fill:SetWidth(1)
 		r.fill = fill
+		if AegisSkin and AegisSkin.Bevel then
+			AegisSkin.Bevel(r)
+		end
 		return r
 	end
 
@@ -389,6 +392,48 @@ tf:SetScript("OnDragStop", function()
 		AegisUnitsDB.bottom = bottom * k
 	end
 	layoutCards()
+end)
+
+-- Level-up: a small gold arrow rises above the player card's level for 2 s and fades out
+local lvlArrow = CreateFrame("Frame", nil, pf)
+lvlArrow:SetFrameStrata("HIGH")
+lvlArrow:SetWidth(11)
+lvlArrow:SetHeight(14)
+lvlArrow:SetPoint("BOTTOMRIGHT", pf, "TOPRIGHT", -12, 2)
+lvlArrow:Hide()
+do
+	local function bar(w, h, y)
+		local t = lvlArrow:CreateTexture(nil, "OVERLAY")
+		t:SetTexture(SOLID)
+		t:SetVertexColor(1, 0.82, 0.30, 1)
+		t:SetWidth(w)
+		t:SetHeight(h)
+		t:SetPoint("BOTTOM", lvlArrow, "BOTTOM", 0, y)
+	end
+	bar(3, 7, 0)       -- shaft
+	bar(5, 2, 7)       -- head, three steps
+	bar(9, 2, 9)
+	bar(11, 2, 11)
+end
+local lvlT = 0
+lvlArrow:SetScript("OnUpdate", function()
+	lvlT = lvlT + (arg1 or 0)
+	local k = lvlT / 2
+	if k >= 1 then
+		this:Hide()
+		return
+	end
+	local ease = 1 - (1 - k) * (1 - k)
+	this:SetAlpha(1 - k)
+	this:ClearAllPoints()
+	this:SetPoint("BOTTOMRIGHT", pf, "TOPRIGHT", -12, 2 + 22 * ease)
+end)
+local lvlEv = CreateFrame("Frame")
+lvlEv:RegisterEvent("PLAYER_LEVEL_UP")
+lvlEv:SetScript("OnEvent", function()
+	lvlT = 0
+	lvlArrow:SetAlpha(1)
+	lvlArrow:Show()
 end)
 
 -- Nameplates -----------------------------------------------------------

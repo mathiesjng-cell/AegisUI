@@ -1236,7 +1236,7 @@ end
 -- layout settings: number of rows and width
 local function applyLayout()
 	local d = AegisMeterDB or {}
-	maxRows = math.floor(d.rows or 10)
+	maxRows = math.floor(d.rows or 7)
 	if maxRows < 3 then
 		maxRows = 3
 	elseif maxRows > ROWS then
@@ -1314,9 +1314,11 @@ loader:SetScript("OnEvent", function()
 	end
 	AegisMeterDB = AegisMeterDB or {}
 	say("v5.9.2 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	frame:ClearAllPoints()
 	if AegisMeterDB.point then
-		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
+	else
+		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -24, 24)     -- default: bottom right
 	end
 	if AegisMeterDB.mode and MODE_TITLE[AegisMeterDB.mode] then
 		mode = AegisMeterDB.mode
@@ -1325,6 +1327,28 @@ loader:SetScript("OnEvent", function()
 		frame:Hide()
 	end
 	applyLayout()
+end)
+
+-- the game's own damage meter (and its minimap button) stays hidden; the game may re-show it, so re-check
+-- now and then. Switch off with AegisMeterDB.showStock = true.
+local stockT = 0
+local stockF = CreateFrame("Frame")
+stockF:SetScript("OnUpdate", function()
+	stockT = stockT + (arg1 or 0)
+	if stockT < 3 then
+		return
+	end
+	stockT = 0
+	if AegisMeterDB and AegisMeterDB.showStock then
+		return
+	end
+	if AZS_SetHudShown and AZS_IsHudShown then
+		pcall(function()
+			if AZS_IsHudShown("meter") then
+				AZS_SetHudShown("meter", false)
+			end
+		end)
+	end
 end)
 
 -- Text window with a selectable box (the 1.12 client has no clipboard API: Ctrl+C copies the selection)
@@ -1699,7 +1723,7 @@ local function hubHook()
 		AegisMeterDB = AegisMeterDB or {}
 		AegisMeterDB.point, AegisMeterDB.rel, AegisMeterDB.x, AegisMeterDB.y = nil, nil, nil, nil
 		frame:ClearAllPoints()
-		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -24, 24)
 	end)
 	AegisUI.api.meter = {
 		version = "5.9.2",

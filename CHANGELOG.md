@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [Unreleased]
+### Added
+- `/aegis fstack`: frame inspector. Hover shows name, type, size, alpha, scale, strata/level and the parent chain; holding CTRL opens a copy window with that text (Ctrl+C copies; plain clicks are not used so nothing underneath is triggered).
+- `/aegis debug [tool]`: all internal diagnostics in one place (fstack, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag, targetcard, fix). The old direct commands keep working.
+- Inset look for status bars (`AegisSkin.Bevel`): dark line under the top edge, faint light line above the bottom edge, soft vertical gradient. Used on the XP bar and the unit card bars.
+- Level-up: a small gold arrow rises above the player card for 2 s and fades out (`PLAYER_LEVEL_UP`).
+### Changed
+- Defaults: chat pinned bottom-left on first start, the LuckyOdds window docks to the chat's right edge while it has no saved position, the meter sits bottom-right with 7 rows. The game's own damage meter and its minimap button are hidden (`AegisMeterDB.showStock = true` keeps them).
+- Release strategy: no version bump for dev commits; the version changes only for a release tag.
+
 ## [5.9.2] - 2026-10-27
 ### Changed
 - Meter header: run timer and title text ("Overall Damage") are off by default; both can be switched on again in the hub (`AegisMeterDB.showTimer` / `showTitle`).

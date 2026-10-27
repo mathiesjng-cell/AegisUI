@@ -825,7 +825,7 @@ local function buildContent()
 			A("meter", "showLog")
 		end)
 		lookBlock("meter", { edge = true, fonts = true }, function()
-			A("meter", "setRows", 10)
+			A("meter", "setRows", 7)
 			A("meter", "setWidth", 360)
 			A("meter", "setTitle", false)
 			A("meter", "setTimer", false)
@@ -943,6 +943,7 @@ local function buildContent()
 	lookBlock("chat", { edge = true }, function()
 		if AegisDB then
 			AegisDB.chatW, AegisDB.chatH = nil, nil
+			AegisDB.chatPlaced = nil
 		end
 	end)
 
@@ -1288,7 +1289,20 @@ SlashCmdList["AEGIS"] = function(msg)
 	local _, _, cmd, rest = string.find(msg, "^(%S*)%s*(.*)$")
 	cmd = cmd or ""
 	rest = rest or ""
-	if cmd == "lock" then
+	-- /aegis debug <tool>: all internal diagnostics in one place (the old direct names keep working)
+	if cmd == "debug" then
+		local _, _, c2, r2 = string.find(rest, "^(%S*)%s*(.*)$")
+		if not c2 or c2 == "" then
+			if DEFAULT_CHAT_FRAME then
+				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
+			end
+			return
+		end
+		cmd, rest = c2, r2 or ""
+	end
+	if cmd == "fstack" then
+		UI.fstack()
+	elseif cmd == "lock" then
 		UI.setLocked(true)
 	elseif cmd == "unlock" then
 		UI.setLocked(false)
