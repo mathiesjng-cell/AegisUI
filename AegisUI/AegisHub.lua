@@ -1348,7 +1348,7 @@ SlashCmdList["AEGIS"] = function(msg)
 		local _, _, c2, r2 = string.find(rest, "^(%S*)%s*(.*)$")
 		if not c2 or c2 == "" then
 			if DEFAULT_CHAT_FRAME then
-				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, topleft, who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
+				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
 			end
 			return
 		end
@@ -1422,49 +1422,6 @@ SlashCmdList["AEGIS"] = function(msg)
 				txt = txt .. " btnA=" .. string.format("%.2f", btn:GetAlpha() or 0)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
-		end
-	elseif cmd == "topleft" then
-		-- every visible frame along the left screen edge (name, type, size, first text / texture)
-		local out = {}
-		local us = UIParent:GetEffectiveScale() or 1
-		local topLimit = (UIParent:GetTop() or 768) * us
-		local function scan(parent, depth)
-			local kids = { parent:GetChildren() }
-			local i
-			for i = 1, table.getn(kids) do
-				local f = kids[i]
-				local fnm = f:GetName() or ""
-				if f:IsVisible() and f:GetLeft() and f:GetTop() and not string.find(fnm, "^ChatFrame") and not string.find(fnm, "^PlayerFrame") then
-					local fs = f:GetEffectiveScale() or 1
-					if f:GetLeft() * fs < 460 * us then
-						local line = string.rep("  ", depth) .. (f:GetName() or "(no name)") .. " [" .. f:GetObjectType() .. "] "
-							.. math.floor(f:GetWidth() + 0.5) .. "x" .. math.floor(f:GetHeight() + 0.5) .. " a=" .. string.format("%.2f", f:GetAlpha())
-						local regs = { f:GetRegions() }
-						local r, shown = 1, 0
-						for r = 1, table.getn(regs) do
-							local o = regs[r]
-							if shown < 2 and o:IsShown() then
-								if o:GetObjectType() == "FontString" and o:GetText() and o:GetText() ~= "" then
-									line = line .. " text=\"" .. o:GetText() .. "\""
-									shown = shown + 1
-								elseif o:GetObjectType() == "Texture" and o:GetTexture() then
-									line = line .. " tex=" .. tostring(o:GetTexture())
-									shown = shown + 1
-								end
-							end
-						end
-						out[table.getn(out) + 1] = line
-						if depth < 3 then
-							scan(f, depth + 1)
-						end
-					end
-				end
-			end
-		end
-		scan(UIParent, 0)
-		local f = UI.api.fonts
-		if f and f.showText then
-			f.showText(table.concat(out, "\n"))
 		end
 	elseif cmd == "mapdiag" then
 		local f = UI.api.fonts

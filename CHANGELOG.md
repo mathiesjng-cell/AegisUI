@@ -11,7 +11,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Nameplates: at most 10 full plates (target > boss/elite > screen centre), the rest shrinks and dims to 20 % (bar and texts only); trash fades to 20 % while a boss or guardian is up (both configurable in the hub)
 - Hub: DPS time window moved to the top of the Meter page
 - Hub: toggle "Original skill / jewelry rows" (hides the game's `build` HUD part)
-- `/aegis topleft`: lists every visible frame along the left screen edge (name, type, size, text/texture) to identify overlays
 - `/aegis fstack`: frame inspector. Hover shows name, type, size, alpha, scale, strata/level and the parent chain; holding CTRL opens a copy window with that text (Ctrl+C copies; plain clicks are not used so nothing underneath is triggered).
 - `/aegis debug [tool]`: all internal diagnostics in one place (fstack, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag, targetcard, fix). The old direct commands keep working.
 - Inset look for status bars (`AegisSkin.Bevel`): dark line under the top edge, faint light line above the bottom edge, soft vertical gradient. Used on the XP bar and the unit card bars.
