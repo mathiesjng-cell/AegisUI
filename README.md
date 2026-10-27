@@ -1,6 +1,6 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.4.3-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.4.5-c8942e)](CHANGELOG.md)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -23,6 +23,10 @@ Copy the folders `AegisUI`, `AegisMeter`, `AegisNav` and `AegisUnits` into `Inte
 ## Languages
 
 The pack speaks **English and German**. By default it follows the game client (German client = German, otherwise English). Override it in the hub (LAYOUT tab, "Language") or with `/aegis lang en|de|auto`, then `/reload`.
+
+## Documentation
+
+[`docs/API.md`](docs/API.md) describes the globals, module API, skin engine, saved variables and commands.
 
 ## Commands
 

@@ -30,7 +30,8 @@ local function build()
 	panel:EnableMouse(false)
 	panel:SetPoint("TOPLEFT", cf, "TOPLEFT", -4, 4)
 	panel:SetPoint("BOTTOMRIGHT", cf, "BOTTOMRIGHT", 4, -4)
-	AegisSkin.ApplyPanel(panel)
+	AegisSkin.ApplySolid(panel)
+	AegisSkin.OuterBlack(panel)
 	AegisSkin.GoldLine(panel)
 
 	-- transparent chat frame so the text sits on our panel

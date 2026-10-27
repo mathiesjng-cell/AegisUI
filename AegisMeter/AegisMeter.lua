@@ -510,8 +510,22 @@ frame:SetBackdrop({
 	edgeSize = 1,
 	insets = { left = 1, right = 1, top = 1, bottom = 1 },
 })
-frame:SetBackdropColor(C_PANEL[1], C_PANEL[2], C_PANEL[3], C_PANEL[4])
+frame:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
 frame:SetBackdropBorderColor(C_EDGE[1], C_EDGE[2], C_EDGE[3], C_EDGE[4])
+-- 1 px black outline outside the edge (contrast on bright ground)
+do
+	local function bar(p1, x1, y1, p2, x2, y2)
+		local t = frame:CreateTexture(nil, "BACKGROUND")
+		t:SetTexture(SOLID)
+		t:SetVertexColor(0, 0, 0, 1)
+		t:SetPoint(p1, frame, p1, x1, y1)
+		t:SetPoint(p2, frame, p2, x2, y2)
+	end
+	bar("TOPLEFT", -1, 1, "TOPRIGHT", 1, 0)
+	bar("BOTTOMLEFT", -1, 0, "BOTTOMRIGHT", 1, -1)
+	bar("TOPLEFT", -1, 0, "BOTTOMLEFT", 0, 0)
+	bar("TOPRIGHT", 0, 0, "BOTTOMRIGHT", 1, 0)
+end
 frame:RegisterForDrag("LeftButton")
 frame:SetScript("OnDragStart", function()
 	if AegisUI and AegisUI.locked then
@@ -1062,6 +1076,17 @@ end
 
 local shownRows = -1
 
+-- kills of the current run: the game's own counter (AZS_RUN.kills), else our count of "dies" messages
+local function killCount()
+	if AZS_RUN and AZS_RUN.kills then
+		local n = tonumber(AZS_RUN.kills)
+		if n then
+			return n
+		end
+	end
+	return kills
+end
+
 refresh = function()
 	do
 		local t = MODE_TITLE[mode] or "OVERALL DAMAGE"
@@ -1072,7 +1097,7 @@ refresh = function()
 			if t ~= "" then
 				t = t .. "  "
 			end
-			t = t .. "|cff7d8294" .. kills .. " " .. L("kills") .. "|r"
+			t = t .. "|cff7d8294" .. killCount() .. " " .. L("kills") .. "|r"
 		end
 		titleText:SetText(t)
 	end
@@ -1264,7 +1289,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.4.3 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.4.5 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1650,7 +1675,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "5.4.3",
+		version = "5.4.5",
 		isShown = function()
 			return frame:IsShown()
 		end,

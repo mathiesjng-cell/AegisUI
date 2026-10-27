@@ -85,6 +85,36 @@ function AegisSkin.ApplyPanel(frame)
 	frame:SetBackdropBorderColor(e[1], e[2], e[3], e[4])
 end
 
+-- neutral near-black, 96 % opaque: for panels that sit over bright zones (snow, desert)
+AegisSkin.color.solid = { 0.04, 0.04, 0.04, 0.96 }
+
+function AegisSkin.ApplySolid(frame)
+	AegisSkin.ApplyPanel(frame)
+	local c = AegisSkin.color.solid
+	frame:SetBackdropColor(c[1], c[2], c[3], c[4])
+end
+
+-- 1 px black outline OUTSIDE the panel edge (sharpens the dark-gold border on bright ground).
+-- Four textures on the panel itself, so they follow its strata/level automatically.
+function AegisSkin.OuterBlack(frame)
+	if not frame or frame.aegisOuter then
+		return
+	end
+	frame.aegisOuter = true
+	local p = AegisSkin.px()
+	local function bar(p1, x1, y1, p2, x2, y2)
+		local t = frame:CreateTexture(nil, "BACKGROUND")
+		t:SetTexture(SOLID)
+		t:SetVertexColor(0, 0, 0, 1)
+		t:SetPoint(p1, frame, p1, x1, y1)
+		t:SetPoint(p2, frame, p2, x2, y2)
+	end
+	bar("TOPLEFT", -p, p, "TOPRIGHT", p, 0)
+	bar("BOTTOMLEFT", -p, 0, "BOTTOMRIGHT", p, -p)
+	bar("TOPLEFT", -p, 0, "BOTTOMLEFT", 0, 0)
+	bar("TOPRIGHT", 0, 0, "BOTTOMRIGHT", p, 0)
+end
+
 -- darker bordered row / button
 function AegisSkin.ApplyRow(frame)
 	if not frame or not frame.SetBackdrop then

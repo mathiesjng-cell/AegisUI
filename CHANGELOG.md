@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.4.5] - 2026-10-27
+### Added
+- `docs/API.md`: reference for the pack's globals, module API, skin engine, saved variables and commands (same layout as the game's addon documentation).
+
+### Changed
+- Kill counter reads the game's `AZS_RUN.kills` (falls back to counting "dies" messages).
+
+## [5.4.4] - 2026-10-27
+### Changed
+- Combat numbers: crit colour amber `#FFB100`, 1 px black shadow on top of the thick outline.
+- Chat panel and meter: neutral `#0A0A0A` at 96 % opacity, 1 px black outline outside the border (`AegisSkin.ApplySolid`, `AegisSkin.OuterBlack`).
+
 ## [5.4.3] - 2026-10-27
 ### Added
 - Bounds check for all registered windows (after login, resolution/scale changes and after dragging); `/aegis fix` runs it by hand.

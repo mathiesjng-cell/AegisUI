@@ -90,6 +90,10 @@ local function spawn(text, x, y, big, r, g, b, taken)
 		size = size - 2
 	end
 	f.fs:SetFont(FONT, size, "THICKOUTLINE")
+	if f.fs.SetShadowColor then
+		f.fs:SetShadowColor(0, 0, 0, 1)
+		f.fs:SetShadowOffset(1, -1)
+	end
 	f.fs:SetText(text)
 	f.fs:SetTextColor(r, g, b)
 	f.x, f.y = x, y
@@ -196,7 +200,7 @@ local function flush()
 			local jit = (math.mod(n, 3) - 1) * 22 + (math.random() - 0.5) * 14
 			local isCrit = crits[name]
 			if isCrit then
-				spawn(tostring(amount), x + jit, y, true, 1, 0.82, 0.2)
+				spawn(tostring(amount), x + jit, y, true, 1, 0.694, 0)
 			else
 				spawn(tostring(amount), x + jit, y, false, 1, 1, 1)
 			end
@@ -353,7 +357,7 @@ local function hubHook()
 		test = function()
 			local x, y = (GetScreenWidth() or 1024) / 2, (GetScreenHeight() or 768) * 0.62
 			spawn("1234", x - 40, y, false, 1, 1, 1)
-			spawn("5678", x + 40, y, true, 1, 0.82, 0.2)
+			spawn("5678", x + 40, y, true, 1, 0.694, 0)
 			spawn("-210", x, (GetScreenHeight() or 768) * 0.42, false, 0.95, 0.4, 0.3, true)
 		end,
 	}

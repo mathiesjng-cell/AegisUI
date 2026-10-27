@@ -3,7 +3,7 @@
 ## Notes: Damage / healing meter for Azeroth Survivors (part of the AegisUI pack)
 ## SavedVariables: AegisMeterDB
 ## OptionalDeps: AegisUI, AZSSpellMeter
-## Version: 5.4.3
+## Version: 5.4.5
 
 Locale.lua
 AegisIcons.lua
