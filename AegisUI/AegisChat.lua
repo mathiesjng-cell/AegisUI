@@ -27,7 +27,7 @@ local function build()
 	built = true
 
 	panel = CreateFrame("Frame", "AegisChatPanel", UIParent)
-	panel:SetFrameStrata("BACKGROUND")
+	panel:EnableMouse(false)
 	panel:SetPoint("TOPLEFT", cf, "TOPLEFT", -4, 4)
 	panel:SetPoint("BOTTOMRIGHT", cf, "BOTTOMRIGHT", 4, -4)
 	AegisSkin.ApplyPanel(panel)
@@ -138,6 +138,25 @@ end
 
 -- chat tabs (General, Combat Log, ...): flat dark tabs, gold text + gold underline when selected.
 -- The game keeps re-showing its tab art, so a slow ticker hides it again and refreshes the state.
+-- The panel must always sit BELOW the chat text: same strata as the chat frame, one level lower
+-- (a panel above the chat would hide every message). Re-checked by the ticker because the game
+-- raises chat frames when you click them.
+local function syncPanel()
+	if not panel or not ChatFrame1 then
+		return
+	end
+	quiet(function()
+		local cf = ChatFrame1
+		panel:SetFrameStrata(cf:GetFrameStrata())
+		local lvl = cf:GetFrameLevel() or 1
+		if lvl < 1 then
+			cf:SetFrameLevel(1)
+			lvl = 1
+		end
+		panel:SetFrameLevel(lvl - 1)
+	end)
+end
+
 local tabsDone = {}
 local tabAcc = 0
 
@@ -150,6 +169,7 @@ local function styleTab(i)
 		tabsDone[i] = true
 		quiet(function()
 			AegisSkin.ApplyRow(tab)
+			tab:SetBackdropColor(0.09, 0.10, 0.14, 1)
 			local ln = tab:CreateTexture(nil, "OVERLAY")
 			ln:SetTexture(SOLID)
 			ln:SetHeight(2)
@@ -165,6 +185,17 @@ local function styleTab(i)
 			end
 		end)
 	end
+	-- the stock tab is 32 px high with art padding and hit-rect insets; make it a flat, fully clickable strip
+	quiet(function()
+		tab:SetHeight(22)
+		tab:SetHitRectInsets(0, 0, 0, 0)
+		tab:EnableMouse(true)
+		local fs = getglobal("ChatFrame" .. i .. "TabText")
+		if fs then
+			fs:ClearAllPoints()
+			fs:SetPoint("CENTER", tab, "CENTER", 0, 0)
+		end
+	end)
 	-- hide the stock tab textures (left/middle/right, selected, highlight, glow)
 	quiet(function()
 		local regs = { tab:GetRegions() }
@@ -211,16 +242,33 @@ tabFrame:SetScript("OnUpdate", function()
 		return
 	end
 	tabAcc = 0
+	syncPanel()
 	local i
 	for i = 1, 7 do
 		styleTab(i)
 	end
 end)
 
+-- /aegis chat tabs: print what the client reports for every chat tab (for debugging)
+local function debugTabs()
+	local i
+	for i = 1, 7 do
+		local tab = getglobal("ChatFrame" .. i .. "Tab")
+		if tab and DEFAULT_CHAT_FRAME then
+			local sel = (SELECTED_CHAT_FRAME == getglobal("ChatFrame" .. i))
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aTab " .. i .. ":|r shown=" .. tostring(tab:IsShown()) .. " w=" .. tostring(tab:GetWidth()) .. " h=" .. tostring(tab:GetHeight())
+				.. " mouse=" .. tostring(tab:IsMouseEnabled()) .. " strata=" .. tostring(tab:GetFrameStrata()) .. " level=" .. tostring(tab:GetFrameLevel())
+				.. " selected=" .. tostring(sel) .. " styled=" .. tostring(tabsDone[i]))
+		end
+	end
+end
+
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("PLAYER_LOGIN")
+ev:RegisterEvent("PLAYER_ENTERING_WORLD")
 ev:SetScript("OnEvent", function()
 	build()
+	syncPanel()
 end)
 
 local function hubHook()
@@ -229,6 +277,7 @@ local function hubHook()
 	end
 	AegisUI.hooked_chat = true
 	AegisUI.api.chat = {
+		debugTabs = debugTabs,
 		isOn = function()
 			return enabled()
 		end,
@@ -237,6 +286,10 @@ local function hubHook()
 			AegisDB.chat = on and true or false
 			if on then
 				build()
+				syncPanel()
+				if DEFAULT_CHAT_FRAME then
+					DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Chat reskin is on."))
+				end
 			elseif DEFAULT_CHAT_FRAME then
 				DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Chat reskin will be disabled after /reload."))
 			end

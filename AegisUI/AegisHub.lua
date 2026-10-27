@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.0"
+local VERSION = "5.4.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -622,6 +622,46 @@ local function buildContent()
 	if api.chat then
 		toggle(L("Chat reskin (off after /reload)"), function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
 	end
+	if api.ct then
+		action(function()
+			local m = A("ct", "getMode")
+			local nm = L("Off")
+			if m == "crit" then
+				nm = L("Crits only")
+			elseif m == "all" then
+				nm = L("All hits")
+			end
+			return L("Combat numbers: ") .. nm, 1, 0.86, 0.45
+		end, function()
+			A("ct", "cycleMode")
+		end)
+		action(function()
+			local s = A("ct", "getSize")
+			local nm = L("Medium")
+			if s == "small" then
+				nm = L("Small")
+			elseif s == "large" then
+				nm = L("Large")
+			end
+			return L("Number size: ") .. nm, 1, 0.86, 0.45
+		end, function()
+			A("ct", "cycleSize")
+		end)
+		action(function()
+			return L("Show test numbers"), 1, 0.86, 0.45
+		end, function()
+			A("ct", "test")
+		end)
+	end
+	if api.fonts then
+		if not api.ct then
+			toggle(L("Damage numbers over enemies"), function() return A("fonts", "getDamage") end, function(v) A("fonts", "setDamage", v) end)
+		end
+		if A("fonts", "hasHealing") then
+			toggle(L("Healing numbers"), function() return A("fonts", "getHealing") end, function(v) A("fonts", "setHealing", v) end)
+		end
+		toggle(L("Aegis font for numbers (after restart)"), function() return A("fonts", "getFont") end, function(v) A("fonts", "setFont", v) end)
+	end
 	local any = false
 	if api.meter then
 		any = true
@@ -958,6 +998,47 @@ loader:SetScript("OnEvent", function()
 	end
 end)
 
+-- /aegis ct: what does this client use for the numbers that fly up from enemies? (diagnostic)
+local function combatTextDiag()
+	local function say(t)
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aCT:|r " .. t)
+		end
+	end
+	local names = { "floatingCombatText", "floatingCombatTextCombatDamage", "floatingCombatTextCombatHealing",
+		"floatingCombatTextCombatState", "floatingCombatTextDamageReduction", "fctDamage", "CombatDamage", "CombatHealing" }
+	local i
+	for i = 1, table.getn(names) do
+		local ok, v = pcall(GetCVar, names[i])
+		if ok and v ~= nil then
+			say("CVar " .. names[i] .. " = " .. tostring(v))
+		end
+	end
+	say("DAMAGE_TEXT_FONT = " .. tostring(DAMAGE_TEXT_FONT))
+	say("SHOW_COMBAT_TEXT = " .. tostring(SHOW_COMBAT_TEXT) .. "  Blizzard_CombatText geladen: " .. tostring(IsAddOnLoaded and IsAddOnLoaded("Blizzard_CombatText")) .. "  CombatText_AddMessage: " .. tostring(CombatText_AddMessage ~= nil))
+	if type(AZS_HUD_CVARS) == "table" then
+		local k, v
+		local line = ""
+		for k, v in pairs(AZS_HUD_CVARS) do
+			line = line .. tostring(k) .. "=" .. tostring(v) .. "  "
+		end
+		say("AZS_HUD_CVARS: " .. line)
+	end
+	local found = {}
+	local k, v
+	for k, v in pairs(getfenv(0)) do
+		if type(k) == "string" then
+			local lk = string.lower(k)
+			if (string.find(lk, "damage", 1, true) or string.find(lk, "floating", 1, true) or string.find(lk, "combattext", 1, true)
+				or string.find(lk, "crit", 1, true) or string.find(lk, "hitnumber", 1, true)) and string.find(k, "^AZS") then
+				found[table.getn(found) + 1] = k .. "(" .. string.sub(type(v), 1, 1) .. ")"
+			end
+		end
+	end
+	table.sort(found)
+	say("AZS-Globals mit damage/floating/crit: " .. (table.getn(found) > 0 and table.concat(found, " ") or "keine"))
+end
+
 SLASH_AEGIS1 = "/aegis"
 SLASH_AEGIS2 = "/aegisui"
 SlashCmdList["AEGIS"] = function(msg)
@@ -988,6 +1069,14 @@ SlashCmdList["AEGIS"] = function(msg)
 		elseif DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Module '") .. cmd .. L("' is not installed."))
 		end
+	elseif cmd == "ct" then
+		combatTextDiag()
+	elseif cmd == "cttest" then
+		A("ct", "test")
+	elseif cmd == "ct2" then
+		if AegisUI.api.fonts and AegisUI.api.fonts.diag then
+			AegisUI.api.fonts.diag()
+		end
 	elseif cmd == "lang" then
 		AegisDB = AegisDB or {}
 		if rest == "de" or rest == "en" then
@@ -1000,7 +1089,15 @@ SlashCmdList["AEGIS"] = function(msg)
 		end
 	elseif cmd == "chat" then
 		if UI.api.chat then
-			UI.api.chat.setOn(not UI.api.chat.isOn())
+			if rest == "tabs" then
+				UI.api.chat.debugTabs()
+			elseif rest == "on" then
+				UI.api.chat.setOn(true)
+			elseif rest == "off" then
+				UI.api.chat.setOn(false)
+			else
+				UI.api.chat.setOn(not UI.api.chat.isOn())
+			end
 		end
 	elseif cmd == "profile" then
 		showProfile()

@@ -1,5 +1,10 @@
 # AegisUI
 
+[![Version](https://img.shields.io/badge/version-5.4.0-c8942e)](CHANGELOG.md)
+![Interface](https://img.shields.io/badge/interface-11200-555)
+![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
+![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
+
 A UI pack for **Azeroth Survivors** (WoW 1.12 client, Lua 5.0, Interface 11200). Dark, square, gold accents.
 
 The pack is made of four separate addons that together form one UI. Each one also runs on its own; the hub only shows what is installed.
@@ -46,6 +51,7 @@ Fonts: FRIZQT (outlined text), ARIALN (numbers). Panels have a 1 px border and a
 - **Square minimap** with a black 2 px border.
 - **Custom action bar**: 7 slots (action slots 1–6 and 12, the ones the game uses), XP bar 1 px above it (purple fill, blue rested bar, "current / max  percent"), square menu buttons (C, B, T, Q, F, M, ESC) inside the bar, stock art (gryphons, bar textures) hidden.
 - **Chat reskin**: panel behind the chat, transparent chat background, flat Aegis-style tabs (General, Combat Log, …), mouse-wheel scrolling (Shift = page, Ctrl = top/bottom), square edit box with a gold border while typing. Switch with `/aegis chat`.
+- **Combat numbers** (`AegisCT.lua`): own floating numbers instead of the client's (which cannot be styled). Hits are summed per target for 0.3 s and shown as one number above the enemy's nameplate; crits are gold and bigger; damage taken rises in red over your character. Modes: Off / Crits only / All hits, three sizes. Enemy nameplates should be on (default key `V`). The number font can be switched to ARIALN (after a restart).
 - **Profile export/import**: settings of all four addons as copyable text.
 - **Pixel-perfect borders** in the skin engine (1 physical pixel at any resolution and UI scale).
 - **SurvivorUI integration**: switches off its action bar, unit frames and buffs when AegisUI replaces them.
@@ -118,6 +124,9 @@ Every module has its own full command; `/aegis meter|nav|units <command>` forwar
 | `/aegis chat` | Switch the chat reskin on or off (off takes effect after `/reload`). |
 | `/aegis profile` | Open the profile window: export or import all settings as text. |
 | `/aegis lang en\|de\|auto` | Set the language (English, German, or follow the game client); then `/reload`. |
+| `/aegis cttest` | Show test numbers (white, gold crit, red damage taken). |
+| `/aegis ct` | Debug: combat-text CVars and globals. |
+| `/aegis ct2` | Debug: 15 s capture of combat events and nameplate frames, result in a copyable window. |
 | `/aegis bars` | Debug: state of the custom action bar. |
 | `/aegis who` | Debug: shows the name of the frame under the mouse; run it again to stop. |
 

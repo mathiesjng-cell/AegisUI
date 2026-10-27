@@ -32,6 +32,20 @@ if not AegisL then
 end
 
 AegisL.add({
+	["Off"] = "Aus",
+	["Crits only"] = "Nur Crits",
+	["All hits"] = "Alle Treffer",
+	["Combat numbers: "] = "Kampfzahlen: ",
+	["Medium"] = "Mittel",
+	["Small"] = "Klein",
+	["Large"] = "Groß",
+	["Number size: "] = "Zahlengröße: ",
+	["Show test numbers"] = "Testzahlen anzeigen",
+	["Damage numbers over enemies"] = "Schadenszahlen über Gegnern",
+	["Healing numbers"] = "Heilungszahlen",
+	["Aegis font for numbers (after restart)"] = "Aegis-Schrift für Zahlen (nach Neustart)",
+	["The number font changes after a game restart."] = "Die Zahlenschrift ändert sich nach einem Spielneustart.",
+	["Chat reskin is on."] = "Chat-Reskin ist an.",
 	["  (click, then /reload)"] = "  (Klick, dann /reload)",
 	["  (not installed)"] = "  (nicht installiert)",
 	[" loaded. /aegis opens the settings."] = " geladen. /aegis oeffnet die Einstellungen.",
