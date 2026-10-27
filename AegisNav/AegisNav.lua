@@ -584,7 +584,10 @@ end)
 
 -- Timer widget: session clock, next boss, next lair fill ----------------
 
-local T = { acc = 0, start = GetTime() }
+local T = { acc = 0, seen = 0 }
+local function nowSec()
+	return time and time() or GetTime()
+end
 local tf = CreateFrame("Frame", "AegisTimerFrame", UIParent)
 tf:SetWidth(150)
 tf:SetHeight(54)
@@ -640,7 +643,7 @@ local function mmss(sec)
 end
 
 local function timerUpdate()
-	tSession:SetText(L("Session") .. " " .. clock(GetTime() - T.start))
+	tSession:SetText(L("Session") .. " " .. clock(nowSec() - (T.start or nowSec())))
 	local run = AZS_RUN
 	if type(run) == "table" and tonumber(run.nb) and tonumber(run.nb) >= 0 then
 		tBoss:SetText((run.nbn and tostring(run.nbn) or L("Boss")) .. " " .. mmss(tonumber(run.nb)))
@@ -673,6 +676,12 @@ tf:SetScript("OnUpdate", function()
 	end
 	T.acc = 0
 	pcall(timerUpdate)
+	-- remember the clock so /reload keeps it; a gap of more than 2 minutes starts a new session
+	T.seen = T.seen + 1
+	if T.seen >= 8 and T.start and AegisNavDB then
+		T.seen = 0
+		AegisNavDB.sessStart, AegisNavDB.sessSeen = T.start, nowSec()
+	end
 end)
 
 -- Saved position + commands -------------------------------------------
@@ -691,6 +700,13 @@ loader:SetScript("OnEvent", function()
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisNavDB.point, UIParent, AegisNavDB.rel or AegisNavDB.point, AegisNavDB.x or 0, AegisNavDB.y or 0)
 	end
+	local nowT = nowSec()
+	if AegisNavDB.sessStart and AegisNavDB.sessSeen and nowT - AegisNavDB.sessSeen < 120 and nowT >= AegisNavDB.sessStart then
+		T.start = AegisNavDB.sessStart
+	else
+		T.start = nowT
+	end
+	AegisNavDB.sessStart, AegisNavDB.sessSeen = T.start, nowT
 	if AegisNavDB.tpoint then
 		tf:ClearAllPoints()
 		tf:SetPoint(AegisNavDB.tpoint, UIParent, AegisNavDB.trel or AegisNavDB.tpoint, AegisNavDB.tx or 0, AegisNavDB.ty or 0)

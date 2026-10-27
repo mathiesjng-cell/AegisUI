@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 - Nav: chests are only arrow targets while the run gold covers the next cache (`AZS_RUN.gold >= AZS_RUN.chest`)
 - Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): session clock, next boss, soonest lair fill
+- Timer widget: the session clock survives /reload (new session after a gap of more than 2 minutes)
 - Nameplates: at most 10 full plates (target > boss/elite > screen centre), the rest shrinks and dims to 20 % (bar and texts only); trash fades to 20 % while a boss or guardian is up (both configurable in the hub)
 - Hub: DPS time window moved to the top of the Meter page
 - Hub: toggle "Original skill / jewelry rows" (hides the game's `build` HUD part)
