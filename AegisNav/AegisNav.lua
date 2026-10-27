@@ -192,7 +192,7 @@ frame:SetHeight(128)
 frame:SetPoint("TOP", UIParent, "TOP", 0, -120)
 frame:SetFrameStrata("HIGH")
 frame:SetMovable(true)
-frame:EnableMouse(true)
+frame:EnableMouse(false)
 frame:SetClampedToScreen(true)
 frame:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
 	insets = { left = 1, right = 1, top = 1, bottom = 1 } })
@@ -516,6 +516,12 @@ local function enforceHud()
 end
 
 frame:SetScript("OnUpdate", function()
+	-- the box only catches the mouse while the layout is unlocked (so clicks and the camera work through it)
+	local wantMouse = not (AegisUI and AegisUI.locked)
+	if N.mouse ~= wantMouse then
+		N.mouse = wantMouse
+		frame:EnableMouse(wantMouse)
+	end
 	N.acc = N.acc + (arg1 or 0)
 	N.hudAcc = (N.hudAcc or 0) + (arg1 or 0)
 	if N.hudAcc > 2 then
@@ -631,7 +637,7 @@ local function hubHook()
 		frame:SetPoint("TOP", UIParent, "TOP", 0, -120)
 	end)
 	AegisUI.api.nav = {
-		version = "5.7.3",
+		version = "5.8.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

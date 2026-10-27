@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.7.3"
+local VERSION = "5.8.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -713,7 +713,6 @@ local function buildContent()
 			section(L("HIDE ORIGINAL"))
 		end
 		toggle(L("Never dim action icons"), function() return A("bars", "getNoDim") end, function(v) A("bars", "setNoDim", v) end)
-		toggle(L("Hide short cooldown sweeps (< 2 s)"), function() return A("bars", "getShortCd") end, function(v) A("bars", "setShortCd", v) end)
 		toggle(L("Gryphons + bar background"), function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
 	end
 	if api.bars then
@@ -912,7 +911,20 @@ local function buildContent()
 	if api.chat then
 		toggle(L("Chat reskin (off after /reload)"), function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
 	end
-	lookBlock("chat", { edge = true })
+	if api.chat then
+		stepper(L("Chat width"), function() return A("chat", "getW") end, function(v) A("chat", "setW", v) end, 10, 220, 900, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		stepper(L("Chat height"), function() return A("chat", "getH") end, function(v) A("chat", "setH", v) end, 10, 90, 600, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		noteText(L("Unlocked: drag the gold + at the chat's top-right corner."))
+	end
+	lookBlock("chat", { edge = true }, function()
+		if AegisDB then
+			AegisDB.chatW, AegisDB.chatH = nil, nil
+		end
+	end)
 
 	-- Page 6: MINIMAP -------------------------------------------------
 	startTab(6)
@@ -920,10 +932,14 @@ local function buildContent()
 	if api.map then
 		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
 		toggle(L("Clean minimap (flat buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
+		stepper(L("Minimap size"), function() return A("map", "getScale") end, function(v) A("map", "setScale", v) end, 0.1, 0.6, 2, function(v)
+			return math.floor(v * 100 + 0.5) .. " %"
+		end)
 		cursor = cursor + 4
 		action(function()
 			return L("RESET DEFAULTS"), 0.80, 0.83, 0.90
 		end, function()
+			A("map", "setScale", 1)
 			A("map", "setClean", true)
 			refreshAllHook()
 		end)

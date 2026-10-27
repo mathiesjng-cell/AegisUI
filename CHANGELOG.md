@@ -3,6 +3,15 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.8.0] - 2026-10-27
+### Added
+- Chat: +50 x +60 px on first start, width/height steppers in the hub (Chat page) and a gold "+" grip at the top-right corner while unlocked for free resizing (`AegisDB.chatW/chatH`).
+- Minimap size (60-200 %) in the hub; the buttons scale with the map (`MinimapCluster:SetScale`).
+- AZSStats' minimap button now slides along the square map's edge; Shift + drag places it freely (`AegisDB.azsAngle` / `azsFree`).
+### Changed
+- The 2 s limit on cooldown sweeps is gone for good: every sweep runs as the game draws it. The hub switch is removed.
+- The Aegis Nav box only catches the mouse while the layout is unlocked, so clicks and camera work through it.
+
 ## [5.7.3] - 2026-10-27
 ### Fixed
 - Minimap buttons of other addons (LuckyOdds, AZSStats): the icon is now found by its `Interface\Icons` texture, every other texture (ring, background) is cleared instead of only hidden. `/aegis mapdiag` also lists the textures of those buttons.

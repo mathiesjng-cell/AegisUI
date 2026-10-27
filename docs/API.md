@@ -234,6 +234,9 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 | `square` | square minimap |
 | `chat` | `false` = chat reskin off |
 | `tab2` | last open hub page |
+| `chatW` / `chatH` | chat frame size |
+| `mapScale` | minimap size factor |
+| `azsAngle` / `azsFree` | position of the AZSStats minimap button |
 | `looks` | per-module appearance `{ [module] = { bg, edge, outer, solid, bgp, edgep, fsize, fontp } }` |
 | `hub` | `{ point, rel, x, y }` hub window position |
 | `angle`, `free` | minimap button position (angle on the edge, or free `{ x, y }`) |

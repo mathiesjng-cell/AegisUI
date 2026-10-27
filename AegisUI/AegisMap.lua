@@ -196,7 +196,7 @@ local function flatten(b, half, needRing)
 	-- move onto the square's edge, keeping the direction
 	local bx, by = b:GetCenter()
 	local mx, my = Minimap:GetCenter()
-	if bx and mx and AegisUISquare and AegisUISquare() then
+	if bx and mx and AegisUISquare and AegisUISquare() and b:GetName() ~= "AZSStatsMinimapButton" then
 		local bs, ms = b:GetEffectiveScale(), Minimap:GetEffectiveScale()
 		local dx, dy = (bx * bs - mx * ms) / ms, (by * bs - my * ms) / ms
 		local m = math.max(math.abs(dx), math.abs(dy))
@@ -245,6 +245,60 @@ local function flatZoom(name, text, y)
 	fs:SetTextColor(1, 0.86, 0.45)
 end
 
+-- AZSStats' own button only knows a circle. Take over its dragging: it slides along the square's edge
+-- (angle saved in AegisDB.azsAngle); Shift + drag places it freely (AegisDB.azsFree).
+local function azsPlace(b)
+	b:ClearAllPoints()
+	if AegisDB and AegisDB.azsFree then
+		b:SetPoint("CENTER", UIParent, "BOTTOMLEFT", AegisDB.azsFree[1], AegisDB.azsFree[2])
+		return
+	end
+	local a = math.rad((AegisDB and AegisDB.azsAngle) or 268)
+	local x, y = math.cos(a), math.sin(a)
+	local r = 80
+	if AegisUISquare and AegisUISquare() then
+		local m = math.max(math.abs(x), math.abs(y))
+		x, y = x / m, y / m
+		r = (Minimap:GetWidth() or 140) / 2 + 8
+	end
+	b:SetPoint("CENTER", Minimap, "CENTER", x * r, y * r)
+end
+
+local function azsTake()
+	local b = getglobal("AZSStatsMinimapButton")
+	if not b or b.aegisTaken then
+		return
+	end
+	b.aegisTaken = true
+	azsPlace(b)
+	b:SetScript("OnUpdate", function()
+		if not this.down then
+			return
+		end
+		local cx, cy = GetCursorPosition()
+		local us = UIParent:GetEffectiveScale()
+		if not this.dragging then
+			if math.abs(cx / us - (this.downX or 0)) + math.abs(cy / us - (this.downY or 0)) < 6 then
+				return
+			end
+			this.dragging = true
+			GameTooltip:Hide()
+		end
+		AegisDB = AegisDB or {}
+		if IsShiftKeyDown() then
+			AegisDB.azsFree = { cx / us, cy / us }
+		else
+			local ms = Minimap:GetEffectiveScale()
+			local mx, my = Minimap:GetCenter()
+			if mx then
+				AegisDB.azsFree = nil
+				AegisDB.azsAngle = math.deg(math.atan2(cy / ms - my, cx / ms - mx))
+			end
+		end
+		azsPlace(this)
+	end)
+end
+
 local function flattenAll()
 	if not Minimap or not (AegisDB and AegisDB.mapClean ~= false) then
 		return
@@ -272,6 +326,7 @@ local function flattenAll()
 			pcall(flatten, lists[j][i], half)
 		end
 	end
+	pcall(azsTake)
 	pcall(flatZoom, "MinimapZoomIn", "+", 22)
 	pcall(flatZoom, "MinimapZoomOut", "-", 4)
 	-- round buttons that other addons parent to UIParent but park around the map
@@ -342,6 +397,9 @@ mapEv:SetScript("OnEvent", function()
 	end
 	pcall(applyMap)
 	pcall(applyClean)
+	if AegisDB.mapScale and MinimapCluster then
+		MinimapCluster:SetScale(AegisDB.mapScale)
+	end
 	-- other addons add their minimap buttons a little later
 	local t = 0
 	local done = 0
@@ -362,6 +420,19 @@ end)
 if AegisUI then
 	AegisUI.api.map = {
 		diag = mapDiag,
+		getScale = function()
+			return (AegisDB and AegisDB.mapScale) or 1
+		end,
+		setScale = function(v)
+			AegisDB = AegisDB or {}
+			AegisDB.mapScale = v
+			if MinimapCluster then
+				MinimapCluster:SetScale(v)
+			end
+			if AegisUIPlaceButton then
+				AegisUIPlaceButton()
+			end
+		end,
 		getSquare = function()
 			return MAPSQ.on
 		end,

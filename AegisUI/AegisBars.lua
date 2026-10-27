@@ -469,7 +469,7 @@ end)
 -- SHORT_CD seconds on the action buttons (switchable).
 local SHORT_CD = 2
 local function shortCdOn()
-	return db().shortCd == nil or db().shortCd
+	return false      -- limit removed in 5.8.0: every cooldown sweep runs as the game draws it
 end
 if CooldownFrame_SetTimer and not B.cdHooked then
 	B.cdHooked = true
@@ -520,7 +520,7 @@ if AegisUI then
 				return shortCdOn()
 			end,
 			setShortCd = function(v)
-				db().shortCd = v and true or false
+				db().shortCd = false
 				if DEFAULT_CHAT_FRAME then
 					DEFAULT_CHAT_FRAME:AddMessage(L("|cffd2a24aAegisUI:|r Cooldown sweeps update with the next cooldown."))
 				end

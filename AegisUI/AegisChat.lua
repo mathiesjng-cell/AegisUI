@@ -158,6 +158,93 @@ local function syncPanel()
 	end)
 end
 
+-- Chat size: +50 x +60 px on first start, then freely resizable with the gold grip (top-right, unlocked only)
+local grip
+local CHAT_MIN_W, CHAT_MIN_H = 220, 90
+
+local function applyChatSize()
+	local cf = ChatFrame1
+	if not cf or not (AegisDB and AegisDB.chatW and AegisDB.chatH) then
+		return
+	end
+	cf:SetWidth(AegisDB.chatW)
+	cf:SetHeight(AegisDB.chatH)
+end
+
+local function bootChatSize()
+	local cf = ChatFrame1
+	if not cf then
+		return
+	end
+	AegisDB = AegisDB or {}
+	if not AegisDB.chatH then
+		AegisDB.chatW = math.floor((cf:GetWidth() or 320) + 50 + 0.5)
+		AegisDB.chatH = math.floor((cf:GetHeight() or 120) + 60 + 0.5)
+	end
+	applyChatSize()
+end
+
+local function setChatSize(w, h)
+	AegisDB = AegisDB or {}
+	if w < CHAT_MIN_W then
+		w = CHAT_MIN_W
+	end
+	if h < CHAT_MIN_H then
+		h = CHAT_MIN_H
+	end
+	AegisDB.chatW, AegisDB.chatH = w, h
+	applyChatSize()
+end
+
+local function buildGrip()
+	if grip or not ChatFrame1 then
+		return
+	end
+	grip = CreateFrame("Button", nil, UIParent)
+	grip:SetWidth(14)
+	grip:SetHeight(14)
+	grip:SetFrameStrata("DIALOG")
+	grip:SetPoint("TOPRIGHT", ChatFrame1, "TOPRIGHT", 6, 6)
+	grip:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", tile = false, edgeSize = 1,
+		insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+	grip:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
+	grip:SetBackdropBorderColor(0.78, 0.58, 0.22, 1)
+	local t = grip:CreateFontString(nil, "OVERLAY")
+	t:SetFont("Fonts\\ARIALN.TTF", 11, "OUTLINE")
+	t:SetPoint("CENTER", grip, "CENTER", 0, 0)
+	t:SetText("+")
+	t:SetTextColor(1, 0.86, 0.45)
+	grip:Hide()
+	grip:SetScript("OnMouseDown", function()
+		local cf = ChatFrame1
+		cf:SetResizable(true)
+		cf:SetMinResize(CHAT_MIN_W, CHAT_MIN_H)
+		cf:StartSizing("TOPRIGHT")
+		grip.sizing = true
+	end)
+	grip:SetScript("OnMouseUp", function()
+		local cf = ChatFrame1
+		cf:StopMovingOrSizing()
+		grip.sizing = false
+		setChatSize(math.floor(cf:GetWidth() + 0.5), math.floor(cf:GetHeight() + 0.5))
+		if FCF_SavePositionAndDimensions then
+			pcall(FCF_SavePositionAndDimensions, cf)
+		end
+	end)
+end
+
+local function syncGrip()
+	buildGrip()
+	if not grip then
+		return
+	end
+	if AegisUI and not AegisUI.locked then
+		grip:Show()
+	elseif not grip.sizing then
+		grip:Hide()
+	end
+end
+
 local tabsDone = {}
 local tabAcc = 0
 
@@ -244,6 +331,7 @@ tabFrame:SetScript("OnUpdate", function()
 	end
 	tabAcc = 0
 	syncPanel()
+	syncGrip()
 	local i
 	for i = 1, 7 do
 		styleTab(i)
@@ -267,9 +355,23 @@ end
 local ev = CreateFrame("Frame")
 ev:RegisterEvent("PLAYER_LOGIN")
 ev:RegisterEvent("PLAYER_ENTERING_WORLD")
+local sizeT = nil
 ev:SetScript("OnEvent", function()
 	build()
 	syncPanel()
+	bootChatSize()
+	-- the game restores its own chat layout a moment after login: apply ours again
+	sizeT = 0
+end)
+local sizeF = CreateFrame("Frame")
+sizeF:SetScript("OnUpdate", function()
+	if sizeT then
+		sizeT = sizeT + (arg1 or 0)
+		if sizeT > 2.5 then
+			sizeT = nil
+			applyChatSize()
+		end
+	end
 end)
 
 local function hubHook()
@@ -279,6 +381,18 @@ local function hubHook()
 	AegisUI.hooked_chat = true
 	AegisUI.api.chat = {
 		debugTabs = debugTabs,
+		getW = function()
+			return (AegisDB and AegisDB.chatW) or (ChatFrame1 and ChatFrame1:GetWidth()) or 320
+		end,
+		getH = function()
+			return (AegisDB and AegisDB.chatH) or (ChatFrame1 and ChatFrame1:GetHeight()) or 120
+		end,
+		setW = function(v)
+			setChatSize(v, (AegisDB and AegisDB.chatH) or 120)
+		end,
+		setH = function(v)
+			setChatSize((AegisDB and AegisDB.chatW) or 320, v)
+		end,
 		isOn = function()
 			return enabled()
 		end,
