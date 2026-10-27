@@ -256,8 +256,6 @@ local function buildBar()
 	end
 	xpText = xp:CreateFontString(nil, "OVERLAY")
 	xpText:SetFont("Fonts\\ARIALN.TTF", 10, "OUTLINE")
-	xpText:SetShadowColor(0, 0, 0, 1)
-	xpText:SetShadowOffset(1, -1)
 	xpText:SetPoint("CENTER", xp, "CENTER", 0, 0)
 
 	if AegisUI and AegisUI.register then
@@ -307,8 +305,6 @@ local function ownButton(name)
 	o:SetBackdropBorderColor(0.17, 0.19, 0.25, 1)
 	local t = o:CreateFontString(nil, "OVERLAY")
 	t:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-	t:SetShadowColor(0, 0, 0, 1)
-	t:SetShadowOffset(1, -1)
 	t:SetTextColor(0.78, 0.58, 0.22)
 	t:SetPoint("CENTER", o, "CENTER", 0, 0)
 	t:SetText(LABEL[name] or "?")

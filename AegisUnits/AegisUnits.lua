@@ -151,15 +151,11 @@ local function newCard(frameName, unit, hasPower)
 
 	local nameFs = f:CreateFontString(nil, "OVERLAY")
 	nameFs:SetFont(FONT, 11, "OUTLINE")
-	nameFs:SetShadowColor(0, 0, 0, 1)
-	nameFs:SetShadowOffset(1, -1)
 	nameFs:SetTextColor(1, 1, 1)
 	nameFs:SetPoint("TOPLEFT", f, "TOPLEFT", BAR_X + 2, -(PAD + 1))
 
 	local levelFs = f:CreateFontString(nil, "OVERLAY")
-	levelFs:SetFont(FONT_NUM, 10, "OUTLINE")
-	levelFs:SetShadowColor(0, 0, 0, 1)
-	levelFs:SetShadowOffset(1, -1)
+	levelFs:SetFont(FONT_NUM, 10, "")
 	levelFs:SetTextColor(0.49, 0.51, 0.58)
 	levelFs:SetPoint("TOPRIGHT", f, "TOPRIGHT", -(PAD + 2), -(PAD + 2))
 	c.levelFs = levelFs
@@ -205,14 +201,10 @@ local function newCard(frameName, unit, hasPower)
 	local hpBack = row(hpH, ROW_Y)
 	local hpText = hpBack:CreateFontString(nil, "OVERLAY")
 	hpText:SetFont(FONT, 11, "OUTLINE")
-	hpText:SetShadowColor(0, 0, 0, 1)
-	hpText:SetShadowOffset(1, -1)
 	hpText:SetTextColor(1, 1, 1)
 	hpText:SetPoint("LEFT", hpBack, "LEFT", 6, 0)
 	local hpPct = hpBack:CreateFontString(nil, "OVERLAY")
-	hpPct:SetFont(FONT_NUM, 10, "OUTLINE")
-	hpPct:SetShadowColor(0, 0, 0, 1)
-	hpPct:SetShadowOffset(1, -1)
+	hpPct:SetFont(FONT_NUM, 10, "")
 	hpPct:SetTextColor(0.78, 0.80, 0.86)
 	hpPct:SetPoint("RIGHT", hpBack, "RIGHT", -6, 0)
 
@@ -482,19 +474,13 @@ local function stylePlate(p)
 	topLine:SetPoint("TOPRIGHT", bar, "TOPRIGHT", -1, -1)
 
 	name:SetFont(FONT, 9, "OUTLINE")
-	name:SetShadowColor(0, 0, 0, 1)
-	name:SetShadowOffset(1, -1)
 	level:SetFont(FONT_NUM, 8, "OUTLINE")
-	level:SetShadowColor(0, 0, 0, 1)
-	level:SetShadowOffset(1, -1)
 	if AegisSkin and AegisSkin.Bevel then
 		AegisSkin.Bevel(bar)
 	end
 
 	local txt = bar:CreateFontString(nil, "OVERLAY")
 	txt:SetFont(FONT_NUM, 8, "OUTLINE")
-	txt:SetShadowColor(0, 0, 0, 1)
-	txt:SetShadowOffset(1, -1)
 	txt:SetPoint("CENTER", bar, "CENTER", 0, 0)
 	p.my.txt = txt
 

@@ -8,7 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Visual polish, round 2: deeper obsidian insets (`AegisSkin.Bevel`: double shadow line, dark side rims, fine dark-gold lower lip, gradient dark on top), now also on every AegisMeter row
 - Brushed dark-gold top lines with a shadow line (`AegisSkin.GoldLine`, unit cards, meter); 1 px black outer line also on the unit cards
 - Nameplates: deeper blood-red fill with vertical gradient and a light top edge; the target gets a sharp gold border with a black outer line
-- Numbers (health text, DPS values, levels, XP) use outline plus a 1 px drop shadow (`AegisSkin.Sharp`)
+- Number fonts keep their crisp original flags (outline plus drop shadow smeared small text); `AegisSkin.Sharp` stays available for larger texts
 - Nav: chests are only arrow targets while the run gold covers the next cache (`AZS_RUN.gold >= AZS_RUN.chest`)
 - Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): session clock, next boss, soonest lair fill
 - Timer widget: the session clock survives /reload (new session after a gap of more than 2 minutes)

@@ -393,8 +393,7 @@ function AegisSkin.StyleText(fs, kind, size, r, g, b)
 		return
 	end
 	if kind == "num" then
-		fs:SetFont(FONT_NUM, size or 12, "OUTLINE")
-		AegisSkin.Sharp(fs)
+		fs:SetFont(FONT_NUM, size or 12, "")
 	else
 		fs:SetFont(FONT, size or 11, "OUTLINE")
 	end
