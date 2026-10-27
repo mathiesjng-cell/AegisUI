@@ -129,10 +129,14 @@ local function flatten(b, half, needRing)
 	if b.aegisFlat or b:GetName() == "AegisHubMinimapButton" or b == Minimap then
 		return
 	end
+	if b:GetObjectType() == "Model" or not b.GetRegions then
+		return
+	end
 	local w, h = b:GetWidth(), b:GetHeight()
 	if not w or not h or w < 8 or h < 8 or w > 50 or h > 50 then
 		return
 	end
+	needRing = true       -- only real buttons (they carry a ring texture); map markers and the player arrow stay untouched
 	local icon
 	local regs = { b:GetRegions() }
 	local i
