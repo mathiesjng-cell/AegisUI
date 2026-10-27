@@ -162,7 +162,28 @@ end
 local grip
 local CHAT_MIN_W, CHAT_MIN_H = 220, 90
 
+-- chat font size: starts two sizes below the game's default, adjustable in the hub (8..24)
+local function applyChatFont()
+	local cf = ChatFrame1
+	if not cf or not cf.GetFont then
+		return
+	end
+	AegisDB = AegisDB or {}
+	local file, size, flags = cf:GetFont()
+	if not file or not size then
+		return
+	end
+	if not AegisDB.chatFont then
+		AegisDB.chatFontDef = size
+		AegisDB.chatFont = math.max(8, size - 2)
+	end
+	if size ~= AegisDB.chatFont then
+		cf:SetFont(file, AegisDB.chatFont, flags)
+	end
+end
+
 local function applyChatSize()
+	pcall(applyChatFont)
 	local cf = ChatFrame1
 	if not cf or not (AegisDB and AegisDB.chatW and AegisDB.chatH) then
 		return
@@ -227,6 +248,8 @@ local function resetChat()
 	if not cf then
 		return
 	end
+	AegisDB.chatFont = math.max(8, (AegisDB.chatFontDef or 14) - 2)
+	pcall(applyChatFont)
 	if AegisDB.chatDefW and AegisDB.chatDefH then
 		AegisDB.chatW, AegisDB.chatH = AegisDB.chatDefW, AegisDB.chatDefH
 		applyChatSize()
@@ -466,6 +489,19 @@ local function hubHook()
 	end
 	AegisUI.api.chat = {
 		debugTabs = debugTabs,
+		getFont = function()
+			return (AegisDB and AegisDB.chatFont) or 12
+		end,
+		setFont = function(v)
+			AegisDB = AegisDB or {}
+			AegisDB.chatFont = math.max(8, math.min(24, math.floor(v + 0.5)))
+			applyChatFont()
+		end,
+		resetFont = function()
+			AegisDB = AegisDB or {}
+			AegisDB.chatFont = math.max(8, (AegisDB.chatFontDef or 14) - 2)
+			applyChatFont()
+		end,
 		getW = function()
 			return (AegisDB and AegisDB.chatW) or (ChatFrame1 and ChatFrame1:GetWidth()) or 320
 		end,

@@ -203,4 +203,5 @@ AegisL.add({
 	["Timer widget"] = "Timer-Widget",
 	["Original skill / jewelry rows"] = "Original Skill-/Schmuck-Reihen",
 	["Chat"] = "Chat",
+	["Chat font size"] = "Chat-Schriftgroesse",
 })

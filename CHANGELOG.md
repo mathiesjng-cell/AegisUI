@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Nameplates: deeper blood-red fill with vertical gradient and a light top edge; the target gets a sharp gold border with a black outer line
 - Number fonts keep their crisp original flags (outline plus drop shadow smeared small text); `AegisSkin.Sharp` stays available for larger texts
 - Meter: rank numbers sit on a dark plate and are light grey, so they read on every bar colour
+- Chat font size: starts two sizes below the game default, adjustable in the hub (8-24 pt; `chat.getFont/setFont/resetFont`)
 - Nav: chests are only arrow targets while the run gold covers the next cache (`AZS_RUN.gold >= AZS_RUN.chest`)
 - Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): session clock, next boss, soonest lair fill
 - Timer widget: the session clock survives /reload (new session after a gap of more than 2 minutes)

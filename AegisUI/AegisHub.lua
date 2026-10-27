@@ -947,6 +947,9 @@ local function buildContent()
 		stepper(L("Chat height"), function() return A("chat", "getH") end, function(v) A("chat", "setH", v) end, 10, 90, 600, function(v)
 			return math.floor(v + 0.5) .. " px"
 		end)
+		stepper(L("Chat font size"), function() return A("chat", "getFont") end, function(v) A("chat", "setFont", v) end, 1, 8, 24, function(v)
+			return math.floor(v + 0.5) .. " pt"
+		end)
 		noteText(L("Unlocked: drag the gold + at the chat's top-right corner."))
 	end
 	lookBlock("chat", { edge = true }, function()
@@ -954,6 +957,7 @@ local function buildContent()
 			AegisDB.chatW, AegisDB.chatH = nil, nil
 			AegisDB.chatPlaced = nil
 		end
+		A("chat", "resetFont")
 	end)
 
 	-- Page 6: MINIMAP -------------------------------------------------
