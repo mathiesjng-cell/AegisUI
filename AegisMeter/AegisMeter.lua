@@ -1209,6 +1209,7 @@ refresh = function()
 	-- rows follow the time window too: ranking, bars and values show what was dealt in the last N seconds.
 	-- Out of combat (nothing dealt in the window) the whole-run numbers stay on screen.
 	local totalShown = sum
+	local totalLabel = "TOTAL:"
 	if headRate and winSec > 0 and not (AegisMeterDB and AegisMeterDB.recent == false) then
 		local recent = {}
 		local rsum = 0
@@ -1228,10 +1229,12 @@ refresh = function()
 			end)
 			list = recent
 			sum = rsum
+			totalShown = rsum
+			totalLabel = "TOTAL (" .. winSec .. "s):"
 		end
 	end
 
-	totalText:SetText("|cff7d8294TOTAL:|r |cffffffff" .. fmtBig(totalShown) .. "|r")
+	totalText:SetText("|cff7d8294" .. totalLabel .. "|r |cffffffff" .. fmtBig(totalShown) .. "|r")
 	avgText:SetText("|cff7d8294" .. rateLabel .. "|r |cffffc533" .. fmtAvg(shownRate) .. "|r")
 
 	local count = table.getn(list)
