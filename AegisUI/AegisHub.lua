@@ -887,6 +887,7 @@ local function buildContent()
 		end, function()
 			A("ct", "cycleSize")
 		end)
+		toggle(L("Show DoT ticks dimmed (crits only mode)"), function() return A("ct", "getDots") end, function(v) A("ct", "setDots", v) end)
 		action(function()
 			return L("Show test numbers"), 1, 0.86, 0.45
 		end, function()
@@ -1088,6 +1089,51 @@ buildEv:SetScript("OnEvent", function()
 	end
 end)
 
+
+-- Login banner: version and modules, 20 % dark background, visible 6 s (/aegis banner switches it off)
+local bn = CreateFrame("Frame", nil, UIParent)
+bn:SetFrameStrata("TOOLTIP")
+bn:SetHeight(20)
+bn:SetPoint("TOP", UIParent, "TOP", 0, -70)
+bn:EnableMouse(false)
+bn:SetBackdrop({ bgFile = SOLID, tile = false })
+bn:SetBackdropColor(0, 0, 0, 0.2)
+bn.text = bn:CreateFontString(nil, "OVERLAY")
+bn.text:SetFont(FONT_NUM, 11, "OUTLINE")
+bn.text:SetPoint("CENTER", bn, "CENTER", 0, 0)
+bn.text:SetTextColor(0.90, 0.80, 0.55)
+bn:Hide()
+local bnT = nil
+bn:SetScript("OnUpdate", function()
+	bnT = bnT + (arg1 or 0)
+	if bnT >= 6 then
+		this:Hide()
+	elseif bnT > 5 then
+		this:SetAlpha(6 - bnT)
+	end
+end)
+local bnEv = CreateFrame("Frame")
+bnEv:RegisterEvent("PLAYER_ENTERING_WORLD")
+bnEv:SetScript("OnEvent", function()
+	bnEv:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	if AegisDB and AegisDB.noBanner then
+		return
+	end
+	local line = "AEGIS v" .. VERSION
+	local names = { { "meter", "Meter" }, { "nav", "Nav" }, { "units", "Units" } }
+	local k
+	for k = 1, table.getn(names) do
+		local m = UI.api[names[k][1]]
+		if m then
+			line = line .. "  |  " .. names[k][2]
+		end
+	end
+	bn.text:SetText(line .. "  |  " .. L("/aegis opens the settings"))
+	bn:SetWidth((bn.text:GetStringWidth() or 200) + 24)
+	bnT = 0
+	bn:SetAlpha(1)
+	bn:Show()
+end)
 
 local function refreshAll()
 	local i
@@ -1300,7 +1346,13 @@ SlashCmdList["AEGIS"] = function(msg)
 		end
 		cmd, rest = c2, r2 or ""
 	end
-	if cmd == "fstack" then
+	if cmd == "banner" then
+		AegisDB = AegisDB or {}
+		AegisDB.noBanner = not AegisDB.noBanner or nil
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r " .. L("Login banner: ") .. (AegisDB.noBanner and L("off") or L("on")))
+		end
+	elseif cmd == "fstack" then
 		UI.fstack()
 	elseif cmd == "lock" then
 		UI.setLocked(true)

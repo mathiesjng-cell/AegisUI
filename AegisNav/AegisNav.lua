@@ -394,7 +394,7 @@ local function updateBar()
 	end
 end
 
-local function setArrow(angle)
+local function drawArrow(angle)
 	-- rotate the texture window around its centre; negative = arrow turns clockwise
 	local c = math.cos(angle)
 	local s = math.sin(angle)
@@ -407,6 +407,38 @@ local function setArrow(angle)
 	local urx, ury = pt(1, 0)
 	local lrx, lry = pt(1, 1)
 	arrow:SetTexCoord(ulx, uly, llx, lly, urx, ury, lrx, lry)
+end
+
+-- the update step only sets the wanted angle; the arrow turns towards it a little every frame
+-- (shortest way round), so the rotation looks smooth instead of jumping at 20 Hz
+local function setArrow(angle)
+	N.want = angle
+	if N.have == nil then
+		N.have = angle
+		drawArrow(angle)
+	end
+end
+
+local TWO_PI = math.pi * 2
+local function smoothArrow(dt)
+	if N.want == nil or N.have == nil then
+		return
+	end
+	local d = N.want - N.have
+	d = d - TWO_PI * math.floor((d + math.pi) / TWO_PI)
+	if math.abs(d) < 0.002 then
+		if N.have ~= N.want then
+			N.have = N.want
+			drawArrow(N.have)
+		end
+		return
+	end
+	local k = dt * 16
+	if k > 1 then
+		k = 1
+	end
+	N.have = N.have + d * k
+	drawArrow(N.have)
 end
 
 -- Update ---------------------------------------------------------------
@@ -522,6 +554,7 @@ frame:SetScript("OnUpdate", function()
 		N.mouse = wantMouse
 		frame:EnableMouse(wantMouse)
 	end
+	smoothArrow(arg1 or 0)
 	N.acc = N.acc + (arg1 or 0)
 	N.hudAcc = (N.hudAcc or 0) + (arg1 or 0)
 	if N.hudAcc > 2 then

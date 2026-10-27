@@ -470,11 +470,14 @@ local function stylePlate(p)
 	topLine:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 	topLine:SetPoint("TOPRIGHT", bar, "TOPRIGHT", -1, -1)
 
-	name:SetFont(FONT, 10, "OUTLINE")
-	level:SetFont(FONT_NUM, 9, "OUTLINE")
+	name:SetFont(FONT, 9, "OUTLINE")
+	level:SetFont(FONT_NUM, 8, "OUTLINE")
+	if AegisSkin and AegisSkin.Bevel then
+		AegisSkin.Bevel(bar)
+	end
 
 	local txt = bar:CreateFontString(nil, "OVERLAY")
-	txt:SetFont(FONT_NUM, 9, "OUTLINE")
+	txt:SetFont(FONT_NUM, 8, "OUTLINE")
 	txt:SetPoint("CENTER", bar, "CENTER", 0, 0)
 	p.my.txt = txt
 
@@ -514,6 +517,16 @@ local function refreshPlate(p)
 	bar:ClearAllPoints()
 	bar:SetPoint("TOP", p, "TOP", 0, -15)
 	local isTarget = UnitExists("target") and p:GetAlpha() >= 0.99
+	-- hostile bars: the game's neon red becomes a muted crimson; the bar (never the plate frame) is 85 % opaque
+	local okc, cr, cg, cb = pcall(bar.GetStatusBarColor, bar)
+	if okc and cr and cr > 0.7 and cg < 0.35 and cb < 0.35 then
+		bar:SetStatusBarColor(0.60, 0.14, 0.17)
+	end
+	if isTarget then
+		bar:SetAlpha(1)
+	else
+		bar:SetAlpha(0.85)
+	end
 	local elite = m.levelicon and m.levelicon:IsShown()
 	if isTarget and AZS_UnitKind then
 		local k = AZS_UnitKind("target")

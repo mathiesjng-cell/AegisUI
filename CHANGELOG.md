@@ -9,6 +9,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - `/aegis debug [tool]`: all internal diagnostics in one place (fstack, who, bars, ct, ct2, cttest, slot, slotparts, mapdiag, targetcard, fix). The old direct commands keep working.
 - Inset look for status bars (`AegisSkin.Bevel`): dark line under the top edge, faint light line above the bottom edge, soft vertical gradient. Used on the XP bar and the unit card bars.
 - Level-up: a small gold arrow rises above the player card for 2 s and fades out (`PLAYER_LEVEL_UP`).
+- Smooth nav arrow: the update step only sets the wanted angle, the arrow turns towards it every frame along the shortest way round.
+- DoT ticks in "crits only" mode: shown small and dimmed to 60 % (hub switch, `AegisDB.ct.dots`, default on). No class check: in this client DoTs arrive as their own periodic events.
+- Nameplates: hostile bars use a muted crimson instead of neon red, non-target bars are 85 % opaque (the bar, never the plate frame, so target detection by alpha keeps working), fonts 1 pt smaller, inset bevel on the bar.
+- Login banner (version and modules, 20 % dark background, 6 s). `/aegis banner` switches it off and on.
 ### Changed
 - Defaults: chat pinned bottom-left on first start, the LuckyOdds window docks to the chat's right edge while it has no saved position, the meter sits bottom-right with 7 rows. The game's own damage meter and its minimap button are hidden (`AegisMeterDB.showStock = true` keeps them).
 - Release strategy: no version bump for dev commits; the version changes only for a release tag.

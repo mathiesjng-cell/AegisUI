@@ -31,6 +31,7 @@ end
 
 -- accumulators ---------------------------------------------------------
 local sums, crits = {}, {}
+local dotSums = {}         -- dimmed DoT ticks shown while "crits only" is active
 local takenSum, takenCrit = 0, false
 
 local function addDealt(name, amount, isCrit)
@@ -41,6 +42,14 @@ local function addDealt(name, amount, isCrit)
 	if isCrit then
 		crits[name] = true
 	end
+end
+
+local function addDot(name, amount)
+	dotSums[name] = (dotSums[name] or 0) + amount
+end
+
+local function dotsOn()
+	return cfg().dots ~= false
 end
 
 local function addTaken(amount, isCrit)
@@ -130,7 +139,7 @@ local function freeSpot(x, y, w, h)
 	return x, y
 end
 
-local function spawn(text, x, y, big, r, g, b, taken)
+local function spawn(text, x, y, big, r, g, b, taken, alpha)
 	local f = getSlot()
 	local size = SIZES[sizeKey()] or 16
 	if big then
@@ -156,7 +165,8 @@ local function spawn(text, x, y, big, r, g, b, taken)
 	f.active = true
 	f:ClearAllPoints()
 	f:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
-	f:SetAlpha(1)
+	f.a = alpha or 1
+	f:SetAlpha(f.a)
 	f:Show()
 end
 
@@ -174,7 +184,7 @@ anim:SetScript("OnUpdate", function()
 				f:ClearAllPoints()
 				f:SetPoint("CENTER", UIParent, "BOTTOMLEFT", f.x, f.y + f.rise * p)
 				if p > 0.6 then
-					f:SetAlpha(1 - (p - 0.6) / 0.4)
+					f:SetAlpha((f.a or 1) * (1 - (p - 0.6) / 0.4))
 				end
 			end
 		end
@@ -209,7 +219,7 @@ local function findPlates()
 					local r = regs[j]
 					if r:GetObjectType() == "FontString" then
 						local t = r:GetText()
-						if t and sums[t] then
+						if t and (sums[t] or dotSums[t]) then
 							local cx, cy = f:GetCenter()
 							if cx and cy then
 								-- plates use WorldFrame scale; convert to UIParent units
@@ -243,6 +253,10 @@ local sw = 0
 local function flush()
 	local any = false
 	for _ in pairs(sums) do
+		any = true
+		break
+	end
+	for _ in pairs(dotSums) do
 		any = true
 		break
 	end
@@ -289,6 +303,16 @@ local function flush()
 			else
 				spawn(short(e.amount), x + jit, y, false, 1, 1, 1)
 			end
+		end
+		-- DoT ticks (crits-only mode): small and dimmed to 60 %, so the feedback stays without the clutter
+		local dn = 0
+		for name, amount in pairs(dotSums) do
+			local p = plates[name]
+			if p and dn < 3 then
+				dn = dn + 1
+				spawn(short(amount), p[1] + (dn - 2) * 26, p[2] + 20, false, 1, 1, 1, false, 0.6)
+			end
+			dotSums[name] = nil
 		end
 	end
 	if takenSum > 0 then
@@ -339,7 +363,11 @@ local function onChat(evt, msg)
 	elseif PERIODIC[evt] then
 		local _, _, name, num = string.find(msg, "^(.-) suffers (%d+) .- damage from your")
 		if num then
-			addDealt(name, tonumber(num), false)
+			if mode() == "crit" and dotsOn() then
+				addDot(name, tonumber(num))
+			else
+				addDealt(name, tonumber(num), false)
+			end
 		end
 	elseif TAKEN[evt] then
 		local _, _, num = string.find(msg, " crits you for (%d+)")
@@ -392,6 +420,9 @@ local function apply()
 			sums[k] = nil
 			crits[k] = nil
 		end
+		for k in pairs(dotSums) do
+			dotSums[k] = nil
+		end
 		takenSum, takenCrit = 0, false
 		if cfg().owned then
 			pcall(SetCVar, "CombatDamage", cfg().prev or "1")
@@ -423,6 +454,12 @@ local function hubHook()
 			end
 			cfg().mode = nxt
 			apply()
+		end,
+		getDots = function()
+			return dotsOn()
+		end,
+		setDots = function(v)
+			cfg().dots = v and true or false
 		end,
 		getSize = function()
 			return sizeKey()
