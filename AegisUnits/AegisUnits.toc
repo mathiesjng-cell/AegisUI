@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: AegisUnits
+## Notes: Player / target cards and nameplates for Azeroth Survivors (part of the AegisUI pack)
+## SavedVariables: AegisUnitsDB
+## OptionalDeps: AegisUI
+## Version: 4.9
+
+AegisUnits.lua

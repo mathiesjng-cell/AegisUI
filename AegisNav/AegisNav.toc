@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: AegisNav
+## Notes: Waypoint arrow with boss / guardian HP bar for Azeroth Survivors (part of the AegisUI pack)
+## SavedVariables: AegisNavDB
+## OptionalDeps: AegisUI
+## Version: 4.9
+
+AegisNav.lua
