@@ -1097,7 +1097,7 @@ end
 refresh = function()
 	do
 		local t = MODE_TITLE[mode] or "OVERALL DAMAGE"
-		if AegisMeterDB and AegisMeterDB.noTitle then
+		if not (AegisMeterDB and AegisMeterDB.showTitle) then
 			t = ""
 		end
 		titleText:SetText(t)
@@ -1114,7 +1114,7 @@ refresh = function()
 			killsText:SetText("|cff7d8294" .. L("Kills") .. ":|r " .. ks)
 		end
 		-- the run timer can be switched off; the title then moves to the left edge
-		local noTimer = AegisMeterDB and AegisMeterDB.noTimer
+		local noTimer = not (AegisMeterDB and AegisMeterDB.showTimer)
 		titleText:ClearAllPoints()
 		if noTimer then
 			timeBadge:Hide()
@@ -1313,7 +1313,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.9.1 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.9.2 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1702,7 +1702,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "5.9.1",
+		version = "5.9.2",
 		isShown = function()
 			return frame:IsShown()
 		end,
@@ -1733,19 +1733,19 @@ local function hubHook()
 			applyLayout()
 		end,
 		getTitle = function()
-			return not (AegisMeterDB and AegisMeterDB.noTitle)
+			return AegisMeterDB and AegisMeterDB.showTitle and true or false
 		end,
 		setTitle = function(on)
 			AegisMeterDB = AegisMeterDB or {}
-			AegisMeterDB.noTitle = (not on) or nil
+			AegisMeterDB.showTitle = on and true or nil
 			refresh()
 		end,
 		getTimer = function()
-			return not (AegisMeterDB and AegisMeterDB.noTimer)
+			return AegisMeterDB and AegisMeterDB.showTimer and true or false
 		end,
 		setTimer = function(on)
 			AegisMeterDB = AegisMeterDB or {}
-			AegisMeterDB.noTimer = (not on) or nil
+			AegisMeterDB.showTimer = on and true or nil
 			refresh()
 		end,
 		getKills = function()

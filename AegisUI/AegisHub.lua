@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.9.1"
+local VERSION = "5.9.2"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -827,8 +827,8 @@ local function buildContent()
 		lookBlock("meter", { edge = true, fonts = true }, function()
 			A("meter", "setRows", 10)
 			A("meter", "setWidth", 360)
-			A("meter", "setTitle", true)
-			A("meter", "setTimer", true)
+			A("meter", "setTitle", false)
+			A("meter", "setTimer", false)
 			A("meter", "setKills", true)
 		end)
 	else

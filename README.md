@@ -1,6 +1,6 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.9.1-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.9.2-c8942e)](CHANGELOG.md)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)

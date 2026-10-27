@@ -3,6 +3,10 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.9.2] - 2026-10-27
+### Changed
+- Meter header: run timer and title text ("Overall Damage") are off by default; both can be switched on again in the hub (`AegisMeterDB.showTimer` / `showTitle`).
+
 ## [5.9.1] - 2026-10-27
 ### Fixed
 - Clean minimap no longer touches the player arrow and the map markers (guardian lairs, red flag): only real buttons with a ring texture are flattened, Models are skipped. Before, the arrow was pushed to the map's corner and the markers disappeared.

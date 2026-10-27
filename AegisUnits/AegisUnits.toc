@@ -3,7 +3,7 @@
 ## Notes: Player / target cards and nameplates for Azeroth Survivors (part of the AegisUI pack)
 ## SavedVariables: AegisUnitsDB
 ## OptionalDeps: AegisUI
-## Version: 5.9.1
+## Version: 5.9.2
 
 Locale.lua
 AegisUnits.lua
