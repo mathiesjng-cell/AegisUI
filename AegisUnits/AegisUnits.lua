@@ -52,7 +52,7 @@ end
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
-local C_GOLD = { 0.78, 0.58, 0.22, 1 }
+local C_GOLD = { 0.70, 0.52, 0.18, 1 }
 local C_ROW = { 0.06, 0.07, 0.10, 1 }
 local C_ROW_EDGE = { 0.17, 0.19, 0.25, 1 }
 
@@ -105,6 +105,9 @@ local function newCard(frameName, unit, hasPower)
 		-- background only: the border colour follows the unit's reaction
 		AegisSkin.TrackPanel(f, { C_PANEL[1], C_PANEL[2], C_PANEL[3] }, C_EDGE, nil, "units", true)
 	end
+	if AegisSkin and AegisSkin.OuterBlack then
+		AegisSkin.OuterBlack(f)    -- razor-sharp 1 px black outline outside the border
+	end
 	f:SetScript("OnClick", function()
 		TargetUnit(unit)
 	end)
@@ -148,11 +151,15 @@ local function newCard(frameName, unit, hasPower)
 
 	local nameFs = f:CreateFontString(nil, "OVERLAY")
 	nameFs:SetFont(FONT, 11, "OUTLINE")
+	nameFs:SetShadowColor(0, 0, 0, 1)
+	nameFs:SetShadowOffset(1, -1)
 	nameFs:SetTextColor(1, 1, 1)
 	nameFs:SetPoint("TOPLEFT", f, "TOPLEFT", BAR_X + 2, -(PAD + 1))
 
 	local levelFs = f:CreateFontString(nil, "OVERLAY")
-	levelFs:SetFont(FONT_NUM, 10, "")
+	levelFs:SetFont(FONT_NUM, 10, "OUTLINE")
+	levelFs:SetShadowColor(0, 0, 0, 1)
+	levelFs:SetShadowOffset(1, -1)
 	levelFs:SetTextColor(0.49, 0.51, 0.58)
 	levelFs:SetPoint("TOPRIGHT", f, "TOPRIGHT", -(PAD + 2), -(PAD + 2))
 	c.levelFs = levelFs
@@ -198,10 +205,14 @@ local function newCard(frameName, unit, hasPower)
 	local hpBack = row(hpH, ROW_Y)
 	local hpText = hpBack:CreateFontString(nil, "OVERLAY")
 	hpText:SetFont(FONT, 11, "OUTLINE")
+	hpText:SetShadowColor(0, 0, 0, 1)
+	hpText:SetShadowOffset(1, -1)
 	hpText:SetTextColor(1, 1, 1)
 	hpText:SetPoint("LEFT", hpBack, "LEFT", 6, 0)
 	local hpPct = hpBack:CreateFontString(nil, "OVERLAY")
-	hpPct:SetFont(FONT_NUM, 10, "")
+	hpPct:SetFont(FONT_NUM, 10, "OUTLINE")
+	hpPct:SetShadowColor(0, 0, 0, 1)
+	hpPct:SetShadowOffset(1, -1)
 	hpPct:SetTextColor(0.78, 0.80, 0.86)
 	hpPct:SetPoint("RIGHT", hpBack, "RIGHT", -6, 0)
 
@@ -465,19 +476,25 @@ local function stylePlate(p)
 	bar:SetBackdropColor(0.04, 0.05, 0.08, 0.96)
 	local topLine = bar:CreateTexture(nil, "OVERLAY")
 	topLine:SetTexture(SOLID)
-	topLine:SetVertexColor(0.78, 0.58, 0.22, 0.9)
+	topLine:SetVertexColor(1, 0.80, 0.80, 0.35)    -- subtle highlight edge
 	topLine:SetHeight(1)
 	topLine:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
 	topLine:SetPoint("TOPRIGHT", bar, "TOPRIGHT", -1, -1)
 
 	name:SetFont(FONT, 9, "OUTLINE")
+	name:SetShadowColor(0, 0, 0, 1)
+	name:SetShadowOffset(1, -1)
 	level:SetFont(FONT_NUM, 8, "OUTLINE")
+	level:SetShadowColor(0, 0, 0, 1)
+	level:SetShadowOffset(1, -1)
 	if AegisSkin and AegisSkin.Bevel then
 		AegisSkin.Bevel(bar)
 	end
 
 	local txt = bar:CreateFontString(nil, "OVERLAY")
 	txt:SetFont(FONT_NUM, 8, "OUTLINE")
+	txt:SetShadowColor(0, 0, 0, 1)
+	txt:SetShadowOffset(1, -1)
 	txt:SetPoint("CENTER", bar, "CENTER", 0, 0)
 	p.my.txt = txt
 
@@ -506,6 +523,26 @@ local function stylePlate(p)
 	inner:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -1, 1)
 	inner:Hide()
 	p.my.inner = inner
+	-- blood-red depth: deep red at the bottom, a lighter sheen toward the top
+	local depth = bar:CreateTexture(nil, "OVERLAY")
+	depth:SetTexture(SOLID)
+	depth:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -2)
+	depth:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -1, 1)
+	if depth.SetGradientAlpha then
+		depth:SetGradientAlpha("VERTICAL", 0.20, 0, 0.02, 0.60, 1, 0.55, 0.55, 0.12)
+	end
+	-- target frame: razor-sharp gold border with a black outer line (bar and children only)
+	local function edgeFrame(off, r, g, b)
+		local e = CreateFrame("Frame", nil, bar)
+		e:SetPoint("TOPLEFT", bar, "TOPLEFT", -off, off)
+		e:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", off, -off)
+		e:SetBackdrop({ edgeFile = SOLID, tile = false, edgeSize = 1 })
+		e:SetBackdropBorderColor(r, g, b, 1)
+		e:Hide()
+		return e
+	end
+	p.my.tgtGold = edgeFrame(1, 1, 0.84, 0.40)
+	p.my.tgtBlack = edgeFrame(2, 0, 0, 0)
 end
 
 local function refreshPlate(p, small, faded)
@@ -520,7 +557,7 @@ local function refreshPlate(p, small, faded)
 	-- hostile bars: the game's neon red becomes a muted crimson; the bar (never the plate frame) is 85 % opaque
 	local okc, cr, cg, cb = pcall(bar.GetStatusBarColor, bar)
 	if okc and cr and cr > 0.7 and cg < 0.35 and cb < 0.35 then
-		bar:SetStatusBarColor(0.60, 0.14, 0.17)
+		bar:SetStatusBarColor(0.55, 0.07, 0.11)
 	end
 	if isTarget then
 		bar:SetAlpha(1)
@@ -588,6 +625,15 @@ local function refreshPlate(p, small, faded)
 		m.txt:SetText(math.floor(v / mx * 100 + 0.5) .. "%")
 	end
 	-- the targeted plate is fully opaque; give it the gold edge
+	if m.tgtGold then
+		if isTarget then
+			m.tgtGold:Show()
+			m.tgtBlack:Show()
+		else
+			m.tgtGold:Hide()
+			m.tgtBlack:Hide()
+		end
+	end
 	if isTarget then
 		bar:SetBackdropBorderColor(1, 0.86, 0.45, 1)
 	elseif elite then

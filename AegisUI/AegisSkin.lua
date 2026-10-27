@@ -280,26 +280,41 @@ function AegisSkin.Bevel(frame)
 		return
 	end
 	frame.aegisBevel = true
-	local top = frame:CreateTexture(nil, "OVERLAY")
-	top:SetTexture(SOLID)
-	top:SetVertexColor(0, 0, 0, 0.55)
-	top:SetHeight(1)
-	top:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
-	top:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
-	local bot = frame:CreateTexture(nil, "OVERLAY")
-	bot:SetTexture(SOLID)
-	bot:SetVertexColor(1, 1, 1, 0.08)
-	bot:SetHeight(1)
-	bot:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 1, 1)
-	bot:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+	local function line(r, g, b, a, h, p1, x1, y1, p2, x2, y2)
+		local t = frame:CreateTexture(nil, "OVERLAY")
+		t:SetTexture(SOLID)
+		t:SetVertexColor(r, g, b, a)
+		t:SetHeight(h)
+		t:SetPoint(p1, frame, p1, x1, y1)
+		t:SetPoint(p2, frame, p2, x2, y2)
+		return t
+	end
+	-- obsidian inset: two stacked shadow lines under the top edge, dark rims on both sides
+	line(0, 0, 0, 0.90, 1, "TOPLEFT", 1, -1, "TOPRIGHT", -1, -1)
+	line(0, 0, 0, 0.40, 1, "TOPLEFT", 1, -2, "TOPRIGHT", -1, -2)
+	local l = frame:CreateTexture(nil, "OVERLAY")
+	l:SetTexture(SOLID)
+	l:SetVertexColor(0, 0, 0, 0.55)
+	l:SetWidth(1)
+	l:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
+	l:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 1, 1)
+	local r = frame:CreateTexture(nil, "OVERLAY")
+	r:SetTexture(SOLID)
+	r:SetVertexColor(0, 0, 0, 0.55)
+	r:SetWidth(1)
+	r:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
+	r:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 1)
+	-- fine dark-gold accent on the lower lip
+	line(0.80, 0.60, 0.22, 0.22, 1, "BOTTOMLEFT", 1, 1, "BOTTOMRIGHT", -1, 1)
+	-- vertical depth: dark at the top, a faint light at the bottom (min colour = bottom edge)
 	local g = frame:CreateTexture(nil, "OVERLAY")
 	g:SetTexture(SOLID)
-	g:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -2)
+	g:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -3)
 	g:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -1, 2)
 	if g.SetGradientAlpha then
-		g:SetGradientAlpha("VERTICAL", 0, 0, 0, 0.18, 1, 1, 1, 0.10)
+		g:SetGradientAlpha("VERTICAL", 1, 1, 1, 0.05, 0, 0, 0, 0.30)
 	else
-		g:SetVertexColor(1, 1, 1, 0.04)
+		g:SetVertexColor(0, 0, 0, 0.2)
 	end
 end
 
@@ -348,15 +363,28 @@ end
 
 -- 1 px gold line along the top edge of a frame
 function AegisSkin.GoldLine(frame)
-	local g = AegisSkin.color.gold
 	local t = frame:CreateTexture(nil, "OVERLAY")
 	t:SetTexture(SOLID)
-	t:SetVertexColor(g[1], g[2], g[3], 1)
+	t:SetVertexColor(0.70, 0.52, 0.18, 1)
 	local p = AegisSkin.px()
 	t:SetHeight(p)
 	t:SetPoint("TOPLEFT", frame, "TOPLEFT", p, -p)
 	t:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -p, -p)
+	local sh = frame:CreateTexture(nil, "OVERLAY")
+	sh:SetTexture(SOLID)
+	sh:SetVertexColor(0.28, 0.20, 0.06, 0.95)
+	sh:SetHeight(p)
+	sh:SetPoint("TOPLEFT", frame, "TOPLEFT", p, -2 * p)
+	sh:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -p, -2 * p)
 	return t
+end
+
+-- razor-sharp numbers: outline plus a hard 1 px drop shadow
+function AegisSkin.Sharp(fs)
+	if fs and fs.SetShadowColor then
+		fs:SetShadowColor(0, 0, 0, 1)
+		fs:SetShadowOffset(1, -1)
+	end
 end
 
 -- fontString: kind "text" (outlined) or "num" (numbers)
@@ -365,7 +393,8 @@ function AegisSkin.StyleText(fs, kind, size, r, g, b)
 		return
 	end
 	if kind == "num" then
-		fs:SetFont(FONT_NUM, size or 12, "")
+		fs:SetFont(FONT_NUM, size or 12, "OUTLINE")
+		AegisSkin.Sharp(fs)
 	else
 		fs:SetFont(FONT, size or 11, "OUTLINE")
 	end
