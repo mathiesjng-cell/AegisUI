@@ -1353,7 +1353,7 @@ SlashCmdList["AEGIS"] = function(msg)
 		local _, _, c2, r2 = string.find(rest, "^(%S*)%s*(.*)$")
 		if not c2 or c2 == "" then
 			if DEFAULT_CHAT_FRAME then
-				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
+				DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI debug:|r fstack, frames [s], who, bars, ct, ct2, cttest, slot [n], slotparts [n], mapdiag, targetcard, fix")
 			end
 			return
 		end
@@ -1428,6 +1428,63 @@ SlashCmdList["AEGIS"] = function(msg)
 			end
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
 		end
+	elseif cmd == "frames" then
+		-- /aegis frames [seconds]: after the delay (time to open the card screen), list every visible frame
+		local delay = tonumber(rest) or 5
+		if delay < 0 then
+			delay = 0
+		end
+		if DEFAULT_CHAT_FRAME then
+			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24aAegisUI:|r frame list in " .. delay .. " s")
+		end
+		local waiter = CreateFrame("Frame")
+		local waited = 0
+		waiter:SetScript("OnUpdate", function()
+			waited = waited + (arg1 or 0)
+			if waited < delay then
+				return
+			end
+			this:SetScript("OnUpdate", nil)
+			local out = {}
+			local function scan(parent, depth)
+				local kids = { parent:GetChildren() }
+				local i
+				for i = 1, table.getn(kids) do
+					local f = kids[i]
+					local nm = f:GetName() or ""
+					if f:IsVisible() and table.getn(out) < 220 and not string.find(nm, "^Aegis") and not string.find(nm, "^ChatFrame")
+						and not string.find(nm, "^ActionButton") and not string.find(nm, "^Minimap") then
+						local line = string.rep("  ", depth) .. (nm ~= "" and nm or "(no name)") .. " [" .. f:GetObjectType() .. "] "
+							.. math.floor((f:GetWidth() or 0) + 0.5) .. "x" .. math.floor((f:GetHeight() or 0) + 0.5)
+							.. " " .. (f:GetFrameStrata() or "?") .. " lvl" .. (f:GetFrameLevel() or 0)
+							.. (f:IsMouseEnabled() and " mouse" or "")
+						local regs = { f:GetRegions() }
+						local r, shown = 1, 0
+						for r = 1, table.getn(regs) do
+							local o = regs[r]
+							if shown < 2 and o:IsShown() then
+								if o:GetObjectType() == "FontString" and o:GetText() and o:GetText() ~= "" then
+									line = line .. " text=\"" .. o:GetText() .. "\""
+									shown = shown + 1
+								elseif o:GetObjectType() == "Texture" and o:GetTexture() then
+									line = line .. " tex=" .. tostring(o:GetTexture())
+									shown = shown + 1
+								end
+							end
+						end
+						out[table.getn(out) + 1] = line
+						if depth < 2 then
+							scan(f, depth + 1)
+						end
+					end
+				end
+			end
+			scan(UIParent, 0)
+			local fo = UI.api.fonts
+			if fo and fo.showText then
+				fo.showText(table.concat(out, "\n"))
+			end
+		end)
 	elseif cmd == "mapdiag" then
 		local f = UI.api.fonts
 		if f and f.showText and UI.api.map then

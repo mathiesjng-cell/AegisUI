@@ -15,6 +15,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Timer widget (`AegisTimerFrame`, draggable, scalable, hub toggle): run clock (`AZS_GetRunTime`, survives /reload), the zone's boss list (coming with countdown, UP, slain = crossed out and faded; kept across /reload within a run) and the guardians (UP, FIGHT, respawn countdown of empty lairs)
 - Nameplates: at most 10 full plates (target > boss/elite > screen centre), the rest shrinks and dims to 20 % (bar and texts only); trash fades to 20 % while a boss or guardian is up (both configurable in the hub)
 - Hub: DPS time window moved to the top of the Meter page
+- `/aegis frames [seconds]`: after the delay lists every visible frame (name, type, size, strata, text/texture) in a copy window, to find frames of screens that fstack cannot hover (e.g. the card choice)
 - Meter: rows (ranking, bars, values) follow the DPS time window; whole-run numbers stay on screen while nothing was dealt in the window; footer TOTAL shows the window total ("TOTAL (10s):") while the window is active; toggle in the hub (`meter.getRecent/setRecent`)
 - Reset defaults now also puts the chat back to the bottom-left corner (default size) and docks LuckyOdds to its right edge again (`UI.resetHooks`)
 - Default spacing: DPS meter 2 px from the bottom-right corner, chat 2 px from the bottom-left corner (the input line covers the chat's bottom edge while typing)
