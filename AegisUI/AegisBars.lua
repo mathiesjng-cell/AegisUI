@@ -260,6 +260,18 @@ local function buildBar()
 			db().point = nil
 			bf:ClearAllPoints()
 			bf:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 16)
+		end, function(s)
+			-- the stock action buttons are not children of the bar: they follow its scale
+			local names = { "ActionButton", "BonusActionButton" }
+			local k, i
+			for k = 1, 2 do
+				for i = 1, 12 do
+					local btn = getglobal(names[k] .. i)
+					if btn then
+						btn:SetScale(s)
+					end
+				end
+			end
 		end)
 	end
 end
@@ -409,6 +421,7 @@ local function layoutBar()
 				btn:SetPoint("LEFT", bf, "LEFT", PAD + (i - 1) * (SIZE + GAP), 0)
 				btn:SetWidth(SIZE)
 				btn:SetHeight(SIZE)
+				btn:SetScale(bf:GetScale())
 			end
 		end
 	end

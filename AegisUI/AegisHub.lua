@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.8.0"
+local VERSION = "5.9.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -718,8 +718,28 @@ local function buildContent()
 	if api.bars then
 		toggle(L("Custom action bar + XP bar"), function() return A("bars", "getCustom") end, function(v) A("bars", "setCustom", v) end)
 	end
+	if UI.getScale then
+		cursor = cursor + 4
+		section(L("WINDOW SIZE"))
+		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
+		local ki
+		for ki = 1, table.getn(keys) do
+			local key = keys[ki][1]
+			stepper(L(keys[ki][2]), function()
+				local s = UI.getScale(key)
+				if s then
+					return s * 100
+				end
+				return nil
+			end, function(v) UI.setScaleSaved(key, v / 100) end, 10, 50, 250, function(v)
+				return math.floor(v + 0.5) .. " %"
+			end)
+		end
+		noteText(L("Or drag the gold + in a window's corner while unlocked."))
+	end
 	lookBlock("core", { edge = true }, function()
 		AegisDB.pixel = nil
+		UI.resetScales()
 	end)
 	cursor = cursor + 4
 	section(L("GENERAL"))

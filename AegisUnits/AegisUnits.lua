@@ -305,10 +305,12 @@ tf:Hide()
 local function layoutCards()
 	local gap = (AegisUnitsDB and AegisUnitsDB.gap) or 110
 	local y = (AegisUnitsDB and AegisUnitsDB.bottom) or 170
+	-- gap / y are in screen units of UIParent; the cards may be scaled (offsets count in card units)
+	local ps, ts = pf:GetScale() or 1, tf:GetScale() or 1
 	pf:ClearAllPoints()
-	pf:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -gap, y)
+	pf:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -gap / ps, y / ps)
 	tf:ClearAllPoints()
-	tf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", gap, y)
+	tf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", gap / ts, y / ts)
 end
 layoutCards()
 
@@ -332,12 +334,13 @@ pf:SetScript("OnDragStop", function()
 	local right, bottom = this:GetRight(), this:GetBottom()
 	if right and bottom then
 		AegisUnitsDB = AegisUnitsDB or {}
-		local gap = UIParent:GetWidth() / 2 - right
+		local k = this:GetEffectiveScale() / UIParent:GetEffectiveScale()
+		local gap = UIParent:GetWidth() / 2 - right * k
 		if gap < 20 then
 			gap = 20
 		end
 		AegisUnitsDB.gap = gap
-		AegisUnitsDB.bottom = bottom
+		AegisUnitsDB.bottom = bottom * k
 	end
 	layoutCards()   -- the target card mirrors the new position
 end)
@@ -377,12 +380,13 @@ tf:SetScript("OnDragStop", function()
 	local left, bottom = this:GetLeft(), this:GetBottom()
 	if left and bottom then
 		AegisUnitsDB = AegisUnitsDB or {}
-		local gap = left - UIParent:GetWidth() / 2
+		local k = this:GetEffectiveScale() / UIParent:GetEffectiveScale()
+		local gap = left * k - UIParent:GetWidth() / 2
 		if gap < 20 then
 			gap = 20
 		end
 		AegisUnitsDB.gap = gap
-		AegisUnitsDB.bottom = bottom
+		AegisUnitsDB.bottom = bottom * k
 	end
 	layoutCards()
 end)
@@ -735,7 +739,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.8.0",
+		version = "5.9.0",
 		getPlayer = function()
 			return U.player
 		end,

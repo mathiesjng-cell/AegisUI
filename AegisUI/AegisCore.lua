@@ -26,8 +26,107 @@ local function say(text)
 	end
 end
 
-function UI.register(key, label, frame, reset)
-	UI.list[table.getn(UI.list) + 1] = { key = key, label = label, frame = frame, reset = reset }
+function UI.register(key, label, frame, reset, onScale)
+	UI.list[table.getn(UI.list) + 1] = { key = key, label = label, frame = frame, reset = reset, onScale = onScale }
+end
+
+-- Window size: every registered frame can be scaled (50 - 250 %). Saved in AegisDB.scales[key].
+local SCALE_MIN, SCALE_MAX = 0.5, 2.5
+
+local function findEntry(key)
+	local i
+	for i = 1, table.getn(UI.list) do
+		if UI.list[i].key == key then
+			return UI.list[i]
+		end
+	end
+	return nil
+end
+
+function UI.getScale(key)
+	local e = findEntry(key)
+	if not e then
+		return nil
+	end
+	return (AegisDB and AegisDB.scales and AegisDB.scales[key]) or 1
+end
+
+-- keepCorner: keep the frame's bottom-left corner where it is on screen while it grows
+function UI.setScale(key, s, keepCorner, nosave)
+	local e = findEntry(key)
+	if not e then
+		return
+	end
+	if s < SCALE_MIN then
+		s = SCALE_MIN
+	elseif s > SCALE_MAX then
+		s = SCALE_MAX
+	end
+	local f = e.frame
+	local l, b
+	if keepCorner and f:GetLeft() then
+		local k = f:GetEffectiveScale() / UIParent:GetEffectiveScale()
+		l, b = f:GetLeft() * k, f:GetBottom() * k
+	end
+	f:SetScale(s)
+	if e.onScale then
+		pcall(e.onScale, s)
+	end
+	if l then
+		f:ClearAllPoints()
+		f:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", l / s, b / s)
+	end
+	if not nosave then
+		AegisDB = AegisDB or {}
+		AegisDB.scales = AegisDB.scales or {}
+		AegisDB.scales[key] = s
+	end
+end
+
+function UI.applyScales()
+	local i
+	for i = 1, table.getn(UI.list) do
+		local e = UI.list[i]
+		local s = AegisDB and AegisDB.scales and AegisDB.scales[e.key]
+		if s then
+			UI.setScale(e.key, s, false, true)
+		end
+	end
+end
+
+-- after a scale change the module stores the new position through its own drag-stop handler
+local function saveEntry(e)
+	local f = e.frame
+	local fn = f:GetScript("OnDragStop")
+	if fn then
+		local me = this
+		this = f
+		pcall(fn)
+		this = me
+	end
+end
+
+function UI.resetScales()
+	local i
+	for i = 1, table.getn(UI.list) do
+		local e = UI.list[i]
+		if AegisDB and AegisDB.scales and AegisDB.scales[e.key] then
+			UI.setScale(e.key, 1, true, true)
+			saveEntry(e)
+		end
+	end
+	if AegisDB then
+		AegisDB.scales = nil
+	end
+end
+
+function UI.setScaleSaved(key, s)
+	local e = findEntry(key)
+	if not e then
+		return
+	end
+	UI.setScale(key, s, true)
+	saveEntry(e)
 end
 
 -- Snapping -------------------------------------------------------------
@@ -170,6 +269,44 @@ local function makeOverlay(e)
 	lab:SetTextColor(1, 0.85, 0.4, 1)
 	lab:SetText(AegisL and AegisL.t(e.label) or e.label)
 	ov.entry = e
+	-- gold grip at the bottom-right corner: drag to resize (scales the whole window)
+	local grip = CreateFrame("Button", nil, ov)
+	grip:SetWidth(14)
+	grip:SetHeight(14)
+	grip:SetPoint("BOTTOMRIGHT", ov, "BOTTOMRIGHT", 0, 0)
+	grip:SetFrameLevel(ov:GetFrameLevel() + 3)
+	grip:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
+		insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+	grip:SetBackdropColor(0.04, 0.04, 0.04, 0.96)
+	grip:SetBackdropBorderColor(0.78, 0.58, 0.22, 1)
+	local gt = grip:CreateFontString(nil, "OVERLAY")
+	gt:SetFont(FONT_NUM, 11, "OUTLINE")
+	gt:SetPoint("CENTER", grip, "CENTER", 0, 0)
+	gt:SetText("+")
+	gt:SetTextColor(1, 0.86, 0.45)
+	grip:SetScript("OnMouseDown", function()
+		this.sizing = true
+		this:SetScript("OnUpdate", function()
+			local f = e.frame
+			local w = f:GetWidth()
+			local l = f:GetLeft()
+			if not w or w <= 0 or not l then
+				return
+			end
+			local cx = GetCursorPosition() / UIParent:GetEffectiveScale()
+			local k = f:GetEffectiveScale() / UIParent:GetEffectiveScale()
+			local left = l * k
+			local ns = (cx - left) / w
+			if ns > 0 then
+				UI.setScale(e.key, ns, true)
+			end
+		end)
+	end)
+	grip:SetScript("OnMouseUp", function()
+		this.sizing = false
+		this:SetScript("OnUpdate", nil)
+		saveEntry(e)
+	end)
 	-- the overlay hands the drag to the frame's own handlers, so saving and snapping stay in the modules
 	ov:SetScript("OnDragStart", function()
 		local me = this
@@ -246,6 +383,7 @@ function UI.setGrid(n)
 end
 
 function UI.resetAll()
+	UI.resetScales()
 	local i
 	for i = 1, table.getn(UI.list) do
 		if UI.list[i].reset then
@@ -306,6 +444,7 @@ core:SetScript("OnUpdate", function()
 		core.fix = core.fix - (arg1 or 0)
 		if core.fix <= 0 then
 			core.fix = 0
+			UI.applyScales()
 			UI.sanitizeAll(true)
 		end
 	end

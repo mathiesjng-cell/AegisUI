@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.9.0] - 2026-10-27
+### Added
+- Resizable windows: every registered Aegis window (meter, player and target card, nav arrow, action bar, LuckyOdds window) scales 50-250 %. While unlocked each window shows a gold "+" grip in its bottom-right corner; dragging it resizes. The hub (Core page, WINDOW SIZE) has a stepper per window. Saved in `AegisDB.scales[key]`; "Reset positions" and the Core "Reset defaults" restore size 100 %.
+- `AegisUI.register(key, label, frame, reset, onScale)` takes an optional scale callback; new core functions `getScale`, `setScale`, `setScaleSaved`, `applyScales`, `resetScales`.
+### Changed
+- Unit cards compute their gap and height in screen units, so they stay symmetric when scaled.
+- The stock action buttons follow the bar's scale.
+
 ## [5.8.0] - 2026-10-27
 ### Added
 - Chat: +50 x +60 px on first start, width/height steppers in the hub (Chat page) and a gold "+" grip at the top-right corner while unlocked for free resizing (`AegisDB.chatW/chatH`).

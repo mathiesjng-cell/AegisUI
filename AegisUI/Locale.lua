@@ -125,6 +125,8 @@ AegisL.add({
 	["Chat height"] = "Chat-Hoehe",
 	["Minimap size"] = "Minikarten-Groesse",
 	["Unlocked: drag the gold + at the chat's top-right corner."] = "Entsperrt: das goldene + an der oberen rechten Chat-Ecke ziehen.",
+	["WINDOW SIZE"] = "FENSTERGROESSE",
+	["Or drag the gold + in a window's corner while unlocked."] = "Oder im entsperrten Modus das goldene + in der Fensterecke ziehen.",
 	["DISPLAY"] = "ANZEIGE",
 	["DPS time window"] = "DPS-Zeitfenster",
 	["DPS window: "] = "DPS-Fenster: ",
