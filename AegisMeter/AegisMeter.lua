@@ -1313,7 +1313,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.5.0 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.6.0 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1693,7 +1693,7 @@ local function hubHook()
 	end
 	AegisUI.hooked_meter = true
 	if AegisSkin and AegisSkin.TrackPanel then
-		AegisSkin.TrackPanel(frame, { 0.04, 0.04, 0.04 }, C_EDGE, outerTex)
+		AegisSkin.TrackPanel(frame, { 0.04, 0.04, 0.04 }, C_EDGE, outerTex, "meter")
 	end
 	AegisUI.register("meter", "DPS-Meter", frame, function()
 		AegisMeterDB = AegisMeterDB or {}
@@ -1702,7 +1702,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "5.5.0",
+		version = "5.6.0",
 		isShown = function()
 			return frame:IsShown()
 		end,

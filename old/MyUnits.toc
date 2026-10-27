@@ -1,0 +1,3 @@
+## Interface: 11200
+## Title: MyUnits (ALT - Ordner loeschen)
+## Notes: Ersetzt durch AegisUnits. Dieser Ordner kann geloescht werden.

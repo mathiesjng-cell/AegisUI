@@ -88,36 +88,77 @@ end
 -- neutral near-black, 96 % opaque: for panels that sit over bright zones (snow, desert)
 AegisSkin.color.solid = { 0.04, 0.04, 0.04, 0.96 }
 
--- Look settings (global, in AegisDB.look): background opacity %, border opacity %, black outline.
--- Panels register with TrackPanel and follow the settings live.
+-- Look settings. Every module has its own set (AegisDB.looks[module]); anything it does not set falls
+-- back to the old global AegisDB.look. Keys: bg % / edge % / outer (black outline) / solid (force dark)
+-- / bgp / edgep (colour preset index, 1 = the panel's own colour).
+-- Panels register with TrackPanel(frame, bgRGB, edgeRGB, outerTex, module) and follow the settings live.
 AegisSkin.tracked = {}
-local LOOK_DEFAULT = { bg = 96, edge = 100, outer = true }
+local LOOK_DEFAULT = { bg = 96, edge = 100, outer = true, solid = false, bgp = 1, edgep = 1 }
 
-function AegisSkin.GetLook()
-	local d = AegisDB and AegisDB.look
-	return (d and d.bg) or LOOK_DEFAULT.bg, (d and d.edge) or LOOK_DEFAULT.edge, not (d and d.outer == false)
+AegisSkin.EDGE_PRESETS = {
+	{ "Gold" }, { "Silver", 0.75, 0.78, 0.85 }, { "Blue", 0.35, 0.55, 0.95 },
+	{ "Red", 0.85, 0.25, 0.25 }, { "Green", 0.30, 0.75, 0.40 }, { "White", 1, 1, 1 },
+}
+AegisSkin.BG_PRESETS = {
+	{ "Dark" }, { "Black", 0, 0, 0 }, { "Navy", 0.04, 0.06, 0.14 },
+	{ "Brown", 0.10, 0.07, 0.04 }, { "Graphite", 0.12, 0.12, 0.13 },
+}
+
+local function lookValue(mod, key)
+	local m = AegisDB and AegisDB.looks and mod and AegisDB.looks[mod]
+	if m and m[key] ~= nil then
+		return m[key]
+	end
+	local g = AegisDB and AegisDB.look
+	if g and g[key] ~= nil then
+		return g[key]
+	end
+	return LOOK_DEFAULT[key]
 end
 
--- frame, background rgb, border rgb, optional list of outline textures
-function AegisSkin.TrackPanel(frame, bgc, edgec, outerTex)
+-- bg %, edge %, outline, force solid, bg preset, edge preset
+function AegisSkin.GetLook(mod)
+	local solid = lookValue(mod, "solid") and true or false
+	local bg = lookValue(mod, "bg")
+	if solid then
+		bg = 98
+	end
+	return bg, lookValue(mod, "edge"), lookValue(mod, "outer") and true or false, solid, lookValue(mod, "bgp"), lookValue(mod, "edgep")
+end
+
+function AegisSkin.TrackPanel(frame, bgc, edgec, outerTex, mod, noEdge)
 	local i
 	for i = 1, table.getn(AegisSkin.tracked) do
 		if AegisSkin.tracked[i].f == frame then
 			return
 		end
 	end
-	AegisSkin.tracked[table.getn(AegisSkin.tracked) + 1] = { f = frame, bg = bgc, edge = edgec, outer = outerTex }
+	AegisSkin.tracked[table.getn(AegisSkin.tracked) + 1] = { f = frame, bg = bgc, edge = edgec, outer = outerTex, mod = mod, noEdge = noEdge }
 	AegisSkin.RefreshLook()
 end
 
 function AegisSkin.RefreshLook()
-	local bg, edge, outer = AegisSkin.GetLook()
 	local i, j
 	for i = 1, table.getn(AegisSkin.tracked) do
 		local t = AegisSkin.tracked[i]
+		local bg, edge, outer, solid, bgp, edgep = AegisSkin.GetLook(t.mod)
 		pcall(function()
-			t.f:SetBackdropColor(t.bg[1], t.bg[2], t.bg[3], bg / 100)
-			t.f:SetBackdropBorderColor(t.edge[1], t.edge[2], t.edge[3], edge / 100)
+			local bc, ec = t.bg, t.edge
+			local pb = AegisSkin.BG_PRESETS[bgp]
+			if solid then
+				bc = { 0.02, 0.02, 0.02 }
+			elseif pb and pb[2] then
+				bc = pb
+				bc = { pb[2], pb[3], pb[4] }
+			end
+			local pe = AegisSkin.EDGE_PRESETS[edgep]
+			if pe and pe[2] then
+				ec = { pe[2], pe[3], pe[4] }
+			end
+			t.f:SetBackdropColor(bc[1], bc[2], bc[3], bg / 100)
+			if not t.noEdge then
+				t.f:SetBackdropBorderColor(ec[1], ec[2], ec[3], edge / 100)
+			end
 			local list = t.outer or t.f.aegisOuterTex
 			if list then
 				for j = 1, table.getn(list) do
@@ -132,25 +173,38 @@ function AegisSkin.RefreshLook()
 	end
 end
 
-function AegisSkin.SetLook(key, value)
+function AegisSkin.SetLook(key, value, mod)
 	AegisDB = AegisDB or {}
-	AegisDB.look = AegisDB.look or {}
-	AegisDB.look[key] = value
-	AegisSkin.RefreshLook()
-end
-
-function AegisSkin.ResetLook()
-	if AegisDB then
-		AegisDB.look = nil
+	if mod then
+		AegisDB.looks = AegisDB.looks or {}
+		AegisDB.looks[mod] = AegisDB.looks[mod] or {}
+		AegisDB.looks[mod][key] = value
+	else
+		AegisDB.look = AegisDB.look or {}
+		AegisDB.look[key] = value
 	end
 	AegisSkin.RefreshLook()
 end
 
-function AegisSkin.ApplySolid(frame)
+function AegisSkin.ResetLook(mod)
+	if AegisDB then
+		if mod then
+			if AegisDB.looks then
+				AegisDB.looks[mod] = nil
+			end
+		else
+			AegisDB.look = nil
+			AegisDB.looks = nil
+		end
+	end
+	AegisSkin.RefreshLook()
+end
+
+function AegisSkin.ApplySolid(frame, mod)
 	AegisSkin.ApplyPanel(frame)
 	local c = AegisSkin.color.solid
 	frame:SetBackdropColor(c[1], c[2], c[3], c[4])
-	AegisSkin.TrackPanel(frame, c, AegisSkin.color.edge)
+	AegisSkin.TrackPanel(frame, c, AegisSkin.color.edge, nil, mod)
 end
 
 -- 1 px black outline OUTSIDE the panel edge (sharpens the dark-gold border on bright ground).

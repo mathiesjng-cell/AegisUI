@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.5.0"
+local VERSION = "5.6.0"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -20,6 +20,7 @@ local UI = AegisUI
 local W = 420
 local PAD = 8
 local ROW_W = W - PAD * 2
+local SIDE = 112          -- width of the module list on the left
 
 -- call a module function if that module is loaded
 local function A(mod, fn, a, b)
@@ -40,8 +41,8 @@ end
 -- Window ---------------------------------------------------------------
 
 local win = CreateFrame("Frame", "AegisHubFrame", UIParent)
-win:SetWidth(W)
-win:SetHeight(400)
+win:SetWidth(W + SIDE)
+win:SetHeight(440)
 win:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
 win:SetFrameStrata("FULLSCREEN_DIALOG")
 win:SetMovable(true)
@@ -477,11 +478,11 @@ end
 
 -- Content --------------------------------------------------------------
 
-local TABS = { "LAYOUT", "MODULES", "SKINS" }
+local TABS = { "CORE", "METER", "UNITS", "FONTS", "CHAT", "MINIMAP", "SKINS" }
 local tabFrames = {}
 local tabButtons = {}
-local TOP_TABS = 30
-local TAB_H = 20
+local TOP_TABS = 36
+local TAB_H = 24
 
 local function selectTab(n)
 	local i
@@ -494,36 +495,42 @@ local function selectTab(n)
 			tabButtons[i].line:Show()
 		else
 			tabFrames[i]:Hide()
-			tabButtons[i].text:SetTextColor(0.49, 0.51, 0.58)
+			tabButtons[i].text:SetTextColor(0.62, 0.64, 0.70)
 			tabButtons[i].line:Hide()
 		end
 	end
 	AegisDB = AegisDB or {}
-	AegisDB.tab = n
+	AegisDB.tab2 = n
 end
 
 local function startTab(n)
 	if host and host ~= win and host.SetHeight then
-		host:SetHeight(cursor + 12)      -- the tab built before this one is now complete
+		host:SetHeight(cursor + 12)      -- the page built before this one is now complete
 	end
 	host = tabFrames[n].content
 	cursor = 6
 end
 
 local function buildTabs()
-	local tw = (W - 16) / table.getn(TABS)
+	-- 1 px gold separator between the module list and the control panel
+	local sep = win:CreateTexture(nil, "ARTWORK")
+	sep:SetTexture(SOLID)
+	sep:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 0.8)
+	sep:SetWidth(1)
+	sep:SetPoint("TOPLEFT", win, "TOPLEFT", SIDE, -29)
+	sep:SetPoint("BOTTOMLEFT", win, "BOTTOMLEFT", SIDE, 1)
 	local i
 	for i = 1, table.getn(TABS) do
 		local f = CreateFrame("Frame", nil, win)
-		f:SetPoint("TOPLEFT", win, "TOPLEFT", 0, -(TOP_TABS + TAB_H + 4))
-		f:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", 0, 0)
+		f:SetPoint("TOPLEFT", win, "TOPLEFT", SIDE + 1, -30)
+		f:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", -1, 1)
 		f:Hide()
 		-- content scrolls with the mouse wheel when it is longer than the window
 		local sf = CreateFrame("ScrollFrame", nil, f)
 		sf:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
-		sf:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 24)
+		sf:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 20)
 		local c = CreateFrame("Frame", nil, sf)
-		c:SetWidth(W)
+		c:SetWidth(W - 1)
 		c:SetHeight(400)
 		sf:SetScrollChild(c)
 		sf:EnableMouseWheel(true)
@@ -563,21 +570,22 @@ local function buildTabs()
 			place(sf)
 		end
 		tabFrames[i] = f
+		-- flat module entry on the left; the selected one gets a gold bar
 		local b = CreateFrame("Button", nil, win)
-		b:SetWidth(tw)
+		b:SetWidth(SIDE - 14)
 		b:SetHeight(TAB_H)
-		b:SetPoint("TOPLEFT", win, "TOPLEFT", 8 + (i - 1) * tw, -TOP_TABS)
+		b:SetPoint("TOPLEFT", win, "TOPLEFT", 8, -(TOP_TABS + (i - 1) * (TAB_H + 3)))
 		skin(b, C_ROW, C_ROW_EDGE)
 		b.text = b:CreateFontString(nil, "OVERLAY")
-		b.text:SetFont(FONT, 10, "OUTLINE")
-		b.text:SetPoint("CENTER", b, "CENTER", 0, 0)
+		b.text:SetFont(FONT_NUM, 12, "OUTLINE")
+		b.text:SetPoint("LEFT", b, "LEFT", 10, 0)
 		b.text:SetText(L(TABS[i]))
 		b.line = b:CreateTexture(nil, "OVERLAY")
 		b.line:SetTexture(SOLID)
 		b.line:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-		b.line:SetHeight(2)
+		b.line:SetWidth(2)
+		b.line:SetPoint("TOPLEFT", b, "TOPLEFT", 1, -1)
 		b.line:SetPoint("BOTTOMLEFT", b, "BOTTOMLEFT", 1, 1)
-		b.line:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", -1, 1)
 		b.idx = i
 		b:SetScript("OnClick", function()
 			selectTab(this.idx)
@@ -586,11 +594,70 @@ local function buildTabs()
 	end
 end
 
+local refreshAllHook = function() end
+
+-- appearance block of one module: opacity, colours, outline, "Reset Defaults"
+local function lookBlock(mod, opts, onReset)
+	if not (AegisSkin and AegisSkin.GetLook) then
+		return
+	end
+	cursor = cursor + 4
+	section(L("OPACITY"))
+	local function pct(v)
+		return math.floor(v + 0.5) .. " %"
+	end
+	stepper(L("Background opacity"), function() local bg = AegisSkin.GetLook(mod) return bg end, function(v) AegisSkin.SetLook("bg", v, mod) end, 2, 0, 100, pct)
+	if opts.edge then
+		stepper(L("Border opacity"), function() local _, e = AegisSkin.GetLook(mod) return e end, function(v) AegisSkin.SetLook("edge", v, mod) end, 10, 0, 100, pct)
+	end
+	toggle(L("Force solid dark background"), function() local _, _, _, so = AegisSkin.GetLook(mod) return so end, function(v) AegisSkin.SetLook("solid", v, mod) end)
+	cursor = cursor + 4
+	section(L("COLORS"))
+	local function cycle(key, list, idx, name)
+		action(function()
+			local i = idx()
+			return L(name) .. L(list[i][1]), 1, 0.86, 0.45
+		end, function()
+			local n = idx() + 1
+			if n > table.getn(list) then
+				n = 1
+			end
+			AegisSkin.SetLook(key, n, mod)
+		end)
+	end
+	if opts.edge then
+		cycle("edgep", AegisSkin.EDGE_PRESETS, function() local _, _, _, _, _, e = AegisSkin.GetLook(mod) return e end, "Border colour: ")
+	end
+	cycle("bgp", AegisSkin.BG_PRESETS, function() local _, _, _, _, b = AegisSkin.GetLook(mod) return b end, "Background colour: ")
+	cursor = cursor + 4
+	section(L("CONTRAST"))
+	toggle(L("Black outline around panels"), function() local _, _, o = AegisSkin.GetLook(mod) return o end, function(v) AegisSkin.SetLook("outer", v, mod) end)
+	cursor = cursor + 4
+	action(function()
+		return L("RESET DEFAULTS"), 0.80, 0.83, 0.90
+	end, function()
+		AegisSkin.ResetLook(mod)
+		if onReset then
+			onReset()
+		end
+		refreshAllHook()
+	end)
+end
+
+local function noteText(t)
+	local fs = host:CreateFontString(nil, "OVERLAY")
+	fs:SetFont(FONT_NUM, 11, "")
+	fs:SetTextColor(0.49, 0.51, 0.58)
+	fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
+	fs:SetText(t)
+	cursor = cursor + 16
+end
+
 local function buildContent()
 	local api = UI.api
 	buildTabs()
 
-	-- Tab 1: LAYOUT -------------------------------------------------
+	-- Page 1: CORE -------------------------------------------------
 	startTab(1)
 	action(function()
 		if UI.locked then
@@ -609,9 +676,8 @@ local function buildContent()
 		end
 		return v .. " px"
 	end)
-	if api.map then
-		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
-		toggle(L("Clean minimap (no zoom buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
+	if api.nav then
+		toggle(L("Waypoint arrow + boss HP"), function() return A("nav", "isShown") end, function(v) A("nav", "setShown", v) end)
 	end
 	if api.units or api.nav then
 		cursor = cursor + 4
@@ -632,23 +698,14 @@ local function buildContent()
 		toggle(L("Hide short cooldown sweeps (< 2 s)"), function() return A("bars", "getShortCd") end, function(v) A("bars", "setShortCd", v) end)
 		toggle(L("Gryphons + bar background"), function() return A("bars", "getArt") end, function(v) A("bars", "setArt", v) end)
 	end
-	if AegisSkin and AegisSkin.GetLook then
-		cursor = cursor + 4
-		section(L("APPEARANCE"))
-		stepper(L("Background opacity"), function() local bg = AegisSkin.GetLook() return bg end, function(v) AegisSkin.SetLook("bg", v) end, 2, 50, 100, function(v)
-			return math.floor(v + 0.5) .. " %"
-		end)
-		stepper(L("Border opacity"), function() local _, e = AegisSkin.GetLook() return e end, function(v) AegisSkin.SetLook("edge", v) end, 10, 0, 100, function(v)
-			return math.floor(v + 0.5) .. " %"
-		end)
-		toggle(L("Black outline around panels"), function() local _, _, o = AegisSkin.GetLook() return o end, function(v) AegisSkin.SetLook("outer", v) end)
-		action(function()
-			return L("Reset appearance to defaults"), 1, 0.86, 0.45
-		end, function()
-			AegisSkin.ResetLook()
-		end)
-		cursor = cursor + 4
+	if api.bars then
+		toggle(L("Custom action bar + XP bar"), function() return A("bars", "getCustom") end, function(v) A("bars", "setCustom", v) end)
 	end
+	lookBlock("core", { edge = true }, function()
+		AegisDB.pixel = nil
+	end)
+	cursor = cursor + 4
+	section(L("GENERAL"))
 	toggle(L("Pixel-perfect borders (after /reload)"), function() return not (AegisDB and AegisDB.pixel == false) end, function(v)
 		AegisDB = AegisDB or {}
 		AegisDB.pixel = v and true or false
@@ -685,12 +742,89 @@ local function buildContent()
 		UI.resetAll()
 	end, nil)
 
-	-- Tab 2: MODULE ---------------------------------------------------
+	-- Page 2: METER -------------------------------------------------
 	startTab(2)
-	section(L("DISPLAY"))
-	if api.chat then
-		toggle(L("Chat reskin (off after /reload)"), function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
+	if api.meter then
+		section(L("DPS-METER"))
+		toggle("DPS-Meter", function() return A("meter", "isShown") end, function(v) A("meter", "setShown", v) end)
+		stepper(L("Meter rows"), function() return A("meter", "getRows") end, function(v) A("meter", "setRows", v) end, 1, 3, 10, function(v)
+			return math.floor(v + 0.5)
+		end)
+		stepper(L("Meter width"), function() return A("meter", "getWidth") end, function(v) A("meter", "setWidth", v) end, 20, 260, 520, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
+		toggle(L("Run timer"), function() return A("meter", "getTimer") end, function(v) A("meter", "setTimer", v) end)
+		toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
+		stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
+			-- 0 = average over the whole run; the smallest real window is 5 s
+			local cur = A("meter", "getDps") or 10
+			if v > 0 and v < 5 then
+				if cur == 0 then
+				v = 5
+				else
+				v = 0
+				end
+			end
+			A("meter", "setDps", v)
+		end, 5, 0, 120, function(v)
+			if v == 0 then
+				return L("Average")
+			end
+			return v .. " s"
+		end)
+		action(function()
+			local w = A("meter", "getDps") or 10
+			if w == 0 then
+				return L("DPS window: default (click = next)"), 1, 0.86, 0.45
+			end
+			return L("DPS window: ") .. w .. L(" s (click = next)"), 1, 0.86, 0.45
+		end, function()
+			A("meter", "cycleDps")
+		end)
+		action(function()
+			return L("SHOW RUN LOG"), 1, 0.86, 0.45
+		end, function()
+			A("meter", "showLog")
+		end)
+		lookBlock("meter", { edge = true }, function()
+			A("meter", "setRows", 10)
+			A("meter", "setWidth", 360)
+			A("meter", "setTitle", true)
+			A("meter", "setTimer", true)
+			A("meter", "setKills", true)
+		end)
+	else
+		section(L("DPS-METER"))
+		noteText(L("AegisMeter is not loaded."))
 	end
+
+	-- Page 3: UNITS -------------------------------------------------
+	startTab(3)
+	if api.units then
+		section(L("UNIT FRAMES"))
+		toggle(L("Player card"), function() return A("units", "getPlayer") end, function(v) A("units", "setPlayer", v) end)
+		toggle(L("Target card"), function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
+		toggle(L("Dim target card unless boss / guardian"), function() return A("units", "getTargetFade") end, function(v) A("units", "setTargetFade", v) end)
+		toggle(L("Mob nameplates"), function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
+		stepper(L("Card spacing"), function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
+			return math.floor(v + 0.5) .. " px"
+		end)
+		lookBlock("units", { edge = false }, function()
+			A("units", "setPlayer", true)
+			A("units", "setTarget", true)
+			A("units", "setTargetFade", true)
+			A("units", "setPlates", true)
+			A("units", "setGap", 110)
+		end)
+	else
+		section(L("UNIT FRAMES"))
+		noteText(L("AegisUnits is not loaded."))
+	end
+
+	-- Page 4: FONTS ---------------------------------------------------
+	startTab(4)
+	section(L("COMBAT NUMBERS"))
 	if api.ct then
 		action(function()
 			local m = A("ct", "getMode")
@@ -731,86 +865,56 @@ local function buildContent()
 		end
 		toggle(L("Aegis font for numbers (after restart)"), function() return A("fonts", "getFont") end, function(v) A("fonts", "setFont", v) end)
 	end
-	local any = false
-	if api.meter then
-		any = true
-		toggle("DPS-Meter", function() return A("meter", "isShown") end, function(v) A("meter", "setShown", v) end)
+	if api.fonts then
+		if not api.ct then
+			toggle(L("Damage numbers over enemies"), function() return A("fonts", "getDamage") end, function(v) A("fonts", "setDamage", v) end)
+		end
+		if A("fonts", "hasHealing") then
+			toggle(L("Healing numbers"), function() return A("fonts", "getHealing") end, function(v) A("fonts", "setHealing", v) end)
+		end
+		toggle(L("Aegis font for numbers (after restart)"), function() return A("fonts", "getFont") end, function(v) A("fonts", "setFont", v) end)
 	end
-	if api.nav then
-		any = true
-		toggle(L("Waypoint arrow + boss HP"), function() return A("nav", "isShown") end, function(v) A("nav", "setShown", v) end)
+	cursor = cursor + 4
+	action(function()
+		return L("RESET DEFAULTS"), 0.80, 0.83, 0.90
+	end, function()
+		if api.fonts then
+			A("fonts", "setDamage", true)
+			if A("fonts", "hasHealing") then
+				A("fonts", "setHealing", true)
+			end
+			A("fonts", "setFont", true)
+		end
+		refreshAllHook()
+	end)
+
+	-- Page 5: CHAT ----------------------------------------------------
+	startTab(5)
+	section(L("CHAT"))
+	if api.chat then
+		toggle(L("Chat reskin (off after /reload)"), function() return A("chat", "isOn") end, function(v) A("chat", "setOn", v) end)
 	end
-	if api.units then
-		any = true
-		toggle(L("Player card"), function() return A("units", "getPlayer") end, function(v) A("units", "setPlayer", v) end)
-		toggle(L("Target card"), function() return A("units", "getTarget") end, function(v) A("units", "setTarget", v) end)
-		toggle(L("Dim target card unless boss / guardian"), function() return A("units", "getTargetFade") end, function(v) A("units", "setTargetFade", v) end)
-		toggle(L("Mob nameplates"), function() return A("units", "getPlates") end, function(v) A("units", "setPlates", v) end)
-	end
-	if api.bars then
-		toggle(L("Custom action bar + XP bar"), function() return A("bars", "getCustom") end, function(v) A("bars", "setCustom", v) end)
-	end
-	if not any then
-		local fs = host:CreateFontString(nil, "OVERLAY")
-		fs:SetFont(FONT_NUM, 11, "")
-		fs:SetTextColor(0.49, 0.51, 0.58)
-		fs:SetPoint("TOPLEFT", host, "TOPLEFT", PAD + 2, -cursor)
-		fs:SetText(L("No modules (AegisMeter, AegisNav, AegisUnits) loaded."))
-	end
-	if api.meter or api.units then
+	lookBlock("chat", { edge = true })
+
+	-- Page 6: MINIMAP -------------------------------------------------
+	startTab(6)
+	section(L("MINIMAP"))
+	if api.map then
+		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
+		toggle(L("Clean minimap (no zoom buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
 		cursor = cursor + 4
-		section(L("SETTINGS"))
-		if api.meter then
-			stepper(L("Meter rows"), function() return A("meter", "getRows") end, function(v) A("meter", "setRows", v) end, 1, 3, 10, function(v)
-				return math.floor(v + 0.5)
-			end)
-			stepper(L("Meter width"), function() return A("meter", "getWidth") end, function(v) A("meter", "setWidth", v) end, 20, 260, 520, function(v)
-				return math.floor(v + 0.5) .. " px"
-			end)
-			toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
-			toggle(L("Run timer"), function() return A("meter", "getTimer") end, function(v) A("meter", "setTimer", v) end)
-			toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
-			stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
-				-- 0 = average over the whole run; the smallest real window is 5 s
-				local cur = A("meter", "getDps") or 10
-				if v > 0 and v < 5 then
-					if cur == 0 then
-						v = 5
-					else
-						v = 0
-					end
-				end
-				A("meter", "setDps", v)
-			end, 5, 0, 120, function(v)
-				if v == 0 then
-					return L("Average")
-				end
-				return v .. " s"
-			end)
-			action(function()
-				local w = A("meter", "getDps") or 10
-				if w == 0 then
-					return L("DPS window: default (click = next)"), 1, 0.86, 0.45
-				end
-				return L("DPS window: ") .. w .. L(" s (click = next)"), 1, 0.86, 0.45
-			end, function()
-				A("meter", "cycleDps")
-			end)
-			action(function()
-				return L("SHOW RUN LOG"), 1, 0.86, 0.45
-			end, function()
-				A("meter", "showLog")
-			end)
-		end
-		if api.units then
-			stepper(L("Card spacing"), function() return A("units", "getGap") end, function(v) A("units", "setGap", v) end, 10, 20, 400, function(v)
-				return math.floor(v + 0.5) .. " px"
-			end)
-		end
+		action(function()
+			return L("RESET DEFAULTS"), 0.80, 0.83, 0.90
+		end, function()
+			A("map", "setClean", false)
+			refreshAllHook()
+		end)
+	else
+		noteText(L("Minimap module is not loaded."))
 	end
 
-	-- Tab 3: SKINS (every registered third-party skin shows up here) -----------
-	startTab(3)
+	-- Page 7: SKINS (every registered third-party skin shows up here) -----------
+	startTab(7)
 	section(L("THIRD-PARTY ADDONS"))
 	local sk = AegisSkin
 	local n = 0
@@ -909,8 +1013,8 @@ local function buildContent()
 	foot:SetText(line)
 
 	local start = 1
-	if AegisDB and AegisDB.tab and tabFrames[AegisDB.tab] then
-		start = AegisDB.tab
+	if AegisDB and AegisDB.tab2 and tabFrames[AegisDB.tab2] then
+		start = AegisDB.tab2
 	end
 	if host and host ~= win and host.SetHeight then
 		host:SetHeight(cursor + 12)
@@ -936,6 +1040,8 @@ local function refreshAll()
 		updaters[i]()
 	end
 end
+
+refreshAllHook = refreshAll
 
 local acc = 0
 win:SetScript("OnUpdate", function()

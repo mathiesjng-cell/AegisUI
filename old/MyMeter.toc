@@ -1,0 +1,3 @@
+## Interface: 11200
+## Title: MyMeter (ALT - Ordner loeschen)
+## Notes: Ersetzt durch AegisMeter. Dieser Ordner kann geloescht werden.

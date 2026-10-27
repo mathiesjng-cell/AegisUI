@@ -1,0 +1,3 @@
+## Interface: 11200
+## Title: MyUI (ALT - Ordner loeschen)
+## Notes: Ersetzt durch AegisUI. Dieser Ordner kann geloescht werden.

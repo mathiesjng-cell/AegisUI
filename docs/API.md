@@ -186,10 +186,11 @@ Restyles other addons without copying their code.
 |---|---|
 | `px()` | size of one physical pixel in UI units |
 | `RegisterSkin(addonName, label, skinFn, defaultState)` | skin applied once the addon is loaded (pcall, errors go to chat) |
-| `GetLook()` → `bg, edge, outer` | appearance settings: background %, border %, outline on/off |
-| `SetLook(key, value)` / `ResetLook()` | change (`bg`, `edge`, `outer`) or reset; panels follow live |
-| `TrackPanel(frame, bgRGB, edgeRGB, outlineTextures)` / `RefreshLook()` | let a panel follow the appearance settings |
-| `ApplyPanel(frame)` / `ApplySolid(frame)` | panel backdrop and border; `ApplySolid` uses the neutral `solid` colour |
+| `GetLook(module)` → `bg, edge, outer, solid, bgPreset, edgePreset` | appearance of one module (`core`, `meter`, `units`, `chat`); falls back to the global `AegisDB.look` |
+| `SetLook(key, value, module)` / `ResetLook(module)` | change (`bg`, `edge`, `outer`, `solid`, `bgp`, `edgep`) or reset; panels follow live |
+| `TrackPanel(frame, bgRGB, edgeRGB, outlineTextures, module, noEdge)` / `RefreshLook()` | let a panel follow the module's appearance settings (`noEdge` leaves the border colour alone) |
+| `EDGE_PRESETS` / `BG_PRESETS` | colour presets `{name, r, g, b}`; index 1 keeps the panel's own colour |
+| `ApplyPanel(frame)` / `ApplySolid(frame, module)` | panel backdrop and border; `ApplySolid` uses the neutral `solid` colour |
 | `OuterBlack(frame)` | 1 px black outline outside the edge |
 | `ApplyRow(frame)` | darker bordered row or button |
 | `SkinIcon(texture)` | crop and frame an icon |
@@ -231,7 +232,8 @@ Usage: `local L = AegisL.t`; source strings are English, German values live in `
 | `pixel` | pixel-perfect borders |
 | `square` | square minimap |
 | `chat` | `false` = chat reskin off |
-| `tab` | last open hub tab |
+| `tab2` | last open hub page |
+| `looks` | per-module appearance `{ [module] = { bg, edge, outer, solid, bgp, edgep } }` |
 | `hub` | `{ point, rel, x, y }` hub window position |
 | `angle`, `free` | minimap button position (angle on the edge, or free `{ x, y }`) |
 | `skins`, `generic` | skin switches per addon |

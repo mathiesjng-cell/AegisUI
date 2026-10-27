@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.6.0] - 2026-10-27
+### Added
+- Hub rebuilt: a flat module list on the left (Core, Meter, Units, Fonts, Chat, Minimap, Skins) and a scrollable control panel on the right with 1 px gold separators between Opacity, Colors and Contrast.
+- Per-module appearance (`AegisDB.looks[module]`): background opacity, border opacity, "force solid dark background" (98 %), border and background colour presets, black outline toggle, and a **Reset Defaults** button on every page. Modules: Core (action bar), Meter, Units (cards, background only), Chat.
+- Nameplates: elite, boss and guardian plates get a small gold crown (built from textures) on the bar's top-left corner; a subtle gold inner glow appears while a boss or guardian is targeted.
+### Changed
+- The old global appearance block is replaced by the per-module look; saved global values still act as the fallback.
+### Not included
+- Header text colour, font size and font choice per module, and the health-bar flash.
+
 ## [5.5.0] - 2026-10-27
 ### Added
 - Appearance settings (hub, LAYOUT tab): background opacity (50-100 %), border opacity, black outline on/off, reset. Chat panel, meter and action bar follow them live (`AegisSkin.GetLook/SetLook/ResetLook/TrackPanel/RefreshLook`).

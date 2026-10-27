@@ -101,6 +101,10 @@ local function newCard(frameName, unit, hasPower)
 		insets = { left = 1, right = 1, top = 1, bottom = 1 } })
 	f:SetBackdropColor(C_PANEL[1], C_PANEL[2], C_PANEL[3], C_PANEL[4])
 	f:SetBackdropBorderColor(C_EDGE[1], C_EDGE[2], C_EDGE[3], C_EDGE[4])
+	if AegisSkin and AegisSkin.TrackPanel then
+		-- background only: the border colour follows the unit's reaction
+		AegisSkin.TrackPanel(f, { C_PANEL[1], C_PANEL[2], C_PANEL[3] }, C_EDGE, nil, "units", true)
+	end
 	f:SetScript("OnClick", function()
 		TargetUnit(unit)
 	end)
@@ -424,22 +428,31 @@ local function stylePlate(p)
 	txt:SetPoint("CENTER", bar, "CENTER", 0, 0)
 	p.my.txt = txt
 
-	-- elite marker: gold caps at both ends of the bar
-	local capL = bar:CreateTexture(nil, "OVERLAY")
-	capL:SetTexture(SOLID)
-	capL:SetVertexColor(0.78, 0.58, 0.22, 1)
-	capL:SetWidth(3)
-	capL:SetPoint("TOPRIGHT", bar, "TOPLEFT", -1, 2)
-	capL:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, -2)
-	capL:Hide()
-	local capR = bar:CreateTexture(nil, "OVERLAY")
-	capR:SetTexture(SOLID)
-	capR:SetVertexColor(0.78, 0.58, 0.22, 1)
-	capR:SetWidth(3)
-	capR:SetPoint("TOPLEFT", bar, "TOPRIGHT", 1, 2)
-	capR:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", 1, -2)
-	capR:Hide()
-	p.my.capL, p.my.capR = capL, capR
+	-- elite / boss / guardian marker: small gold crown (textures only) on the bar's top-left corner
+	local crown = {}
+	local function piece(x, y, w, h)
+		local t = bar:CreateTexture(nil, "OVERLAY")
+		t:SetTexture(SOLID)
+		t:SetVertexColor(1, 0.82, 0.30, 1)
+		t:SetWidth(w)
+		t:SetHeight(h)
+		t:SetPoint("BOTTOMLEFT", bar, "TOPLEFT", 2 + x, 1 + y)
+		t:Hide()
+		crown[table.getn(crown) + 1] = t
+	end
+	piece(0, 0, 11, 2)    -- band
+	piece(0, 2, 3, 3)     -- left point
+	piece(4, 2, 3, 5)     -- middle point
+	piece(8, 2, 3, 3)     -- right point
+	p.my.crown = crown
+	-- inner gold glow, only used while a boss / guardian is targeted
+	local inner = bar:CreateTexture(nil, "ARTWORK")
+	inner:SetTexture(SOLID)
+	inner:SetVertexColor(1, 0.82, 0.30, 0.16)
+	inner:SetPoint("TOPLEFT", bar, "TOPLEFT", 1, -1)
+	inner:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", -1, 1)
+	inner:Hide()
+	p.my.inner = inner
 end
 
 local function refreshPlate(p)
@@ -459,7 +472,7 @@ local function refreshPlate(p)
 		end
 	end
 	if m.levelicon then
-		m.levelicon:SetAlpha(0)       -- stock dragon icon replaced by the gold caps
+		m.levelicon:SetAlpha(0)       -- stock dragon icon replaced by the crown
 	end
 	if isTarget then
 		bar:SetWidth(124)
@@ -468,12 +481,23 @@ local function refreshPlate(p)
 		bar:SetWidth(112)
 		bar:SetHeight(11)
 	end
-	if elite then
-		m.capL:Show()
-		m.capR:Show()
+	local special = false
+	if isTarget and AZS_UnitKind then
+		local k2 = AZS_UnitKind("target")
+		special = (k2 == "final" or k2 == "boss" or k2 == "guardian")
+	end
+	local ci
+	for ci = 1, table.getn(m.crown) do
+		if elite then
+			m.crown[ci]:Show()
+		else
+			m.crown[ci]:Hide()
+		end
+	end
+	if special then
+		m.inner:Show()
 	else
-		m.capL:Hide()
-		m.capR:Hide()
+		m.inner:Hide()
 	end
 	m.name:ClearAllPoints()
 	m.name:SetPoint("BOTTOM", bar, "TOP", 0, 2)
@@ -711,7 +735,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.5.0",
+		version = "5.6.0",
 		getPlayer = function()
 			return U.player
 		end,

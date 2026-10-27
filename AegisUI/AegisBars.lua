@@ -204,7 +204,7 @@ local function buildBar()
 	bf:SetClampedToScreen(true)
 	if AegisSkin and AegisSkin.ApplyPanel then
 		if AegisSkin.ApplySolid then
-			AegisSkin.ApplySolid(bf)
+			AegisSkin.ApplySolid(bf, "core")
 			AegisSkin.OuterBlack(bf)
 		else
 			AegisSkin.ApplyPanel(bf)

@@ -30,7 +30,7 @@ local function build()
 	panel:EnableMouse(false)
 	panel:SetPoint("TOPLEFT", cf, "TOPLEFT", -4, 4)
 	panel:SetPoint("BOTTOMRIGHT", cf, "BOTTOMRIGHT", 4, -4)
-	AegisSkin.ApplySolid(panel)
+	AegisSkin.ApplySolid(panel, "chat")
 	AegisSkin.OuterBlack(panel)
 	AegisSkin.GoldLine(panel)
 
