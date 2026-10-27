@@ -1,3 +1,0 @@
-## Interface: 11200
-## Title: MyNav (ALT - Ordner loeschen)
-## Notes: Ersetzt durch AegisNav. Dieser Ordner kann geloescht werden.
