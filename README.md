@@ -21,8 +21,7 @@ The pack speaks **English and German**. By default it follows the game client (G
 
 ## Commands
 
-`/aegis`, `/aegis lock|unlock|reset`, `/aegis meter|nav|units [command]`, `/aegis chat`, `/aegis profile`, `/aegis lang en|de|auto`.
-The full names `/aegismeter`, `/aegisnav` and `/aegisunits` work as well.
+All commands start with `/aegis`; the full list is at the bottom of this page.
 
 ## Design
 
@@ -102,3 +101,56 @@ AegisUI is a fan project for **Azeroth Survivors** (a fan game by Aethus) and is
 | **SurvivorUI** (the game's default UI) | Azeroth Survivors team | Not included. AegisUI can switch off parts of it and replaces them with its own modules. |
 
 If you are the author of one of these projects and want a different credit or removal, please open an issue.
+
+## Commands (full reference)
+
+Every module has its own full command; `/aegis meter|nav|units <command>` forwards to it, so `/aegis meter log` and `/aegismeter log` do the same.
+
+### `/aegis` (hub and general)
+
+| Command | Description |
+|---|---|
+| `/aegis` | Open or close the hub window. |
+| `/aegis lock` | Lock all windows in place. |
+| `/aegis unlock` | Unlock: gold fields appear, drag windows, they snap to the grid on release. |
+| `/aegis reset` | Reset all window positions. |
+| `/aegis meter\|nav\|units [command]` | Forward a command to that module (without a command it toggles the module window). |
+| `/aegis chat` | Switch the chat reskin on or off (off takes effect after `/reload`). |
+| `/aegis profile` | Open the profile window: export or import all settings as text. |
+| `/aegis lang en\|de\|auto` | Set the language (English, German, or follow the game client); then `/reload`. |
+| `/aegis bars` | Debug: state of the custom action bar. |
+| `/aegis who` | Debug: shows the name of the frame under the mouse; run it again to stop. |
+
+### `/aegismeter` (DPS meter)
+
+| Command | Description |
+|---|---|
+| `/aegismeter` | Show or hide the meter. |
+| `/aegismeter reset` | Reset the current view (the game's own meter keeps its numbers). |
+| `/aegismeter dps avg\|10\|60\|120` | DPS window: whole-run average or the last N seconds (5–120 s possible). Without a value it prints the current window. |
+| `/aegismeter log [seconds]` | Show the run log of the current run; optional interval length in seconds (minimum 5, default 10). |
+| `/aegismeter debug` | Print what the game hands to the meter (run it twice in combat, a few seconds apart). |
+| `/aegismeter inspect` | Dump the game's data tables (bosses, guardians, lairs, run) into a copy window. |
+| `/aegismeter globals [filter]` | List the game's `AZS_*` API functions, or everything matching the filter. |
+
+### `/aegisnav` (waypoint arrow, boss HP bar)
+
+| Command | Description |
+|---|---|
+| `/aegisnav` | Show or hide the arrow. |
+| `/aegisnav next` | Switch to the next target manually. |
+| `/aegisnav auto` | Back to automatic target choice (fighting guardian, chest, guardian, lair). |
+| `/aegisnav aspect <n>` | Map aspect ratio used for the direction. |
+| `/aegisnav yards <n>` | Map width in yards (only for the distance display when no world coordinates exist). |
+| `/aegisnav hud <name> on\|off` | Show or hide one of the game's own HUD parts (for example the original boss bar). |
+| `/aegisnav info` | Debug: list all targets with coordinates and state. |
+
+### `/aegisunits` (player/target cards, nameplates)
+
+| Command | Description |
+|---|---|
+| `/aegisunits player on\|off` | Player card on or off. |
+| `/aegisunits target on\|off` | Target card on or off. |
+| `/aegisunits gap <pixels>` | Distance of the two cards from the screen centre (default 110). |
+| `/aegisunits plates on\|off` | Nameplate bars on or off (fully active after `/reload`). |
+| `/aegisunits stock on\|off` | Show or hide the game's default player and target frames. |
