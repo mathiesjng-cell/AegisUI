@@ -187,13 +187,25 @@ end
 
 -- first start: chat pinned bottom-left; the LuckyOdds window docks to the chat's right edge
 -- (only while neither has a saved position of its own)
+-- the input line moves above the chat so the chat itself can sit flush in the screen corner
+local function placeEdit()
+	local eb = ChatFrameEditBox
+	local cf = ChatFrame1
+	if not eb or not cf then
+		return
+	end
+	eb:ClearAllPoints()
+	eb:SetPoint("BOTTOMLEFT", cf, "TOPLEFT", 0, 26)
+	eb:SetPoint("BOTTOMRIGHT", cf, "TOPRIGHT", 0, 26)
+end
+
 local function placeDefaults()
 	local cf = ChatFrame1
 	AegisDB = AegisDB or {}
 	if cf and not AegisDB.chatPlaced then
 		AegisDB.chatPlaced = true
 		cf:ClearAllPoints()
-		cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 32)
+		cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 2)
 		if FCF_SavePositionAndDimensions then
 			pcall(FCF_SavePositionAndDimensions, cf)
 		end
@@ -217,13 +229,14 @@ local function resetChat()
 		applyChatSize()
 	end
 	cf:ClearAllPoints()
-	cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 32)
+	cf:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2, 2)
 	if FCF_SavePositionAndDimensions then
 		pcall(FCF_SavePositionAndDimensions, cf)
 	end
 	if type(LuckyOddsDB) == "table" then
 		LuckyOddsDB.point, LuckyOddsDB.rel, LuckyOddsDB.x, LuckyOddsDB.y = nil, nil, nil, nil
 	end
+	pcall(placeEdit)
 	local lf = getglobal("LuckyOddsFrame")
 	if lf then
 		lf:ClearAllPoints()
@@ -418,6 +431,7 @@ sizeF:SetScript("OnUpdate", function()
 			sizeT = nil
 			applyChatSize()
 			pcall(placeDefaults)
+			pcall(placeEdit)
 		end
 	end
 end)
@@ -429,6 +443,24 @@ local function hubHook()
 	AegisUI.hooked_chat = true
 	AegisUI.resetHooks = AegisUI.resetHooks or {}
 	AegisUI.resetHooks[table.getn(AegisUI.resetHooks) + 1] = resetChat
+	-- the chat can be moved like the other windows (gold overlay while unlocked)
+	if ChatFrame1 then
+		ChatFrame1:SetMovable(true)
+		ChatFrame1:SetClampedToScreen(true)
+		ChatFrame1:SetScript("OnDragStart", function()
+			if AegisUI.locked then
+				return
+			end
+			this:StartMoving()
+		end)
+		ChatFrame1:SetScript("OnDragStop", function()
+			this:StopMovingOrSizing()
+			if FCF_SavePositionAndDimensions then
+				pcall(FCF_SavePositionAndDimensions, this)
+			end
+		end)
+		AegisUI.register("chat", "Chat", ChatFrame1, function() end)
+	end
 	AegisUI.api.chat = {
 		debugTabs = debugTabs,
 		getW = function()

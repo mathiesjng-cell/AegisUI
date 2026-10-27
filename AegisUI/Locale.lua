@@ -202,4 +202,5 @@ AegisL.add({
 	["Fade trash while a boss is up"] = "Trash ausblenden, solange ein Boss aktiv ist",
 	["Timer widget"] = "Timer-Widget",
 	["Original skill / jewelry rows"] = "Original Skill-/Schmuck-Reihen",
+	["Chat"] = "Chat",
 })

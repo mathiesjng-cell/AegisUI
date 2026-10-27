@@ -722,7 +722,7 @@ local function buildContent()
 	if UI.getScale then
 		cursor = cursor + 4
 		section(L("WINDOW SIZE"))
-		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "timer", "Timer widget" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
+		local keys = { { "meter", "DPS-Meter" }, { "player", "Player card" }, { "target", "Target card" }, { "nav", "Arrow / boss HP" }, { "timer", "Timer widget" }, { "chat", "Chat" }, { "bar", "Action bar" }, { "luck", "Luck window (LuckyOdds)" } }
 		local ki
 		for ki = 1, table.getn(keys) do
 			local key = keys[ki][1]
