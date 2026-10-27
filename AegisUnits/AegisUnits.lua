@@ -236,6 +236,23 @@ local function newCard(frameName, unit, hasPower)
 			end
 		end
 
+		if unit ~= "player" then
+			-- edge colour by reaction: hostile red, neutral yellow, friendly green
+			local r, g, b = C_EDGE[1], C_EDGE[2], C_EDGE[3]
+			if UnitExists(unit) then
+				if UnitIsDead(unit) then
+					r, g, b = 0.3, 0.3, 0.33
+				elseif UnitIsEnemy("player", unit) then
+					r, g, b = 0.62, 0.16, 0.2
+				elseif UnitIsFriend("player", unit) then
+					r, g, b = 0.18, 0.5, 0.3
+				else
+					r, g, b = 0.72, 0.6, 0.2
+				end
+			end
+			f:SetBackdropBorderColor(r, g, b, 1)
+		end
+
 		local nm = UnitName(unit) or ""
 		nameFs:SetText(nm)
 		local lv = UnitLevel(unit)
@@ -380,6 +397,23 @@ local function stylePlate(p)
 	txt:SetFont(FONT_NUM, 9, "OUTLINE")
 	txt:SetPoint("CENTER", bar, "CENTER", 0, 0)
 	p.my.txt = txt
+
+	-- elite marker: gold caps at both ends of the bar
+	local capL = bar:CreateTexture(nil, "OVERLAY")
+	capL:SetTexture(SOLID)
+	capL:SetVertexColor(0.78, 0.58, 0.22, 1)
+	capL:SetWidth(3)
+	capL:SetPoint("TOPRIGHT", bar, "TOPLEFT", -1, 2)
+	capL:SetPoint("BOTTOMRIGHT", bar, "BOTTOMLEFT", -1, -2)
+	capL:Hide()
+	local capR = bar:CreateTexture(nil, "OVERLAY")
+	capR:SetTexture(SOLID)
+	capR:SetVertexColor(0.78, 0.58, 0.22, 1)
+	capR:SetWidth(3)
+	capR:SetPoint("TOPLEFT", bar, "TOPRIGHT", 1, 2)
+	capR:SetPoint("BOTTOMLEFT", bar, "BOTTOMRIGHT", 1, -2)
+	capR:Hide()
+	p.my.capL, p.my.capR = capL, capR
 end
 
 local function refreshPlate(p)
@@ -390,8 +424,25 @@ local function refreshPlate(p)
 	local bar = m.bar
 	bar:ClearAllPoints()
 	bar:SetPoint("TOP", p, "TOP", 0, -15)
-	bar:SetWidth(112)
-	bar:SetHeight(11)
+	local isTarget = UnitExists("target") and p:GetAlpha() >= 0.99
+	local elite = m.levelicon and m.levelicon:IsShown()
+	if m.levelicon then
+		m.levelicon:SetAlpha(0)       -- stock dragon icon replaced by the gold caps
+	end
+	if isTarget then
+		bar:SetWidth(124)
+		bar:SetHeight(13)
+	else
+		bar:SetWidth(112)
+		bar:SetHeight(11)
+	end
+	if elite then
+		m.capL:Show()
+		m.capR:Show()
+	else
+		m.capL:Hide()
+		m.capR:Hide()
+	end
 	m.name:ClearAllPoints()
 	m.name:SetPoint("BOTTOM", bar, "TOP", 0, 2)
 	m.level:ClearAllPoints()
@@ -406,8 +457,10 @@ local function refreshPlate(p)
 		m.txt:SetText(math.floor(v / mx * 100 + 0.5) .. "%")
 	end
 	-- the targeted plate is fully opaque; give it the gold edge
-	if UnitExists("target") and p:GetAlpha() >= 0.99 then
-		bar:SetBackdropBorderColor(0.78, 0.58, 0.22, 1)
+	if isTarget then
+		bar:SetBackdropBorderColor(1, 0.86, 0.45, 1)
+	elseif elite then
+		bar:SetBackdropBorderColor(0.55, 0.42, 0.18, 1)
 	else
 		bar:SetBackdropBorderColor(0.14, 0.16, 0.22, 1)
 	end
@@ -611,7 +664,7 @@ local function hubHook()
 	AegisUI.register("player", "Player card", pf, resetCards)
 	AegisUI.register("target", "Target card", tf, nil)
 	AegisUI.api.units = {
-		version = "5.4.0",
+		version = "5.4.3",
 		getPlayer = function()
 			return U.player
 		end,

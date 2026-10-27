@@ -3,6 +3,19 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.4.3] - 2026-10-27
+### Added
+- Bounds check for all registered windows (after login, resolution/scale changes and after dragging); `/aegis fix` runs it by hand.
+
+## [5.4.2] - 2026-10-27
+### Added
+- Meter layout settings: number of rows (3-10), width (260-520 px), title on/off, kill counter (counts "dies" messages of the combat log).
+
+## [5.4.1] - 2026-10-27
+### Added
+- Target card edge colour by reaction (hostile / neutral / friendly / dead).
+- Nameplates: gold caps for elite enemies, larger plate with a bright edge for the target.
+
 ## [5.4.0] - 2026-10-27
 ### Added
 - `AegisCT`: own floating combat numbers (Off / Crits only / All hits, three sizes, test numbers via `/aegis cttest`). Hits are summed per target for 0.3 s, shown above the enemy nameplate; crits gold and bigger; damage taken in red over the character.

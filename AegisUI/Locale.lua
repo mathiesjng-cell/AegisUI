@@ -32,6 +32,12 @@ if not AegisL then
 end
 
 AegisL.add({
+	["Moved back on screen: "] = "Zurück auf den Bildschirm geholt: ",
+	["All windows are on screen."] = "Alle Fenster sind auf dem Bildschirm.",
+	["Meter rows"] = "Meter-Zeilen",
+	["Meter width"] = "Meter-Breite",
+	["Meter title"] = "Meter-Titel",
+	["Kill counter"] = "Kill-Zähler",
 	["Off"] = "Aus",
 	["Crits only"] = "Nur Crits",
 	["All hits"] = "Alle Treffer",

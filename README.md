@@ -1,6 +1,6 @@
 # AegisUI
 
-[![Version](https://img.shields.io/badge/version-5.4.0-c8942e)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.4.3-c8942e)](CHANGELOG.md)
 ![Interface](https://img.shields.io/badge/interface-11200-555)
 ![Lua](https://img.shields.io/badge/Lua-5.0-2c2d72)
 ![Game](https://img.shields.io/badge/Azeroth%20Survivors-WoW%201.12-0a0d14)
@@ -127,6 +127,7 @@ Every module has its own full command; `/aegis meter|nav|units <command>` forwar
 | `/aegis cttest` | Show test numbers (white, gold crit, red damage taken). |
 | `/aegis ct` | Debug: combat-text CVars and globals. |
 | `/aegis ct2` | Debug: 15 s capture of combat events and nameplate frames, result in a copyable window. |
+| `/aegis fix` | Move windows that ended up off screen back onto it. |
 | `/aegis bars` | Debug: state of the custom action bar. |
 | `/aegis who` | Debug: shows the name of the frame under the mouse; run it again to stop. |
 

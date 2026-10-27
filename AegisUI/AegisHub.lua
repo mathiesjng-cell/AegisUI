@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.4.0"
+local VERSION = "5.4.3"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -691,6 +691,14 @@ local function buildContent()
 		cursor = cursor + 4
 		section(L("SETTINGS"))
 		if api.meter then
+			stepper(L("Meter rows"), function() return A("meter", "getRows") end, function(v) A("meter", "setRows", v) end, 1, 3, 10, function(v)
+				return math.floor(v + 0.5)
+			end)
+			stepper(L("Meter width"), function() return A("meter", "getWidth") end, function(v) A("meter", "setWidth", v) end, 20, 260, 520, function(v)
+				return math.floor(v + 0.5) .. " px"
+			end)
+			toggle(L("Meter title"), function() return A("meter", "getTitle") end, function(v) A("meter", "setTitle", v) end)
+			toggle(L("Kill counter"), function() return A("meter", "getKills") end, function(v) A("meter", "setKills", v) end)
 			stepper(L("DPS time window"), function() return A("meter", "getDps") end, function(v)
 				-- 0 = average over the whole run; the smallest real window is 5 s
 				local cur = A("meter", "getDps") or 10
@@ -1071,6 +1079,8 @@ SlashCmdList["AEGIS"] = function(msg)
 		end
 	elseif cmd == "ct" then
 		combatTextDiag()
+	elseif cmd == "fix" then
+		UI.sanitizeAll()
 	elseif cmd == "cttest" then
 		A("ct", "test")
 	elseif cmd == "ct2" then

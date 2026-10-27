@@ -82,6 +82,8 @@ local histories = {}
 -- Hits and crits per spell, counted from the combat log (English client text).
 local hitStats = {}
 local lastRunSeen = 0
+local kills = 0
+local maxRows = 10
 
 local function say(text)
 	if DEFAULT_CHAT_FRAME then
@@ -488,6 +490,7 @@ local function doReset()
 	histories[mode] = nil
 	if mode == "damage" then
 		hitStats = {}
+		kills = 0
 	end
 	say("Reset (" .. (MODE_TITLE[mode] or mode) .. L("). The built-in meter keeps its numbers."))
 end
@@ -1060,13 +1063,26 @@ end
 local shownRows = -1
 
 refresh = function()
-	titleText:SetText(MODE_TITLE[mode] or "OVERALL DAMAGE")
+	do
+		local t = MODE_TITLE[mode] or "OVERALL DAMAGE"
+		if AegisMeterDB and AegisMeterDB.noTitle then
+			t = ""
+		end
+		if not (AegisMeterDB and AegisMeterDB.noKills) then
+			if t ~= "" then
+				t = t .. "  "
+			end
+			t = t .. "|cff7d8294" .. kills .. " " .. L("kills") .. "|r"
+		end
+		titleText:SetText(t)
+	end
 	modeLabel:SetText(MODE_BTN[mode] or "DPS")
 	timeText:SetText(fmtTime(runTime()))
 	-- a new run rewinds the game's clock: forget the old hit counts
 	local nowRun = runTime()
 	if nowRun + 1 < lastRunSeen then
 		hitStats = {}
+		kills = 0
 	end
 	lastRunSeen = nowRun
 	local tw = timeText:GetStringWidth() or 40
@@ -1141,8 +1157,8 @@ refresh = function()
 	avgText:SetText("|cff7d8294" .. rateLabel .. "|r |cffffc533" .. fmtAvg(shownRate) .. "|r")
 
 	local count = table.getn(list)
-	if count > ROWS then
-		count = ROWS
+	if count > maxRows then
+		count = maxRows
 	end
 
 	if count == 0 then
@@ -1166,6 +1182,30 @@ refresh = function()
 	end
 
 	fillRows(list, sum, count)
+end
+
+-- layout settings: number of rows and width
+local function applyLayout()
+	local d = AegisMeterDB or {}
+	maxRows = math.floor(d.rows or 10)
+	if maxRows < 3 then
+		maxRows = 3
+	elseif maxRows > ROWS then
+		maxRows = ROWS
+	end
+	WIDTH = math.floor(d.width or 360)
+	if WIDTH < 260 then
+		WIDTH = 260
+	elseif WIDTH > 520 then
+		WIDTH = 520
+	end
+	frame:SetWidth(WIDTH)
+	local k
+	for k = 1, ROWS do
+		rows[k]:SetWidth(WIDTH - PAD * 2)
+	end
+	shownRows = -1
+	refresh()
 end
 
 local acc = 0
@@ -1199,12 +1239,19 @@ loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 loader:RegisterEvent("SPELLS_CHANGED")
 loader:RegisterEvent("CHARACTER_POINTS_CHANGED")
 loader:RegisterEvent("UNIT_INVENTORY_CHANGED")
+loader:RegisterEvent("CHAT_MSG_COMBAT_HOSTILE_DEATH")
 loader:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
 loader:RegisterEvent("CHAT_MSG_COMBAT_SELF_HITS")
 loader:RegisterEvent("CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF")
 loader:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE")
 loader:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE")
 loader:SetScript("OnEvent", function()
+	if event == "CHAT_MSG_COMBAT_HOSTILE_DEATH" then
+		if arg1 and string.find(arg1, " dies%.$") then
+			kills = kills + 1
+		end
+		return
+	end
 	if string.find(event, "^CHAT_MSG") then
 		noteHit(arg1)
 		return
@@ -1217,7 +1264,7 @@ loader:SetScript("OnEvent", function()
 		return
 	end
 	AegisMeterDB = AegisMeterDB or {}
-	say("v5.4.0 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
+	say("v5.4.3 " .. L("loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."))
 	if AegisMeterDB.point then
 		frame:ClearAllPoints()
 		frame:SetPoint(AegisMeterDB.point, UIParent, AegisMeterDB.rel or AegisMeterDB.point, AegisMeterDB.x or 0, AegisMeterDB.y or 0)
@@ -1228,6 +1275,7 @@ loader:SetScript("OnEvent", function()
 	if AegisMeterDB.hidden then
 		frame:Hide()
 	end
+	applyLayout()
 end)
 
 -- Text window with a selectable box (the 1.12 client has no clipboard API: Ctrl+C copies the selection)
@@ -1602,7 +1650,7 @@ local function hubHook()
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end)
 	AegisUI.api.meter = {
-		version = "5.4.0",
+		version = "5.4.3",
 		isShown = function()
 			return frame:IsShown()
 		end,
@@ -1616,6 +1664,38 @@ local function hubHook()
 			AegisMeterDB.hidden = not on
 		end,
 		cycleDps = cycleDps,
+		getRows = function()
+			return maxRows
+		end,
+		setRows = function(n)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.rows = n
+			applyLayout()
+		end,
+		getWidth = function()
+			return WIDTH
+		end,
+		setWidth = function(n)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.width = n
+			applyLayout()
+		end,
+		getTitle = function()
+			return not (AegisMeterDB and AegisMeterDB.noTitle)
+		end,
+		setTitle = function(on)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.noTitle = (not on) or nil
+			refresh()
+		end,
+		getKills = function()
+			return not (AegisMeterDB and AegisMeterDB.noKills)
+		end,
+		setKills = function(on)
+			AegisMeterDB = AegisMeterDB or {}
+			AegisMeterDB.noKills = (not on) or nil
+			refresh()
+		end,
 		showLog = function()
 			showDump(logReport(runLog.step))
 		end,

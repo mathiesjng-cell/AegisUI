@@ -72,8 +72,61 @@ local function pullTo(mine, lines, limit)
 	return best
 end
 
+-- Bounds: keep a frame's centre on the screen (after a resolution/scale change or a bad
+-- saved position a window could end up unreachable). Returns true when it was moved.
+function UI.clampFrame(f)
+	local l, r, b, t = f:GetLeft(), f:GetRight(), f:GetBottom(), f:GetTop()
+	if not l or not r or not b or not t then
+		return false
+	end
+	local us, fs = UIParent:GetEffectiveScale(), f:GetEffectiveScale()
+	local k = 1
+	if us and fs and us > 0 then
+		k = fs / us
+	end
+	local sw, sh = UIParent:GetWidth(), UIParent:GetHeight()
+	local L0, R0, B0, T0 = l * k, r * k, b * k, t * k
+	local cx, cy = (L0 + R0) / 2, (B0 + T0) / 2
+	local dx, dy = 0, 0
+	if cx < 10 then
+		dx = 10 - cx
+	elseif cx > sw - 10 then
+		dx = (sw - 10) - cx
+	end
+	if cy < 10 then
+		dy = 10 - cy
+	elseif cy > sh - 10 then
+		dy = (sh - 10) - cy
+	end
+	if dx == 0 and dy == 0 then
+		return false
+	end
+	f:ClearAllPoints()
+	f:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", (L0 + dx) / k, (B0 + dy) / k)
+	return true
+end
+
+function UI.sanitizeAll(quiet)
+	local n = 0
+	local i
+	for i = 1, table.getn(UI.list) do
+		if UI.clampFrame(UI.list[i].frame) then
+			n = n + 1
+		end
+	end
+	if not quiet then
+		if n > 0 then
+			say(L("Moved back on screen: ") .. n)
+		else
+			say(L("All windows are on screen."))
+		end
+	end
+	return n
+end
+
 function UI.snapFrame(f)
 	if not UI.snap then
+		UI.clampFrame(f)
 		return
 	end
 	local l, r, b, t = f:GetLeft(), f:GetRight(), f:GetBottom(), f:GetTop()
@@ -96,6 +149,7 @@ function UI.snapFrame(f)
 		f:ClearAllPoints()
 		f:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", l + dx, b + dy)
 	end
+	UI.clampFrame(f)
 end
 
 -- Lock / unlock overlays ----------------------------------------------
@@ -201,8 +255,16 @@ end
 
 local core = CreateFrame("Frame")
 core:RegisterEvent("ADDON_LOADED")
+core:RegisterEvent("PLAYER_ENTERING_WORLD")
+core:RegisterEvent("DISPLAY_SIZE_CHANGED")
+core:RegisterEvent("UI_SCALE_CHANGED")
 core.acc = 0
+core.fix = 0
 core:SetScript("OnEvent", function()
+	if event == "PLAYER_ENTERING_WORLD" or event == "DISPLAY_SIZE_CHANGED" or event == "UI_SCALE_CHANGED" then
+		core.fix = 2          -- let every module place its frame first, then check bounds
+		return
+	end
 	if arg1 ~= "AegisUI" then
 		return
 	end
@@ -220,6 +282,13 @@ core:SetScript("OnEvent", function()
 end)
 -- frames can appear/disappear while unlocked (e.g. the target card): keep the overlays in step
 core:SetScript("OnUpdate", function()
+	if core.fix > 0 then
+		core.fix = core.fix - (arg1 or 0)
+		if core.fix <= 0 then
+			core.fix = 0
+			UI.sanitizeAll(true)
+		end
+	end
 	core.acc = core.acc + (arg1 or 0)
 	if core.acc < 0.5 then
 		return

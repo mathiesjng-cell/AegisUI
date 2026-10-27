@@ -61,6 +61,7 @@ AegisL.add({
 	["built-in meter visible: "] = "eingebauter Meter sichtbar: ",
 	["line1: "] = "zeile1: ",
 	["loaded. /aegismeter for commands; settings via /aegis if AegisUI is installed."] = "geladen. /aegismeter fuer Befehle; Einstellungen ueber /aegis, falls AegisUI installiert ist.",
+	["kills"] = "Kills",
 	["no reset"] = "ohne reset",
 	["reset active"] = "reset aktiv",
 	["s  display total "] = "s  anzeige total ",
