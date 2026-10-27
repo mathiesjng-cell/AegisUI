@@ -895,12 +895,20 @@ for i = 1, ROWS do
 	bar:SetWidth(1)
 	row.bar = bar
 
+	-- dark plate behind the rank number so it reads on every bar colour
+	local plate = row:CreateTexture(nil, "ARTWORK")
+	plate:SetTexture(SOLID)
+	plate:SetVertexColor(0, 0, 0, 0.62)
+	plate:SetWidth(17)
+	plate:SetPoint("TOPLEFT", row, "TOPLEFT", 1, -1)
+	plate:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 1, 1)
+
 	local rank = row:CreateFontString(nil, "OVERLAY")
 	rank:SetFont(FONT_NUM, 11, "")
-	rank:SetPoint("LEFT", row, "LEFT", 6, 0)
+	rank:SetPoint("LEFT", row, "LEFT", 3, 0)
 	rank:SetWidth(14)
-	rank:SetJustifyH("LEFT")
-	rank:SetTextColor(0.52, 0.55, 0.64)
+	rank:SetJustifyH("CENTER")
+	rank:SetTextColor(0.88, 0.90, 0.95)
 	row.rank = rank
 
 	local badge = row:CreateTexture(nil, "ARTWORK")
