@@ -1424,7 +1424,7 @@ SlashCmdList["AEGIS"] = function(msg)
 			DEFAULT_CHAT_FRAME:AddMessage("|cffd2a24a" .. txt .. "|r")
 		end
 	elseif cmd == "topleft" then
-		-- every visible frame in the upper-left screen corner (name, type, size, first text / texture)
+		-- every visible frame along the left screen edge (name, type, size, first text / texture)
 		local out = {}
 		local us = UIParent:GetEffectiveScale() or 1
 		local topLimit = (UIParent:GetTop() or 768) * us
@@ -1435,7 +1435,7 @@ SlashCmdList["AEGIS"] = function(msg)
 				local f = kids[i]
 				if f:IsVisible() and f:GetLeft() and f:GetTop() then
 					local fs = f:GetEffectiveScale() or 1
-					if f:GetLeft() * fs < 460 * us and f:GetTop() * fs > topLimit - 360 * us and f:GetWidth() < 700 then
+					if f:GetLeft() * fs < 460 * us and f:GetWidth() < 700 then
 						local line = string.rep("  ", depth) .. (f:GetName() or "(no name)") .. " [" .. f:GetObjectType() .. "] "
 							.. math.floor(f:GetWidth() + 0.5) .. "x" .. math.floor(f:GetHeight() + 0.5) .. " a=" .. string.format("%.2f", f:GetAlpha())
 						local regs = { f:GetRegions() }
