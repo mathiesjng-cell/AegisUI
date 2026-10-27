@@ -3,7 +3,7 @@
 ## Notes: Hub window, minimap button, lock/snap, square minimap and a skin engine for third-party addons (Azeroth Survivors)
 ## SavedVariables: AegisDB
 ## OptionalDeps: LuckyOdds, SurvivorUI
-## Version: 5.7.1
+## Version: 5.7.2
 
 Locale.lua
 AegisCore.lua

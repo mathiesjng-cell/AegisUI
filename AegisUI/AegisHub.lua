@@ -8,7 +8,7 @@ local SOLID = "Interface\\Buttons\\WHITE8X8"
 local FONT = "Fonts\\FRIZQT__.TTF"
 local FONT_NUM = "Fonts\\ARIALN.TTF"
 local ICON = "Interface\\AddOns\\AegisUI\\icon"
-local VERSION = "5.7.1"
+local VERSION = "5.7.2"
 
 local C_PANEL = { 0.04, 0.05, 0.08, 0.96 }
 local C_EDGE = { 0.14, 0.16, 0.22, 1 }
@@ -919,7 +919,7 @@ local function buildContent()
 	section(L("MINIMAP"))
 	if api.map then
 		toggle(L("Square minimap"), function() return A("map", "getSquare") end, function(v) A("map", "setSquare", v) end)
-		toggle(L("Clean minimap (no zoom buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
+		toggle(L("Clean minimap (flat buttons, wheel zooms)"), function() return A("map", "getClean") end, function(v) A("map", "setClean", v) end)
 		cursor = cursor + 4
 		action(function()
 			return L("RESET DEFAULTS"), 0.80, 0.83, 0.90

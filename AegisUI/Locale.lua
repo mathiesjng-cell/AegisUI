@@ -37,7 +37,7 @@ AegisL.add({
 	["Border opacity"] = "Rand-Deckkraft",
 	["Black outline around panels"] = "Schwarzer Außenrand um Panels",
 	["Reset appearance to defaults"] = "Aussehen zurücksetzen",
-	["Clean minimap (no zoom buttons, wheel zooms)"] = "Aufgeräumte Minimap (keine Zoom-Knöpfe, Mausrad zoomt)",
+	["Clean minimap (flat buttons, wheel zooms)"] = "Aufgeräumte Minimap (flache Knöpfe, Mausrad zoomt)",
 	["Dim target card unless boss / guardian"] = "Zielkarte dimmen, außer bei Boss / Guardian",
 	["Run timer"] = "Lauf-Timer",
 	["Target card dimming: "] = "Zielkarte dimmen: ",

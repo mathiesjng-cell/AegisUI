@@ -80,7 +80,7 @@ local function applyClean()
 		return
 	end
 	local on = not (AegisDB and AegisDB.mapClean == false)
-	local names = { "MinimapZoomIn", "MinimapZoomOut" }
+	local names = {}
 	local i
 	for i = 1, table.getn(names) do
 		local b = getglobal(names[i])
@@ -114,7 +114,7 @@ end
 -- edge and sit them on the edge of the square map (same angle as before). Hidden: close X, world map
 -- button, calendar sun, zoom buttons (the wheel zooms).
 local GOLD = { 0.78, 0.58, 0.22 }
-local HIDE_NAMES = { "MinimapToggleButton", "MiniMapWorldMapButton", "GameTimeFrame", "MinimapZoomIn", "MinimapZoomOut" }
+local HIDE_NAMES = { "MinimapToggleButton", "MiniMapWorldMapButton", "GameTimeFrame" }
 local STOCK = { "MiniMapTracking", "MiniMapBattlefieldFrame", "MiniMapMailFrame", "MiniMapMeetingStoneFrame", "MiniMapPing" }
 
 local function isRing(tex)
@@ -125,7 +125,7 @@ local function isRing(tex)
 	return string.find(t, "border", 1, true) or string.find(t, "minimap-background", 1, true) or string.find(t, "ring", 1, true) or string.find(t, "trackingborder", 1, true)
 end
 
-local function flatten(b, half)
+local function flatten(b, half, needRing)
 	if b.aegisFlat or b:GetName() == "AegisHubMinimapButton" or b == Minimap then
 		return
 	end
@@ -133,10 +133,22 @@ local function flatten(b, half)
 	if not w or not h or w < 8 or h < 8 or w > 50 or h > 50 then
 		return
 	end
-	b.aegisFlat = true
 	local icon
 	local regs = { b:GetRegions() }
 	local i
+	if needRing then
+		local has = false
+		for i = 1, table.getn(regs) do
+			local r = regs[i]
+			if r.GetObjectType and r:GetObjectType() == "Texture" and isRing(r:GetTexture()) then
+				has = true
+			end
+		end
+		if not has then
+			return
+		end
+	end
+	b.aegisFlat = true
 	for i = 1, table.getn(regs) do
 		local r = regs[i]
 		if r.GetObjectType and r:GetObjectType() == "Texture" then
@@ -181,6 +193,43 @@ local function flatten(b, half)
 	end
 end
 
+
+-- zoom buttons: small flat squares with + / - in the map's bottom-right corner
+local function flatZoom(name, text, y)
+	local b = getglobal(name)
+	if not b or b.aegisFlat then
+		return
+	end
+	b.aegisFlat = true
+	local regs = { b:GetRegions() }
+	local i
+	for i = 1, table.getn(regs) do
+		if regs[i].Hide then
+			regs[i]:Hide()
+		end
+	end
+	if b.SetNormalTexture then
+		b:SetNormalTexture(nil)
+		b:SetPushedTexture(nil)
+		b:SetDisabledTexture(nil)
+		b:SetHighlightTexture(nil)
+	end
+	b:SetWidth(16)
+	b:SetHeight(16)
+	b:ClearAllPoints()
+	b:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMRIGHT", -4, y)
+	b:SetFrameLevel(Minimap:GetFrameLevel() + 6)
+	b:SetBackdrop({ bgFile = SOLID, edgeFile = SOLID, tile = false, edgeSize = 1,
+		insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+	b:SetBackdropColor(0.04, 0.04, 0.04, 0.9)
+	b:SetBackdropBorderColor(GOLD[1], GOLD[2], GOLD[3], 1)
+	local fs = b:CreateFontString(nil, "OVERLAY")
+	fs:SetFont("Fonts\\ARIALN.TTF", 14, "OUTLINE")
+	fs:SetPoint("CENTER", b, "CENTER", 0, 0)
+	fs:SetText(text)
+	fs:SetTextColor(1, 0.86, 0.45)
+end
+
 local function flattenAll()
 	if not Minimap or not (AegisDB and AegisDB.mapClean ~= false) then
 		return
@@ -206,6 +255,20 @@ local function flattenAll()
 	for j = 1, table.getn(lists) do
 		for i = 1, table.getn(lists[j]) do
 			pcall(flatten, lists[j][i], half)
+		end
+	end
+	pcall(flatZoom, "MinimapZoomIn", "+", 22)
+	pcall(flatZoom, "MinimapZoomOut", "-", 4)
+	-- round buttons that other addons parent to UIParent but park around the map
+	local mL, mB, mR, mT = Minimap:GetLeft(), Minimap:GetBottom(), Minimap:GetRight(), Minimap:GetTop()
+	if mL and mB and mR and mT then
+		local ui = { UIParent:GetChildren() }
+		for i = 1, table.getn(ui) do
+			local o = ui[i]
+			local cx, cy = o:GetCenter()
+			if cx and cy and o ~= Minimap and not o.aegisFlat and cx > mL - 50 and cx < mR + 50 and cy > mB - 50 and cy < mT + 50 then
+				pcall(flatten, o, half, true)
+			end
 		end
 	end
 	for i = 1, table.getn(STOCK) do

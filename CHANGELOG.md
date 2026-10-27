@@ -3,6 +3,11 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/) (PATCH = fixes and polish, MINOR = features, MAJOR = milestones).
 
+## [5.7.2] - 2026-10-27
+### Fixed
+- The zoom buttons are back: small flat +/- squares in the map's bottom-right corner (the wheel still zooms).
+- Round addon buttons parked next to the map (parented to UIParent) are flattened as well.
+
 ## [5.7.1] - 2026-10-27
 ### Changed
 - Clean minimap is now on by default and also restyles the buttons around the map: round gold rings removed, flat square dark frames with a gold edge, buttons moved onto the edge of the square map. Close X, world map button, calendar sun and zoom buttons are hidden (the wheel zooms).
